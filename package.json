@@ -1,0 +1,24 @@
+{
+  "name": "dsc_bot",
+  "module": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun ./src/internal/deploy-command.ts && bun src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "eslint": "^9.31.0",
+    "prisma": "^6.12.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.0",
+    "mariadb": "^3.4.5"
+  }
+}
