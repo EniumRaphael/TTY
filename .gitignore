@@ -11,6 +11,9 @@ dist/
 coverage
 *.lcov
 
+# database
+*.db
+
 # logs
 logs
 _.log
@@ -24,6 +27,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .env.local
 
 # caches
+eslint.config.js
 .eslintcache
 .cache
 *.tsbuildinfo
