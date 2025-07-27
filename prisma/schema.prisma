@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Bot {
+  id Int @id @default(autoincrement())
+
+  buyers User[] @relation("Buyers")
+  owners User[] @relation("Owners")
+}
+
+model User {
+  id      String  @id @map("user_id")
+  isOwner Boolean @default(false)
+  isBuyer Boolean @default(false)
+  isDev   Boolean @default(false)
+  isEnium Boolean @default(false)
+  isPwn   Boolean @default(false)
+
+  botsAsBuyer Bot[] @relation("Buyers")
+  botsAsOwner Bot[] @relation("Owners")
+
+  guildUsers GuildUser[] @relation("UserGuildRelation")
+}
+
+model Guild {
+  id         String  @id @map("guild_id")
+  log        Boolean @default(false)
+  logBot     Boolean @default(false)
+  logChannel Boolean @default(false)
+  logMember  Boolean @default(false)
+  logMod     Boolean @default(false)
+  logMsg     Boolean @default(false)
+  logServer  Boolean @default(false)
+
+  guildUsers GuildUser[] @relation("GuildGuildRelation")
+}
+
+model GuildUser {
+  id Int @id @default(autoincrement())
+
+  userId  String
+  guildId String
+
+  xp       Int     @default(0)
+  level    Int     @default(0)
+  isWlUser Boolean @default(false)
+
+  user  User  @relation("UserGuildRelation", fields: [userId], references: [id])
+  guild Guild @relation("GuildGuildRelation", fields: [guildId], references: [id])
+
+  @@unique([userId, guildId])
+}
