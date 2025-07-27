@@ -1,4 +1,4 @@
-# dsc_bot
+# TTY discord bot
 
 To install dependencies:
 
@@ -6,10 +6,12 @@ To install dependencies:
 bun install
 ```
 
-To run:
-
+To run in developpement bot:
 ```bash
-bun run index.ts
+bun run dev
 ```
 
-This project was created using `bun init` in bun v1.2.18. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+To build to javacript:
+```bash
+bun run build
+```
