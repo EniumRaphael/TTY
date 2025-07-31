@@ -10,12 +10,17 @@ datasource db {
 model Bot {
   id Int @id @default(autoincrement())
 
+  status   String @default("Big Brother")
+  type     String @default("Watching")
+  presence String @default("online")
+
   buyers User[] @relation("Buyers")
   owners User[] @relation("Owners")
 }
 
 model User {
-  id      String  @id @map("user_id")
+  id String @id @map("user_id")
+
   isOwner Boolean @default(false)
   isBuyer Boolean @default(false)
   isDev   Boolean @default(false)
@@ -25,11 +30,13 @@ model User {
   botsAsBuyer Bot[] @relation("Buyers")
   botsAsOwner Bot[] @relation("Owners")
 
-  guildUsers GuildUser[] @relation("UserGuildRelation")
+  WhitelistedGuilds Guild[]     @relation("GuildWhitelist")
+  guildUsers        GuildUser[] @relation("UserGuildRelation")
 }
 
 model Guild {
-  id         String  @id @map("guild_id")
+  id String @id @map("guild_id")
+
   log        Boolean @default(false)
   logBot     Boolean @default(false)
   logChannel Boolean @default(false)
@@ -42,6 +49,7 @@ model Guild {
   color  String @default("#000000")
 
   guildUsers GuildUser[] @relation("GuildGuildRelation")
+  WlUsers    User[]      @relation("GuildWhitelist")
 }
 
 model GuildUser {
