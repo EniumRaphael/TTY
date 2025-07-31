@@ -1,5 +1,15 @@
 import { prisma } from '../../lib/prisma.ts';
 import { userMention, roleMention, MessageFlags, SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import emoji from '../../../assets/emoji.json' assert { type: "json" };
+
+function getGuildRoles(guild: Guild): string {
+	const roles = guild.roles.cache
+		.filter(role => role.id !== guild.id)
+		.sort((a, b) => b.position - a.position)
+		.map(role => roleMention(role.id));
+
+	return roles.length > 0 ? roles.join(', ') : 'No role';
+}
 
 function getUserRoles(target: GuildMember): string {
 	const roles = target.roles.cache
@@ -7,7 +17,7 @@ function getUserRoles(target: GuildMember): string {
 	.sort((a, b) => b.position - a.position)
 	.map(role => `${roleMention(role.id)}`);
 
-	return roles.length > 0 ? roles.join(', ') : 'Aucun rôle';
+	return roles.length > 0 ? roles.join(', ') : 'No role';
 }
 
 function getUserBadges(userData: {
@@ -19,15 +29,15 @@ function getUserBadges(userData: {
 	const badges: string[] = [];
 
 	if (userData.isDev)
-		badges.push("<:dev:1398755085441564772>");
+		badges.push(`${emoji.badge.dev}`);
 	if (userData.isEnium)
-		badges.push("<:enium_staff:1398755055930179586>");
+		badges.push(`${emoji.badge.enium}`);
 	if (userData.isPwn)
-		badges.push("<:dash:1398755072317325403>");
+		badges.push(`${emoji.badge.dash}`);
 	if (userData.isBuyer)
-		badges.push("<a:buyer:1398757139085922336>");
+		badges.push(`${emoji.badge.buyer}`);
 	if (userData.isOwner)
-		badges.push("<a:owner:1398757148078637167>");
+		badges.push(`${emoji.badge.owner}`);
 
 	return badges.length > 0 ? badges.join(" ") : "Aucun badge";
 }
@@ -35,18 +45,18 @@ function getUserBadges(userData: {
 export default {
 	data: new SlashCommandBuilder()
 		.setName('info')
-		.setDescription('Show the information of one of these cathegories (user, server, bot)')
+		.setDescription('Show the infromation of one of these cathegories (user, server, bot)')
 		.addSubcommand(subcommand => subcommand
 			.setName('user')
-			.setDescription('Show the information of one user')
+			.setDescription('Show the infromation of one user')
 			.addUserOption(option =>
 				option.setName('target')
-				.setDescription('The user to show the information')
+				.setDescription('The user to show the infromation')
 			)
 		)
 		.addSubcommand(subcommand => subcommand
 			.setName('server')
-			.setDescription('Show the information of the server')
+			.setDescription('Show the infromation of the server')
 		),
 	async execute(interaction: CommandInteraction) {
 		let guildData: Guild;
@@ -58,6 +68,11 @@ export default {
 			});
 		} catch (err) {
 			console.error(`\t⚠️ | INFO => Cannot get the database connection!\n\t\t(${err}).`);
+			await interaction.reply({
+				content: `${emoji.answer.error} | Cannot connect to the database`,
+				flags: MessageFlags.Ephemeral
+			});
+			return;
 		}
 		const subcommand: string = interaction.options.getSubcommand();
 		switch (subcommand) {
@@ -73,6 +88,10 @@ export default {
 					});
 				} catch (err) {
 					console.error(`\t⚠️ | USERINFO => Cannot get the database connection!\n\t\t(${err}).`);
+					await interaction.reply({
+						content: `${emoji.answer.error} | Cannot connect to the database`,
+						flags: MessageFlags.Ephemeral
+					});
 				}
 				let targetServer: GuildMember;
 		
@@ -80,11 +99,15 @@ export default {
 					targetServer = await interaction.guild.members.fetch(targetGlobal.id);
 				} catch (err) {
 					console.error(`\t⚠️ | USERINFO => Cannot get the targetServer!\n\t\t(${err}).`);
-					return ;
+					await interaction.reply({
+						content: `${emoji.answer.error} | Cannot get the guild profile of the user`,
+						flags: MessageFlags.Ephemeral
+					});
+					return;
 				}
 				const userResult: EmbedBuilder = new EmbedBuilder()
 					.setTitle(`${targetGlobal.displayName}'s information`)
-					.setColor(`${targetServer.displayHexColor}`)
+					.setColor(`${guildData.color}`)
 					.setThumbnail(`${targetGlobal.displayAvatarURL()}`)
 					.setFooter({
 						text: guildData.footer
@@ -125,7 +148,7 @@ export default {
 					.setFooter({
 						text: guildData.footer
 					})
-					.setImage(guild.bannerURL({dynamic: false, size: 2048}))
+					.setImage(guild.bannerURL({dynamic: true, size: 2048}))
 					.setDescription(`
 						**🆔 | ID:**
 						${guild.id}
@@ -146,6 +169,10 @@ export default {
 						${guild.members.cache.filter((m) => !m.user.bot).size}
 						**🤖 | Bots:**
 						${guild.members.cache.filter((m) => m.user.bot).size}
+
+						**🏅 | Roles:**
+						There is ${guild.roles.cache.size - 1} on __${guild.name}__
+						${getGuildRoles(guild)}
 					`)
 				await interaction.reply({
 					embeds: [

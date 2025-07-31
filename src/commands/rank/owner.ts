@@ -1,5 +1,6 @@
-import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, userMention, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
+import emoji from '../../../assets/emoji.json' assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -38,13 +39,33 @@ export default {
 			});
 		} catch (err) {
 			console.error(`\t⚠️ | Owner => Cannot get the database connection!\n\t\t(${err}).`);
+			await interaction.reply({
+				content: `${emoji.answer.error} | Cannot connect to the database`,
+				flags: MessageFlags.Ephemeral
+			});
+			return;
+		}
+		let guildData: Guild;
+		try {
+			guildData = await prisma.guild.findUnique({
+				where: {
+					id: interaction.guild.id
+				}
+			});
+		} catch (err) {
+			console.error(`\t⚠️ | INFO => Cannot get the database connection!\n\t\t(${err}).`);
+			await interaction.reply({
+				content: `${emoji.answer.error} | Cannot connect to the database`,
+				flags: MessageFlags.Ephemeral
+			});
+			return;
 		}
 		const target: GuildMember = interaction.options.getUser('target')
 		switch (subcommand) {
 			case 'add':
 				if (!userData.isBuyer) {
 					await interaction.reply({
-						content: `<a:no:1398984790337781770> | This command is only for buyer`,
+						content: `${emoji.answer.no} | This command is only for buyer`,
 						flags: MessageFlags.Ephemeral
 					});
 					return;
@@ -76,23 +97,27 @@ export default {
 					});
 				} catch (err) {
 					console.error(`⚠️ | Error when adding ${target.username} to the username`);
+					await interaction.reply({
+						content: `${emoji.answer.error} | Error when adding ${target.username} to the owner list`,
+						flags: MessageFlags.Ephemeral
+					});
 					return;
 				}
 				await interaction.reply({
-					content: `<a:yes:1398984778388340817> | ${target.username} has been added to the owner list`,
+					content: `${emoji.answer.yes} | ${target.username} has been added to the owner list`,
 					flags: MessageFlags.Ephemeral
 				});
 				return;
 			case 'delete':
 				if (!userData.isBuyer) {
 					await interaction.reply({
-						content: `<a:no:1398984790337781770> | This command is only for buyer`,
+						content: `${emoji.answer.no} | This command is only for buyer`,
 						flags: MessageFlags.Ephemeral
 					});
 					return;
 				} else if (interaction.user.id === target.id) {
 					await interaction.reply({
-						content: `<a:no:1398984790337781770> | You cannot removing yourself form the owner list`,
+						content: `${emoji.answer.no} | You cannot removing yourself from the owner list`,
 						flags: MessageFlags.Ephemeral
 					});
 					return;
@@ -124,17 +149,21 @@ export default {
 					});
 				} catch (err) {
 					console.error(`⚠️ | Error when removing ${target.username} to the username`);
+					await interaction.reply({
+						content: `${emoji.answer.error} | Cannot removing the user from the owner list`,
+						flags: MessageFlags.Ephemeral
+					});
 					return;
 				}
 				await interaction.reply({
-					content: `<a:yes:1398984778388340817> | ${target.username} has been removing to the owner list`,
+					content: `${emoji.answer.yes} | ${target.username} has been removing to the owner list`,
 					flags: MessageFlags.Ephemeral
 				});
 				return;
 			case 'list':
 				if (!userData.isOwner) {
 					await interaction.reply({
-						content: `<a:no:1398984790337781770> | This command is only for owner`,
+						content: `${emoji.answer.no} | This command is only for owner`,
 						flags: MessageFlags.Ephemeral
 					});
 					return;
@@ -151,19 +180,31 @@ export default {
 
 					if (!bot || bot.owners.length === 0) {
 						await interaction.reply({
-							content: '<a:error:1398985025688436797> | There is no owner registered.',
+							content: `${emoji.answer.error} | There is no owner registered.`,
 							flags: MessageFlags.Ephemeral
 						});
 						break;
 					}
 
-					const ownerList = bot.owners
-						.map(owner => `- <@${owner.id}>`)
-						.join('\n');
+					const ownerList = await Promise.all(
+						bot.owners.map(async (owner) => {
+							try {
+								const user = await interaction.client.users.fetch(owner.id);
+								return `- ${user.username} (\`${user.id}\`)\n`;
+							} catch (err) {
+								console.warn(`⚠️ | ${owner.id} : ${err}`);
+								return null;
+							}
+						})
+					);
 
 					const toSend: EmbedBuilder = new EmbedBuilder()
-						.setTitle(`Owner list`)
-						.setDescription(`${ownerList}`)
+						.setTitle(`${emoji.badge.owner} | Owner list`)
+						.setColor(guildData.color)
+						.setFooter({
+							text: guildData.footer
+						})
+						.setDescription(ownerList.filter(Boolean).join(''))
 					await interaction.reply({
 						embeds: [
 							toSend
@@ -171,9 +212,9 @@ export default {
 						flags: MessageFlags.Ephemeral
 					});
 				} catch (err) {
-					console.error(`⚠️ | Buyer => error when fetching information from the database: ${err}`);
+					console.error(`⚠️ | Buyer => error when fetching infromation from the database: ${err}`);
 					await interaction.reply({
-						content: '<a:no:1398984790337781770> | Cannot fetch the information of the database.',
+						content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,
 						flags: MessageFlags.Ephemeral
 					});
 				}

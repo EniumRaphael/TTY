@@ -68,7 +68,7 @@ for (const folder of eventFolders) {
 				console.log(`\t✅ | ${event.name}`);
 			}
 		} catch (err) {
-			console.error(`\t⚠️ | event at ${file}\n\t\t(${err}).`);
+			console.error(`\t⚠️ | Event at ${file}\n\t\t(${err}).`);
 		}
 	}
 }
@@ -77,6 +77,13 @@ console.log('\n\n');
 client.once('ready', async () => {
 	console.log(`🤖 | Connecté en tant que ${client.user?.tag}`);
 
+	await prisma.bot.upsert({
+		where: {
+			id: 1
+		},
+		update: {},
+		create: {}
+	});
 	for (const [guildId, guild] of client.guilds.cache) {
 		await prisma.guild.upsert({
 			where: {

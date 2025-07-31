@@ -8,6 +8,10 @@ export default {
 		const command = interaction.client.commands.get(interaction.commandName);
 		if (!command) {
 			console.error(`⚠️ | Can't execute ${interaction.commandName}`);
+			await interaction.reply({
+				content: `${emoji.answer.error} | Cannot execute the command ${interaction.commandName}`,
+				flags: MessageFlags.Ephemeral
+			});
 			return;
 		}
 		try {
@@ -16,12 +20,12 @@ export default {
 			console.error(`⚠️ | Error when occured this command ${interaction.commandName}\n\t${error}`);
 			if (interaction.replied || interaction.deferred) {
 				await interaction.followUp({
-					content: `<a:error:1398985025688436797> | ${interaction.commandName} seems have a problem, thanks report that to the support (After Print)`,
+					content: `${emoji.answer.error} | ${interaction.commandName} seems have a problem, thanks report that to the support (After Print)`,
 					flags: MessageFlags.Ephemeral
 				});
 			} else {
 				await interaction.reply({
-					content: `<a:error:1398985025688436797> | ${interaction.commandName} seems have a problem, thanks report that to the support (Before Print)`,
+					content: `${emoji.answer.error} | ${interaction.commandName} seems have a problem, thanks report that to the support (Before Print)`,
 					flags: MessageFlags.Ephemeral
 				});
 			}
