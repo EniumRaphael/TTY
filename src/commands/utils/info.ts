@@ -108,12 +108,12 @@ export default {
 				const userResult: EmbedBuilder = new EmbedBuilder()
 					.setTitle(`${targetGlobal.displayName}'s information`)
 					.setColor(`${guildData.color}`)
-					.setThumbnail(`${targetGlobal.displayAvatarURL()}`)
+					.setThumbnail(`${targetGlobal.displayAvatarURL({dynamic: true, size: 2048})}`)
 					.setFooter({
 						text: guildData.footer
 					})
 					.setImage(targetGlobal.bannerURL({
-						size: 1024,
+						size: 2048,
 						dynamic: true
 					}))
 					.setDescription(`
@@ -144,7 +144,7 @@ export default {
 				const serverResult: EmbedBuilder = new EmbedBuilder()
 					.setTitle(`${guild.name} Informations`)
 					.setColor(guildData.color)
-					.setThumbnail(guild.iconURL({dynamic: true, size: 1024}))
+					.setThumbnail(guild.iconURL({dynamic: true, size: 2048}))
 					.setFooter({
 						text: guildData.footer
 					})

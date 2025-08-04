@@ -1,4 +1,5 @@
 import { MessageFlags, SlashCommandBuilder } from 'discord.js';
+import emoji from '../../../assets/emoji.json' assert { type: "json" };
 
 export default {
 	data: new SlashCommandBuilder()
@@ -7,7 +8,7 @@ export default {
 	async execute(interaction: CommandInteraction) {
 		const time: number = Date.now();
 		await interaction.reply({
-			content: '🏓 | Pong!',
+			content: `${emoji.answer.loading} | Calculating your ping !`,
 			flags: MessageFlags.Ephemeral
 		});
 
