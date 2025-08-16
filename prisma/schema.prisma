@@ -10,9 +10,9 @@ datasource db {
 model Bot {
   id Int @id @default(autoincrement())
 
-  status   String @default("Big Brother")
+  status   String @default("TTY by EniumTeam")
   type     String @default("Watching")
-  presence String @default("online")
+  presence String @default("dnd")
 
   buyers User[] @relation("Buyers")
   owners User[] @relation("Owners")
