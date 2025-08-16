@@ -5,7 +5,9 @@ export default {
 	name: Events.GuildCreate,
 	async execute(guild, client) {
 		const botData = await prisma.bot.findUnique({
-			where: { id: 1 },
+			where: {
+				id: 1
+			},
 			include: {
 				buyers: true
 			}
