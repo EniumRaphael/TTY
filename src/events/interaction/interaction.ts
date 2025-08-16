@@ -1,4 +1,5 @@
 import { Events, MessageFlags } from 'discord.js'
+import emoji from '../../../assets/emoji.json' assert { type: "json" };
 
 export default {
 	name: Events.InteractionCreate,
