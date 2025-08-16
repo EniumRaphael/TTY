@@ -45,7 +45,7 @@ function getUserBadges(userData: {
 export default {
 	data: new SlashCommandBuilder()
 		.setName('info')
-		.setDescription('Show the infromation of one of these cathegories (user, server, bot)')
+		.setDescription('Show the infromation of one of these categories (user, server, bot)')
 		.addSubcommand(subcommand => subcommand
 			.setName('user')
 			.setDescription('Show the infromation of one user')
