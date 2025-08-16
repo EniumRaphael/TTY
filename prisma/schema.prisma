@@ -37,13 +37,14 @@ model User {
 model Guild {
   id String @id @map("guild_id")
 
-  log        Boolean @default(false)
-  logBot     Boolean @default(false)
-  logChannel Boolean @default(false)
-  logMember  Boolean @default(false)
-  logMod     Boolean @default(false)
-  logMsg     Boolean @default(false)
-  logServer  Boolean @default(false)
+  logEnable   Boolean @default(false)
+  logCategory String?
+  logBot      String?
+  logChannels String?
+  logMember   String?
+  logMod      String?
+  logMsg      String?
+  logServer   String?
 
   footer String @default("© EniumTeam ~ 2025")
   color  String @default("#000000")
