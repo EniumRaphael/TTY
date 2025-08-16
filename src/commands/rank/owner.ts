@@ -38,7 +38,7 @@ export default {
 				}
 			});
 		} catch (err) {
-			console.error(`\t⚠️ | Owner => Cannot get the database connection!\n\t\t(${err}).`);
+			console.error(`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral
@@ -53,7 +53,7 @@ export default {
 				}
 			});
 		} catch (err) {
-			console.error(`\t⚠️ | INFO => Cannot get the database connection!\n\t\t(${err}).`);
+			console.error(`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral
@@ -212,7 +212,7 @@ export default {
 						flags: MessageFlags.Ephemeral
 					});
 				} catch (err) {
-					console.error(`⚠️ | Buyer => error when fetching infromation from the database: ${err}`);
+					console.error(`⚠️ | error when fetching infromation from the database: ${err}`);
 					await interaction.reply({
 						content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,
 						flags: MessageFlags.Ephemeral

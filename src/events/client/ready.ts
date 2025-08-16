@@ -67,11 +67,7 @@ export default {
 				});
 			}
 		} catch (err) {
-			console.error(`\t⚠️ | INFO => Cannot get the database connection!\n\t\t(${err}).`);
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot connect to the database`,
-				flags: MessageFlags.Ephemeral
-			});
+			console.error(`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`);
 			return;
 		}
 		console.log(`✅ | ${client.user.username} is now running under TTS bot`);
