@@ -4,6 +4,7 @@ import {
 	ChannelType,
 	PermissionsBitField,
 	ComponentType,
+	channelMention,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
@@ -91,16 +92,17 @@ export default {
 						text: guildData.footer,
 					}).setDescription(`
 							${guildData.logCategory ? `${emoji.answer.yes} | Categories` : `${emoji.answer.no} | Categories`}
-							${guildData.logBot ? `${emoji.answer.yes} | Bot` : `${emoji.answer.no} | Bot`}
-							${guildData.logChannels ? `${emoji.answer.yes} | Channels` : `${emoji.answer.no} | Channels`}
-							${guildData.logMember ? `${emoji.answer.yes} | Member` : `${emoji.answer.no} | Member`}
-							${guildData.logMod ? `${emoji.answer.yes} | Moderation` : `${emoji.answer.no} | Moderation`}
-							${guildData.logMsg ? `${emoji.answer.yes} | Message` : `${emoji.answer.no} | Message`}
-							${guildData.logServer ? `${emoji.answer.yes} | Server` : `${emoji.answer.no} | Server`}
+							${guildData.logBot ? `${emoji.answer.yes} | Bot ${channelMention(guildData.logBot)}` : `${emoji.answer.no} | Bot`}
+							${guildData.logChannels ? `${emoji.answer.yes} | Channels ${channelMention(guildData.logChannels)}` : `${emoji.answer.no} | Channels`}
+							${guildData.logMember ? `${emoji.answer.yes} | Member ${channelMention(guildData.logMember)}` : `${emoji.answer.no} | Member`}
+							${guildData.logMod ? `${emoji.answer.yes} | Moderation ${channelMention(guildData.logMod)}` : `${emoji.answer.no} | Moderation`}
+							${guildData.logMsg ? `${emoji.answer.yes} | Message ${channelMention(guildData.logMsg)}` : `${emoji.answer.no} | Message`}
+							${guildData.logServer ? `${emoji.answer.yes} | Server ${channelMention(guildData.logServer)}` : `${emoji.answer.no} | Server`}
 						`);
 
 				await interaction.reply({
 					embeds: [logsData],
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 			else {
