@@ -1,4 +1,4 @@
-import { ActivityType, PresenceUpdateStatus, Events } from 'discord.js';
+import { ActivityType, EmbedBuilder, PresenceUpdateStatus, Events } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
 
 export default {
@@ -9,6 +9,13 @@ export default {
 			const botData: Bot = await prisma.bot.findUnique({
 				where: {
 					id: 1,
+				},
+				include: {
+					buyers: {
+						select: {
+							id: true,
+						},
+					},
 				},
 			});
 			const newStatus: string = botData.status;
@@ -70,6 +77,44 @@ export default {
 					],
 				});
 			}
+			const now = Math.floor(Date.now() / 1000);
+			const buyerNotification: EmbedBuilder = new EmbedBuilder()
+				.setTitle(`${client.user.username} running`)
+				.setDescription(`
+					**Starting at:** <t:${now}:F> (<t:${now}:R>)
+					**On:** ${client.guilds.cache.size} guild${client.guilds.cache.size > 1 ? 's' : ''}
+					**With:** ${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)} users
+				`);
+
+			await Promise.all(
+				botData.buyers.map(async (buyer) => {
+					try {
+						const user = await client.users.fetch(buyer.id);
+						const dm = await user.createDM();
+						const messages = await dm.messages.fetch({ limit: 20 });
+						const lastBotMsg = messages.find(m => m.author.id === client.user!.id);
+						if (!lastBotMsg) {
+							await lastBotMsg.edit({
+								content: 'This message is will be updated',
+								embeds: [
+									buyerNotification,
+								],
+							});
+						}
+						await lastBotMsg.edit({
+							content: '',
+							embeds: [
+								buyerNotification,
+							],
+						});
+						await new Promise(res => setTimeout(res, 1000));
+					}
+					catch (err) {
+						console.warn(`⚠️ | ${buyer.id} : ${err}`);
+						return null;
+					}
+				}),
+			);
 		}
 		catch (err) {
 			console.error(
