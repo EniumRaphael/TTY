@@ -37,6 +37,10 @@ export default {
 						name: 'Configuration',
 						value: 'logs_config',
 					},
+					{
+						name: 'Disable',
+						value: 'logs_disable',
+					},
 				),
 		),
 	async execute(interaction: CommandInteraction) {
