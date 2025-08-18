@@ -37,6 +37,10 @@ export default {
 						name: 'Configuration',
 						value: 'logs_config',
 					},
+					{
+						name: 'Disable',
+						value: 'logs_disable',
+					},
 				),
 		),
 	async execute(interaction: CommandInteraction) {
@@ -276,6 +280,61 @@ export default {
 					return;
 				},
 			);
+			break;
+		}
+		case 'logs_disable': {
+			if (!userData.isOwner) {
+				await interaction.reply({
+					content: `${emoji.answer.no} | This command is only for owner`,
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+			if (!guildData.logEnable) {
+				await interaction.reply({
+					content: `${emoji.answer.error} | The log is not setup on this server`,
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+			const category: GuildCategory = await interaction.guild.channels.fetch(guildData.logCategory);
+			try {
+				for (const channel of category.children.cache.values()) {
+					await channel.delete(
+						`Delete cat of ${channel.name} (by ${interaction.username})`,
+					);
+				}
+				await category.delete(
+					`Delete cat of ${category.name} (by ${interaction.username})`,
+				);
+				await interaction.reply({
+					content: `${emoji.answer.yes} | Disabled the logs of the guild`,
+					flags: MessageFlags.Ephemeral,
+				});
+			}
+			catch (err) {
+				await interaction.reply({
+					content: `${emoji.answer.error} | Cannot suppress the category's channels`,
+					flags: MessageFlags.Ephemeral,
+				});
+				console.error(`Cannot suppress the category's channel:\n\t${err}`);
+				return;
+			}
+			await prisma.guild.update({
+				where: {
+					id: interaction.guild.id,
+				},
+				data: {
+					logEnable: false,
+					logCategory: null,
+					logBot: null,
+					logChannels: null,
+					logMember: null,
+					logMod: null,
+					logMsg: null,
+					logServer: null,
+				},
+			});
 			break;
 		}
 		default:
