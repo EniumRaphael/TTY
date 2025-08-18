@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies (cached)
         run: bun install --frozen-lockfile
       - name: Check liniting
-        run: bunx eslint . --fix && bunx eslint .
+        run: bunx eslint . --max-warnings=0
       - name: Check norme
-        run: bunx prettier --write . && bunx prettier --check .
+        run: bunx prettier --check .
       - name: Build
         run: bun run build
