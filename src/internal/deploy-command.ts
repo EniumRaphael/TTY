@@ -1,12 +1,5 @@
 import { REST, Routes } from "discord.js";
-import { pathToFileURL } from "node:url";
-import {
-  Client,
-  Collection,
-  Events,
-  GatewayIntentBits,
-  MessageFlags,
-} from "discord.js";
+import { Client, Collection, GatewayIntentBits } from "discord.js";
 import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
@@ -35,7 +28,7 @@ for (const folder of commandFolders) {
       commands.push(command.data.toJSON());
     } else {
       console.log(
-        `⚠️ | A Command is missing a required "data" or "execute" property.`,
+        '⚠️ | A Command is missing a required "data" or "execute" property.',
       );
     }
   }

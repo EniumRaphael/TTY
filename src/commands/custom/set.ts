@@ -1,12 +1,9 @@
 import { prisma } from "../../lib/prisma.ts";
 import {
   ActivityType,
-  userMention,
-  roleMention,
   PresenceUpdateStatus,
   MessageFlags,
   SlashCommandBuilder,
-  EmbedBuilder,
 } from "discord.js";
 import emoji from "../../../assets/emoji.json" assert { type: "json" };
 
@@ -111,23 +108,6 @@ export default {
         ),
     ),
   async execute(interaction: CommandInteraction) {
-    let guildData: Guild;
-    try {
-      guildData = await prisma.guild.findUnique({
-        where: {
-          id: interaction.guild.id,
-        },
-      });
-    } catch (err) {
-      console.error(
-        `\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
-      );
-      await interaction.reply({
-        content: `${emoji.answer.error} | Cannot connect to the database`,
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
     let userData: User;
     try {
       userData = await prisma.user.findUnique({
@@ -147,7 +127,7 @@ export default {
     }
     const subcommand: string = interaction.options.getSubcommand();
     switch (subcommand) {
-      case "color":
+      case "color": {
         if (!userData.isOwner) {
           await interaction.reply({
             content: `${emoji.answer.no} | This command is only for owner`,
@@ -180,7 +160,8 @@ export default {
           flags: MessageFlags.Ephemeral,
         });
         return;
-      case "footer":
+      }
+      case "footer": {
         if (!userData.isOwner) {
           await interaction.reply({
             content: `${emoji.answer.no} | This command is only for owner`,
@@ -213,7 +194,8 @@ export default {
           flags: MessageFlags.Ephemeral,
         });
         return;
-      case "pp":
+      }
+      case "pp": {
         if (!userData.isBuyer) {
           await interaction.reply({
             content: `${emoji.answer.no} | This command is only for buyer`,
@@ -229,13 +211,17 @@ export default {
             content: `${emoji.answer.no} | Error during changing the bot profile picture`,
             flags: MessageFlags.Ephemeral,
           });
+          console.error(
+            `\t⚠️ | Cannot change the bot profile picture!\n\t\t(${err}).`,
+          );
         }
         await interaction.reply({
           content: `${emoji.answer.yes} | The picture profile of the bot is now updated.`,
           flags: MessageFlags.Ephemeral,
         });
         return;
-      case "status":
+      }
+      case "status": {
         if (!userData.isBuyer) {
           await interaction.reply({
             content: `${emoji.answer.no} | This command is only for buyer`,
@@ -330,6 +316,7 @@ export default {
           flags: MessageFlags.Ephemeral,
         });
         return;
+      }
     }
   },
 };

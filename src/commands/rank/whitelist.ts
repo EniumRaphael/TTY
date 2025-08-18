@@ -1,9 +1,4 @@
-import {
-  EmbedBuilder,
-  userMention,
-  MessageFlags,
-  SlashCommandBuilder,
-} from "discord.js";
+import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { prisma } from "../../lib/prisma.ts";
 import emoji from "../../../assets/emoji.json" assert { type: "json" };
 
@@ -223,7 +218,7 @@ export default {
           );
 
           const toSend: EmbedBuilder = new EmbedBuilder()
-            .setTitle(`🗞️ | Whitelist`)
+            .setTitle("🗞️ | Whitelist")
             .setColor(guildData.color)
             .setFooter({
               text: guildData.footer,

@@ -3,7 +3,6 @@ import path from "node:path";
 import "dotenv/config";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { PrismaClient } from "@prisma/client";
-import { deployCommands } from "./internal/deploy-commands.ts";
 
 const prisma = new PrismaClient();
 
@@ -23,7 +22,7 @@ client.commands = new Collection();
 const commandFolderPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(commandFolderPath);
 
-console.log(`\n🔍 | Commands search:`);
+console.log("\n🔍 | Commands search:");
 for (const folder of commandFolders) {
   const commandsPath = path.join(commandFolderPath, folder);
   const commandFiles = fs
@@ -48,7 +47,7 @@ console.log("\n\n");
 const eventFolderPath = path.join(__dirname, "events");
 const eventFolders = fs.readdirSync(eventFolderPath);
 
-console.log(`\n🔍 | Events search:`);
+console.log("\n🔍 | Events search:");
 for (const folder of eventFolders) {
   const eventsPath = path.join(eventFolderPath, folder);
   const eventFiles = fs
@@ -97,7 +96,7 @@ client.once("ready", async () => {
 
     const members = await guild.members.fetch();
 
-    for (const [memberId, member] of members) {
+    for (const [memberId] of members) {
       await prisma.user.upsert({
         where: {
           id: memberId,

@@ -8,10 +8,6 @@ import {
   StringSelectMenuInteraction,
   StringSelectMenuOptionBuilder,
   SlashCommandBuilder,
-  ChatInputCommandInteractionActivityType,
-  channelMention,
-  roleMention,
-  PresenceUpdateStatus,
   MessageFlags,
   SlashCommandBuilder,
   EmbedBuilder,
@@ -77,7 +73,14 @@ export default {
     }
     const choice: string = interaction.options.getString("action");
     switch (choice) {
-      case "logs_show":
+      case "logs_show": {
+        if (!userData.isOwner) {
+          await interaction.reply({
+            content: `${emoji.answer.no} | This command is only for owner`,
+            flags: MessageFlags.Ephemeral,
+          });
+          return;
+        }
         if (guildData.logEnable) {
           const logsData: EmbedBuilder = new EmbedBuilder()
             .setTitle(`Logs for ${interaction.guild.name}`)
@@ -104,7 +107,15 @@ export default {
           });
         }
         return;
-      case "logs_auto":
+      }
+      case "logs_auto": {
+        if (!userData.isOwner) {
+          await interaction.reply({
+            content: `${emoji.answer.no} | This command is only for owner`,
+            flags: MessageFlags.Ephemeral,
+          });
+          return;
+        }
         if (guildData.logEnable) {
           await interaction.reply({
             content: `${emoji.answer.error} | The log is already setup on this server`,
@@ -133,8 +144,8 @@ export default {
         const roleSelection =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu);
 
-        let permSelector: EmbedBuilder = new EmbedBuilder()
-          .setTitle(`Which role will have access`)
+        const permSelector: EmbedBuilder = new EmbedBuilder()
+          .setTitle("Which role will have access")
           .setColor(`${guildData.color}`)
           .setFooter({
             text: guildData.footer,
@@ -242,7 +253,7 @@ export default {
               .map((id) => `- <@&${id}>`)
               .join("\n");
             const autoConfig = new EmbedBuilder()
-              .setTitle(`The logs category is created`)
+              .setTitle("The logs category is created")
               .setDescription(
                 `
 						This following roles will have access to the logs.
@@ -260,6 +271,8 @@ export default {
             return;
           },
         );
+        break;
+      }
       default:
         console.error(`no choice on logs command ${choice}`);
         return;

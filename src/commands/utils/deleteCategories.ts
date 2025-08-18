@@ -1,11 +1,4 @@
-import {
-  MessageFlags,
-  ChatInputCommandInteraction,
-  CategoryChannel,
-  ChannelType,
-  PermissionsBitField,
-  SlashCommandBuilder,
-} from "discord.js";
+import { MessageFlags, ChannelType, SlashCommandBuilder } from "discord.js";
 import emoji from "../../../assets/emoji.json" assert { type: "json" };
 import { prisma } from "../../lib/prisma.ts";
 

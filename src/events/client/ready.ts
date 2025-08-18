@@ -6,8 +6,7 @@ export default {
   once: true,
   async execute(client) {
     try {
-      let botData: Bot;
-      botData = await prisma.bot.findUnique({
+      const botData: Bot = await prisma.bot.findUnique({
         where: {
           id: 1,
         },

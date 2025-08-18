@@ -1,9 +1,4 @@
-import {
-  EmbedBuilder,
-  userMention,
-  MessageFlags,
-  SlashCommandBuilder,
-} from "discord.js";
+import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { prisma } from "../../lib/prisma.ts";
 import emoji from "../../../assets/emoji.json" assert { type: "json" };
 
@@ -116,7 +111,7 @@ export default {
           });
         } catch (err) {
           console.error(
-            `⚠️ | Error when adding ${target.username} to the buyer list`,
+            `⚠️ | Error when adding ${target.username} to the buyer list\n\t${err}`,
           );
           await interaction.reply({
             content: `${emoji.answer.error} | Error when adding ${target.username} to the owner list`,
@@ -177,7 +172,7 @@ export default {
           });
         } catch (err) {
           console.error(
-            `⚠️ | Error when removing ${target.username} to the username`,
+            `⚠️ | Error when removing ${target.username} to the buyer list\n\t${err}`,
           );
           return;
         }

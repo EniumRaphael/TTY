@@ -8,12 +8,25 @@
     "prepare": "husky"
   },
   "private": true,
+  "lint-staged": {
+    "*.{ts,js,cts,mts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
-    "prisma": "^6.14.0"
+    "prettier": "^3.6.2",
+    "prisma": "^6.14.0",
+    "typescript-eslint": "^8.39.1"
   },
   "peerDependencies": {
     "typescript": "^5.8.3"

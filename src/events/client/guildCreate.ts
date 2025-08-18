@@ -1,17 +1,9 @@
-import { Events, MessageFlags } from "discord.js";
+import { Events } from "discord.js";
 import { prisma } from "../../lib/prisma.ts";
 
 export default {
   name: Events.GuildCreate,
-  async execute(guild, client) {
-    const botData = await prisma.bot.findUnique({
-      where: {
-        id: 1,
-      },
-      include: {
-        buyers: true,
-      },
-    });
+  async execute(guild) {
     await prisma.guild.upsert({
       where: {
         id: guild.id,
@@ -23,8 +15,7 @@ export default {
     });
 
     const members = await guild.members.fetch();
-    let i = 0;
-    for (const [memberId, member] of members) {
+    for (const [memberId] of members) {
       await prisma.user.upsert({
         where: {
           id: memberId,

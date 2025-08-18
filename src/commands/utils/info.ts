@@ -84,7 +84,7 @@ export default {
     }
     const subcommand: string = interaction.options.getSubcommand();
     switch (subcommand) {
-      case "user":
+      case "user": {
         const targetGlobal: GuildMember =
           interaction.options.getUser("target") || interaction.user;
         await targetGlobal.fetch();
@@ -151,7 +151,8 @@ export default {
           flags: MessageFlags.Ephemeral,
         });
         return;
-      case "server":
+      }
+      case "server": {
         const guild: Guild = interaction.guild;
         const serverResult: EmbedBuilder = new EmbedBuilder()
           .setTitle(`${guild.name} Informations`)
@@ -190,6 +191,7 @@ export default {
           embeds: [serverResult],
           flags: MessageFlags.Ephemeral,
         });
+      }
     }
   },
 };
