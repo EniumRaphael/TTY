@@ -226,7 +226,7 @@ export default {
 					});
 					const mentionList = selectedRoles.map(id => `- <@&${id}>`).join('\n');
 					const autoConfig = new EmbedBuilder()
-					.setTitle(`${emoji.answer.yes} | The logs category is created`)
+					.setTitle(`The logs category is created`)
 					.setDescription(`
 						This following roles will have access to the logs.
 						${mentionList}
