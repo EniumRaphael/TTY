@@ -4,12 +4,15 @@
   "type": "module",
   "scripts": {
     "dev": "bun ./src/internal/deploy-command.ts && bun --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun"
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "prepare": "husky"
   },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
     "eslint": "^9.33.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "prisma": "^6.14.0"
   },
   "peerDependencies": {
