@@ -80,6 +80,7 @@ export default {
 			const now = Math.floor(Date.now() / 1000);
 			const buyerNotification: EmbedBuilder = new EmbedBuilder()
 				.setTitle(`${client.user.username} running`)
+				.setColor('#008000')
 				.setDescription(`
 					**Starting at:** <t:${now}:F> (<t:${now}:R>)
 					**On:** ${client.guilds.cache.size} guild${client.guilds.cache.size > 1 ? 's' : ''}
