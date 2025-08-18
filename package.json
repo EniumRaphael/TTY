@@ -9,12 +9,8 @@
   },
   "private": true,
   "lint-staged": {
-    "*.{ts,js,cts,mts}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
+    "*": [
+      "eslint --fix"
     ]
   },
   "devDependencies": {
