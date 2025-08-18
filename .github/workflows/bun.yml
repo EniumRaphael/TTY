@@ -20,5 +20,9 @@ jobs:
         uses: oven-sh/setup-bun@v2
       - name: Install dependencies (cached)
         run: bun install --frozen-lockfile
+      - name: Check liniting
+        run: bunx eslint .
+      - name: Check norme
+        run: bunx prettier --check .
       - name: Build
         run: bun run build
