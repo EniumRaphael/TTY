@@ -43,12 +43,12 @@ export default {
 			}
 			await category.delete(`Delete cat of ${category.name} (by ${interaction.username})`);
 			await interaction.reply({
-				content: `${emoji.answer.yes} | Cannot suppress the category's channel`,
+				content: `${emoji.answer.yes} | Suppressed the ${category.name}`,
 				flags: MessageFlags.Ephemeral
 			});
 		} catch (err) {
 			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot suppress the category's channel`,
+				content: `${emoji.answer.error} | Cannot suppress the category's channels`,
 				flags: MessageFlags.Ephemeral
 			});
 			console.error(`Cannot suppress the category's channel:\n\t${err}`);
