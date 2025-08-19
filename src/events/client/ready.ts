@@ -91,7 +91,9 @@ export default {
 					try {
 						const user = await client.users.fetch(buyer.id);
 						const dm = await user.createDM();
-						const messages = await dm.messages.fetch({ limit: 20 });
+						const messages = await dm.messages.fetch({
+							limit: 20,
+						});
 						const lastBotMsg = messages.find(m => m.author.id === client.user!.id);
 						if (!lastBotMsg) {
 							await lastBotMsg.edit({
