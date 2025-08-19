@@ -77,22 +77,23 @@ export default {
 					],
 				});
 			}
-			const now = Math.floor(Date.now() / 1000);
 			const buyerNotification: EmbedBuilder = new EmbedBuilder()
 				.setTitle(`${client.user.username} running`)
 				.setColor('#008000')
 				.setDescription(`
-					**Starting at:** <t:${now}:F> (<t:${now}:R>)
 					**On:** ${client.guilds.cache.size} guild${client.guilds.cache.size > 1 ? 's' : ''}
 					**With:** ${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)} users
-				`);
+				`)
+				.setTimestamp();
 
 			await Promise.all(
 				botData.buyers.map(async (buyer) => {
 					try {
 						const user = await client.users.fetch(buyer.id);
 						const dm = await user.createDM();
-						const messages = await dm.messages.fetch({ limit: 20 });
+						const messages = await dm.messages.fetch({
+							limit: 20,
+						});
 						const lastBotMsg = messages.find(m => m.author.id === client.user!.id);
 						if (!lastBotMsg) {
 							await lastBotMsg.edit({
@@ -112,7 +113,7 @@ export default {
 					}
 					catch (err) {
 						console.warn(`⚠️ | ${buyer.id} : ${err}`);
-						return null;
+						return;
 					}
 				}),
 			);

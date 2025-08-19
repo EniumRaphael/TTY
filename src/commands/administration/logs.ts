@@ -170,6 +170,15 @@ export default {
 				time: 60_000,
 				max: 25,
 			});
+			collector.on('end', async (collected) => {
+				if (collected.size === 0) {
+					await interaction.editReply({
+						content: '⏰ | Too many time to select roles allowed to see the logs',
+						embeds: [],
+						components: [],
+					});
+				}
+			});
 			collector.on(
 				'collect',
 				async (selectInteraction: StringSelectMenuInteraction) => {
