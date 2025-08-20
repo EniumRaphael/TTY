@@ -1,6 +1,20 @@
 import { Events, Guild, EmbedBuilder, channelMention } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
 
+const verificationLevels: string[] = [
+	'Unrestricted',
+	'Low - must have a verified email',
+	'Medium - must be registered for 5 minutes',
+	'High - 10 minutes of membership required',
+	'Highest - verified phone required',
+];
+
+const explicitContentLevels: string[] = [
+	'No Scanning Enabled',
+	'Scanning content from members without a role',
+	'Scanning content from all members',
+];
+
 export default {
 	name: Events.GuildUpdate,
 	async execute(oldGuild, newGuild) {
@@ -31,10 +45,10 @@ export default {
 				toPrint += `- Language:\n\`${oldGuild.preferredLocale}\` => \`${newGuild.preferredLocale}\`\n`;
 			}
 			if (oldGuild.verificationLevel !== newGuild.verificationLevel) {
-				toPrint += `- Verification:\n\`${oldGuild.verificationLevel}\` => \`${newGuild.verificationLevel}\`\n`;
+				toPrint += `- Verification:\n\`${verificationLevels[oldGuild.verificationLevel]}\` => \`${verificationLevels[newGuild.verificationLevel]}\`\n`;
 			}
 			if (oldGuild.explicitContentFilter !== newGuild.explicitContentFilter) {
-				toPrint += `- Filter:\n\`${oldGuild.explicitContentFilter}\` => \`${newGuild.explicitContentFilter}\`\n`;
+				toPrint += `- Filter:\n\`${explicitContentLevels[oldGuild.explicitContentFilter]}\` => \`${explicitContentLevels[newGuild.explicitContentFilter]}\`\n`;
 			}
 			if (oldGuild.premiumTier !== newGuild.premiumTier) {
 				toPrint += `- Filter:\n\`${oldGuild.premiumTier}\` => \`${newGuild.premiumTier}\`\n`;
