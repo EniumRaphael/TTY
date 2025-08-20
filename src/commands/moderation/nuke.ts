@@ -1,5 +1,25 @@
-import { SlashCommandBuilder, ChannelType } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder, ChannelType } from 'discord.js';
+import { prisma } from '../../lib/prisma.ts';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+
+async function isWhitelisted(userId: string, guildId: string): Promise<boolean> {
+	const userData: User = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+	const count: interger = await prisma.user.count({
+		where: {
+			id: userId,
+			WhitelistedGuilds: {
+				some: {
+					id: guildId,
+				},
+			},
+		},
+	});
+	return (userData.isOwner || userData.isBuyer || count);
+}
 
 export default {
 	data: new SlashCommandBuilder()
@@ -12,10 +32,17 @@ export default {
 				.addChannelTypes(ChannelType.GuildText),
 		),
 	async execute(interaction: CommandInteraction) {
+		if (!(await isWhitelisted(interaction.user.id, interaction.guild.id))) {
+			interaction.reply({
+				content: `${emoji.answer.no} | You're not whitelisted on this server`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
 		const oldChannel : GuildText = interaction.options.getChannel(
 			'channel',
 		) || interaction.channel;
-		const pos: interger = channel.position;
+		const pos: interger = oldChannel.position;
 
 		oldChannel.clone().then((newchannel) => {
 			newchannel.setPosition(pos);
@@ -32,6 +59,5 @@ export default {
 				console.error(`⚠️ | Error when suppressing the channel\n\t${err}`);
 			}
 		});
-
 	},
 };
