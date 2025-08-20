@@ -1,0 +1,55 @@
+import { Events, Guild, EmbedBuilder, channelMention } from 'discord.js';
+import { prisma } from '../../lib/prisma.ts';
+
+export default {
+	name: Events.GuildUpdate,
+	async execute(oldGuild, newGuild) {
+		const guildData: Guild = await prisma.guild.findUnique({
+			where: {
+				id: newGuild.id,
+			},
+		});
+		if (guildData.logServer) {
+			let toPrint: string = 'The update of the guild had changes theses thing\n';
+			const logChannel = await newGuild.client.channels
+				.fetch(guildData.logServer)
+				.catch(() => null);
+			if (!logChannel || !logChannel.isTextBased()) {return;}
+			if (oldGuild.name !== newGuild.name) {
+				toPrint += `- Name:\n\`${oldGuild.name}\` => \`${newGuild.name}\`\n`;
+			}
+			if (oldGuild.description !== newGuild.description) {
+				toPrint += `- Description:\n\`${oldGuild.description}\` => \`${newGuild.description}\`\n`;
+			}
+			if (oldGuild.afkChannelId !== newGuild.afkChannelId) {
+				toPrint += `- AfkChannel:\n${oldGuild.afkChannelId ? channelMention(oldGuild.afkChannelId) : 'Not defined'} => ${newGuild.afkChannelId ? channelMention(newGuild.afkChannelId) : 'Not defined'}\n`;
+			}
+			if (oldGuild.afkTimeout !== newGuild.afkTimeout) {
+				toPrint += `- Timeout:\n\`${oldGuild.afkTimeout / 60}m\` => \`${newGuild.afkTimeout / 60}m\`\n`;
+			}
+			if (oldGuild.preferredLocale !== newGuild.preferredLocale) {
+				toPrint += `- Language:\n\`${oldGuild.preferredLocale}\` => \`${newGuild.preferredLocale}\`\n`;
+			}
+			if (oldGuild.verificationLevel !== newGuild.verificationLevel) {
+				toPrint += `- Verification:\n\`${oldGuild.verificationLevel}\` => \`${newGuild.verificationLevel}\`\n`;
+			}
+			if (oldGuild.explicitContentFilter !== newGuild.explicitContentFilter) {
+				toPrint += `- Filter:\n\`${oldGuild.explicitContentFilter}\` => \`${newGuild.explicitContentFilter}\`\n`;
+			}
+			if (oldGuild.premiumTier !== newGuild.premiumTier) {
+				toPrint += `- Filter:\n\`${oldGuild.premiumTier}\` => \`${newGuild.premiumTier}\`\n`;
+			}
+			const toRep = new EmbedBuilder()
+				.setColor(`${guildData.color}`)
+				.setFooter({
+					text: guildData.footer,
+				})
+				.setDescription(`${toPrint}`);
+			logChannel.send({
+				embeds: [
+					toRep,
+				],
+			});
+		}
+	},
+};
