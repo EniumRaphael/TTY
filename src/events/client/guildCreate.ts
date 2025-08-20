@@ -116,7 +116,7 @@ export default {
 			}),
 		);
 		console.log(
-			`✅ | Guild ${guild.name} synchronisée avec ${guild.members.size} membres.`,
+			`✅ | Guild ${guild.name} synchronisée avec ${guild.memberCount} membres.`,
 		);
 	},
 };
