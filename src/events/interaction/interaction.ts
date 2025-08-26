@@ -3,7 +3,7 @@ import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
 export default {
 	name: Events.InteractionCreate,
-	async execute(interaction) {
+	async execute(interaction: Interaction) {
 		if (!interaction.isChatInputCommand()) return;
 		const command = interaction.client.commands.get(interaction.commandName);
 		if (!command) {
