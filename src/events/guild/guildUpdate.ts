@@ -17,7 +17,7 @@ const explicitContentLevels: string[] = [
 
 export default {
 	name: Events.GuildUpdate,
-	async execute(oldGuild, newGuild) {
+	async execute(oldGuild: Guild, newGuild: Guild) {
 		const guildData: Guild = await prisma.guild.findUnique({
 			where: {
 				id: newGuild.id,
