@@ -3,7 +3,7 @@ import { prisma } from '../../lib/prisma.ts';
 
 export default {
 	name: Events.GuildDelete,
-	async execute(guild) {
+	async execute(guild: Guild) {
 		const botData: Bot = await prisma.bot.findUnique({
 			where: {
 				id: 1,
