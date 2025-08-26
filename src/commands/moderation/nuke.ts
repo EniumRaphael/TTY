@@ -1,25 +1,6 @@
 import { MessageFlags, SlashCommandBuilder, ChannelType } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
-
-async function isWhitelisted(userId: string, guildId: string): Promise<boolean> {
-	const userData: User = await prisma.user.findUnique({
-		where: {
-			id: userId,
-		},
-	});
-	const count: interger = await prisma.user.count({
-		where: {
-			id: userId,
-			WhitelistedGuilds: {
-				some: {
-					id: guildId,
-				},
-			},
-		},
-	});
-	return (userData.isOwner || userData.isBuyer || count);
-}
+import { isWhitelisted } from '../../lib/perm.ts';
 
 export default {
 	data: new SlashCommandBuilder()
