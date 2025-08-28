@@ -19,6 +19,9 @@ export default {
 		const buyerNotification: EmbedBuilder = new EmbedBuilder()
 			.setTitle(`${guild.client.user.username} leaved a server`)
 			.setColor('#cd5c5c')
+			.setFooter({
+				text: guildData.footer,
+			})
 			.setDescription(`
 			Name: ${guild.name}
 			Owner id: ${guild.ownerId}
