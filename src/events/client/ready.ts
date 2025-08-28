@@ -43,10 +43,6 @@ export default {
 				newType = ActivityType.Competing;
 				break;
 			default:
-				interaction.reply({
-					content: 'Invalid type',
-					ephemeral: true,
-				});
 				return;
 			}
 			const tmpPresence: string = botData.presence;
@@ -91,8 +87,7 @@ export default {
 			const buyerNotification: EmbedBuilder = new EmbedBuilder()
 				.setTitle(`${client.user.username} running`)
 				.setColor('#008000')
-				.setDescription(
-					`
+				.setDescription(`
 					**On:** ${client.guilds.cache.size} guild${client.guilds.cache.size > 1 ? 's' : ''}
 					**With:** ${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)} users
 				`,
