@@ -4,8 +4,10 @@ import {
 	PresenceUpdateStatus,
 	MessageFlags,
 	SlashCommandBuilder,
+	CommandInteraction,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+import { User as UserPrisma } from '@prisma/client';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -108,7 +110,7 @@ export default {
 				),
 		),
 	async execute(interaction: CommandInteraction) {
-		let userData: User;
+		let userData: UserPrisma | null;
 		try {
 			userData = await prisma.user.findUnique({
 				where: {

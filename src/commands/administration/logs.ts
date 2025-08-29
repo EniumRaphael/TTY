@@ -10,8 +10,8 @@ import {
 	StringSelectMenuOptionBuilder,
 	SlashCommandBuilder,
 	MessageFlags,
-	SlashCommandBuilder,
 	EmbedBuilder,
+	CommandInteraction,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
@@ -72,11 +72,6 @@ export default {
 		}
 		catch (err) {
 			throw `\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`;
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot connect to the database`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
 		}
 		const choice: string = interaction.options.getString('action');
 		switch (choice) {
@@ -150,7 +145,7 @@ export default {
 					),
 				);
 
-			const roleSelection =
+			const roleSelection: ActionRowBuilder<StringSelectMenuBuilder> =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu);
 
 			const permSelector: EmbedBuilder = new EmbedBuilder()
