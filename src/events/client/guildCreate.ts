@@ -1,14 +1,15 @@
-import { Events, EmbedBuilder } from 'discord.js';
+import { Events, EmbedBuilder, Guild, GuildChannel, Invite } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
+import { Bot as BotPrisma } from '@prisma/client';
 
 async function getGuildInvite(guild: Guild): Promise<string> {
 	try {
 		if (guild.vanityURLCode) {
 			return `https://discord.gg/${guild.vanityURLCode}`;
 		}
-		const channel = guild.channels.cache
+		const channel : GuildChannel = guild.channels.cache
 			.filter(
-				(ch): ch is TextChannel =>
+				(ch): ch is GuildChannel =>
 					ch.isTextBased() &&
 					!!ch.permissionsFor(guild.members.me!)?.has('CreateInstantInvite'),
 			)
@@ -16,7 +17,7 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 		if (!channel) {
 			return 'No invite available';
 		}
-		const invite = await channel.createInvite({
+		const invite: Invite = await channel.createInvite({
 			maxAge: 0,
 			maxUses: 0,
 		});
@@ -31,7 +32,7 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 
 export default {
 	name: Events.GuildCreate,
-	async execute(guild) {
+	async execute(guild: Guild) {
 		try {
 			await prisma.guild.upsert({
 				where: {
@@ -75,7 +76,7 @@ export default {
 				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
 			);
 		}
-		const botData: Bot = await prisma.bot.findUnique({
+		const botData: BotPrisma = await prisma.bot.findUnique({
 			where: {
 				id: 1,
 			},
