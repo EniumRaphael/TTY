@@ -1,5 +1,6 @@
-import { Events, Guild, EmbedBuilder, channelMention } from 'discord.js';
+import { Events, Guild, EmbedBuilder, channelMention, Channel } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
+import { Guild as GuildPrisma } from '@prisma/client';
 
 const verificationLevels: string[] = [
 	'Unrestricted',
@@ -18,14 +19,14 @@ const explicitContentLevels: string[] = [
 export default {
 	name: Events.GuildUpdate,
 	async execute(oldGuild: Guild, newGuild: Guild) {
-		const guildData: Guild = await prisma.guild.findUnique({
+		const guildData: GuildPrisma = await prisma.guild.findUnique({
 			where: {
 				id: newGuild.id,
 			},
 		});
 		if (guildData.logServer) {
 			let toPrint: string = 'The update of the guild had changes theses thing\n';
-			const logChannel = await newGuild.client.channels
+			const logChannel : Channel = await newGuild.client.channels
 				.fetch(guildData.logServer)
 				.catch(() => null);
 			if (!logChannel || !logChannel.isTextBased()) {return;}
