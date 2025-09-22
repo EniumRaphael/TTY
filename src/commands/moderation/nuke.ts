@@ -1,4 +1,4 @@
-import { MessageFlags, SlashCommandBuilder, ChannelType, CommandInteraction, GuildTextChannelType } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder, ChannelType, CommandInteraction } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { isWhitelisted } from '../../lib/perm.ts';
 
@@ -20,7 +20,7 @@ export default {
 			});
 			return;
 		}
-		const oldChannel : GuildTextChannelType = interaction.options.getChannel(
+		const oldChannel : ChannelType.GuildText = interaction.options.getChannel(
 			'channel',
 		) || interaction.channel;
 		const pos: number = oldChannel.position;
