@@ -1,4 +1,4 @@
-import { Events, EmbedBuilder, Message } from 'discord.js';
+import { Events, EmbedBuilder, Message, Channel } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
 import { Guild as GuildPrisma } from '@prisma/client';
 
@@ -27,14 +27,16 @@ export default {
 					Channel: ${message.channel}
 					Content: ${message.content ? message.content : 'enable to load the content'}
 				`);
-			const logChannel = await message.guild.client.channels
+			const logChannel: Promise<Channel | null> = await message.guild.client.channels
 				.fetch(guildData.logMsg)
 				.catch((err) => console.error(err));
-			logChannel.send({
-				embeds: [
-					log,
-				],
-			});
+			if (logChannel) {
+				logChannel.send({
+					embeds: [
+						log,
+					],
+				});
+			}
 		}
 	},
 };
