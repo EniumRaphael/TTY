@@ -15,22 +15,22 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "eslint": "^9.34.0",
+    "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
+    "lint-staged": "^16.2.3",
     "prettier": "^3.6.2",
-    "prisma": "^6.15.0",
-    "typescript-eslint": "^8.41.0"
+    "prisma": "^6.16.2",
+    "typescript-eslint": "^8.45.0"
   },
   "peerDependencies": {
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@prisma/client": "^6.15.0",
+    "@prisma/client": "^6.16.2",
     "discord.js": "^14.22.1",
-    "dotenv": "^17.2.1",
+    "dotenv": "^17.2.2",
     "mariadb": "^3.4.5"
   }
 }
