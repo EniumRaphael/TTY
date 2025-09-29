@@ -1,10 +1,11 @@
-import { Events, EmbedBuilder } from 'discord.js';
+import { Events, EmbedBuilder, Guild } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
+import { Bot as BotPrisma } from '@prisma/client';
 
 export default {
 	name: Events.GuildDelete,
 	async execute(guild: Guild) {
-		const botData: Bot = await prisma.bot.findUnique({
+		const botData: BotPrisma = await prisma.bot.findUnique({
 			where: {
 				id: 1,
 			},
