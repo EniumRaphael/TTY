@@ -53,7 +53,7 @@ export default {
 		if (newXp >= requiredXp) {
 			newLevel++;
 			await message.channel.send(
-				`🎉 Félicitations ${message.author}, tu es maintenant niveau **${newLevel}** !`,
+				`🎉 | Félicitations ${message.author}, tu es maintenant niveau **${newLevel}** !`,
 			);
 		}
 		console.log(`${message.author.username} | ${newLevel} -> ${newXp} [${requiredXp}]`);
