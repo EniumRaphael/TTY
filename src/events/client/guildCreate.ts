@@ -1,5 +1,6 @@
-import { Events, EmbedBuilder } from 'discord.js';
+import { Events, EmbedBuilder, Guild } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
+import { Bot as BotPrisma } from '@prisma/client';
 
 async function getGuildInvite(guild: Guild): Promise<string> {
 	try {
@@ -31,7 +32,7 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 
 export default {
 	name: Events.GuildCreate,
-	async execute(guild) {
+	async execute(guild: Guild) {
 		try {
 			await prisma.guild.upsert({
 				where: {
@@ -75,7 +76,7 @@ export default {
 				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
 			);
 		}
-		const botData: Bot = await prisma.bot.findUnique({
+		const botData: BotPrisma = await prisma.bot.findUnique({
 			where: {
 				id: 1,
 			},
