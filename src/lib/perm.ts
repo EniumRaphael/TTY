@@ -1,4 +1,5 @@
-import { prisma } from '../lib/prisma.ts';
+import { prisma } from '../lib/prisma';
+import { User as UserPrisma } from '@prisma/client';
 
 /**
  * @param userId - Discord identifier for the user
@@ -6,12 +7,12 @@ import { prisma } from '../lib/prisma.ts';
  * @returns true if the user is whitelisted flase overwise
  */
 export async function isWhitelisted(userId: string, guildId: string): Promise<boolean> {
-	const userData: User = await prisma.user.findUnique({
+	const userData: UserPrisma = await prisma.user.findUnique({
 		where: {
 			id: userId,
 		},
 	});
-	const count: interger = await prisma.user.count({
+	const count: number = await prisma.user.count({
 		where: {
 			id: userId,
 			WhitelistedGuilds: {
@@ -21,5 +22,5 @@ export async function isWhitelisted(userId: string, guildId: string): Promise<bo
 			},
 		},
 	});
-	return (userData.isOwner || userData.isBuyer || count);
+	return (userData.isOwner || userData.isBuyer || count != 0);
 }
