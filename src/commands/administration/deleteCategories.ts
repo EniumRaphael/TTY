@@ -1,6 +1,7 @@
-import { MessageFlags, ChannelType, SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, ChannelType, SlashCommandBuilder, CommandInteraction } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { prisma } from '../../lib/prisma.ts';
+import { User as UserPrisma } from '@prisma/client';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -14,7 +15,7 @@ export default {
 				.addChannelTypes(ChannelType.GuildCategory),
 		),
 	async execute(interaction: CommandInteraction) {
-		let userData: User;
+		let userData: UserPrisma;
 		try {
 			userData = await prisma.user.findUnique({
 				where: {
@@ -40,7 +41,7 @@ export default {
 			});
 			return;
 		}
-		const category: GuildCategory = interaction.options.getChannel(
+		const category: ChannelType.GuildCategory = interaction.options.getChannel(
 			'category',
 			true,
 		);
