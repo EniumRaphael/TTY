@@ -1,4 +1,4 @@
-import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { CommandInteraction, EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { User as UserPrisma } from '@prisma/client';
