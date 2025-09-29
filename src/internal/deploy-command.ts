@@ -22,15 +22,13 @@ for (const folder of commandFolders) {
 		.filter((file) => file.endsWith('.ts') || file.endsWith('.js'));
 	for (const file of commandFiles) {
 		const filesPath = path.join(commandsPath, file);
-		const commandModule = await import(filesPath);
-		const command = commandModule.default || commandModule;
-		if ('data' in command && 'execute' in command) {
+		const commandModule: unknown = await import(filesPath);
+		const command: unknown = commandModule.default || commandModule;
+		try {
 			commands.push(command.data.toJSON());
 		}
-		else {
-			console.log(
-				'⚠️ | A Command is missing a required "data" or "execute" property.',
-			);
+		catch (err) {
+			console.error(err);
 		}
 	}
 }
