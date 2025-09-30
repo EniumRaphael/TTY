@@ -7,7 +7,7 @@ export default {
 	async execute(oldMessage:Message, newMessage: Message) {
 		const guildData: GuildPrisma = await prisma.guild.findUnique({
 			where: {
-				id: message.guildId,
+				id: oldMessage.guildId,
 			},
 		});
 		if (guildData.logMsg) {
