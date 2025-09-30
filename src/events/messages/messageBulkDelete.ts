@@ -34,6 +34,7 @@ export default {
 						extension: 'png',
 					}),
 				})
+				.setTitle('🚯 | Message Cleared')
 				.setColor(guildData.color)
 				.setFooter({
 					text: guildData.footer,
