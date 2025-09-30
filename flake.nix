@@ -18,6 +18,7 @@
             tmux new-session -d -s $SESSION -c "$DIR" -n dev
             tmux send-keys -t $SESSION:0 'vim' C-m
             tmux split-window -h -p 30 -t $SESSION:0 -c "$DIR"
+            tmux send-keys -t $SESSION:0.2 'exec zsh' C-m
             tmux split-window -v -p 30 -t $SESSION:0.1 -c "$DIR"
             tmux send-keys -t $SESSION:0.2 'watch -n0.5 bunx eslint ./src' C-m
             tmux split-window -v -p 50 -t $SESSION:0.2 -c "$DIR"
