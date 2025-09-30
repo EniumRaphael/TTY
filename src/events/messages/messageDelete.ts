@@ -19,6 +19,7 @@ export default {
 						extension: 'png',
 					}),
 				})
+				.setTitle('🗑️ | Message Deleted')
 				.setColor(guildData.color)
 				.setFooter({
 					text: guildData.footer,
