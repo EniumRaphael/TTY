@@ -46,6 +46,14 @@ model Guild {
   logMsg      String?
   logServer   String?
 
+  protectEnabled         Boolean @default(false)
+  protectAntiChannel     Boolean @default(false)
+  protectAntiRank        Boolean @default(false)
+  protectAntiPerm        Boolean @default(false)
+  protectAntiMassban     Boolean @default(false)
+  protectAntiMassMention Boolean @default(false)
+  protectAntiBot         Boolean @default(false)
+
   footer String @default("© EniumTeam ~ 2025")
   color  String @default("#000000")
 
