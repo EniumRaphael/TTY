@@ -26,7 +26,7 @@ export default {
 				})
 				.setDescription(`
 					Channel: ${message.channel}
-					Content: ${message.content ? message.content : 'enable to load the content'}
+					Content: ${message.content ? message.content : '*enable to load the content*'}
 				`);
 			const logChannel: Promise<Channel | null> = await message.guild.client.channels
 				.fetch(guildData.logMsg)
