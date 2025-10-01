@@ -10,8 +10,8 @@ import {
 	StringSelectMenuOptionBuilder,
 	SlashCommandBuilder,
 	MessageFlags,
-	SlashCommandBuilder,
 	EmbedBuilder,
+	CommandInteraction,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
@@ -72,11 +72,6 @@ export default {
 		}
 		catch (err) {
 			throw `\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`;
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot connect to the database`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
 		}
 		const choice: string = interaction.options.getString('action');
 		switch (choice) {
@@ -150,7 +145,7 @@ export default {
 					),
 				);
 
-			const roleSelection =
+			const roleSelection: ActionRowBuilder<StringSelectMenuBuilder> =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu);
 
 			const permSelector: EmbedBuilder = new EmbedBuilder()
@@ -169,6 +164,15 @@ export default {
 				componentType: ComponentType.StringSelect,
 				time: 60_000,
 				max: 25,
+			});
+			collector.on('end', async (collected) => {
+				if (collected.size === 0) {
+					await interaction.editReply({
+						content: '⏰ | Too many time to select roles allowed to see the logs',
+						embeds: [],
+						components: [],
+					});
+				}
 			});
 			collector.on(
 				'collect',
