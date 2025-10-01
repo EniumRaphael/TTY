@@ -1,4 +1,4 @@
-import { MessageFlags, SlashCommandBuilder, ChannelType } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder, ChannelType, CommandInteraction } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { isWhitelisted } from '../../lib/perm.ts';
 
@@ -20,10 +20,10 @@ export default {
 			});
 			return;
 		}
-		const oldChannel : GuildText = interaction.options.getChannel(
+		const oldChannel : ChannelType.GuildText = interaction.options.getChannel(
 			'channel',
 		) || interaction.channel;
-		const pos: interger = oldChannel.position;
+		const pos: number = oldChannel.position;
 
 		oldChannel.clone().then((newchannel) => {
 			newchannel.setPosition(pos);

@@ -7,9 +7,9 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 		if (guild.vanityURLCode) {
 			return `https://discord.gg/${guild.vanityURLCode}`;
 		}
-		const channel = guild.channels.cache
+		const channel : GuildChannel = guild.channels.cache
 			.filter(
-				(ch): ch is TextChannel =>
+				(ch): ch is GuildChannel =>
 					ch.isTextBased() &&
 					!!ch.permissionsFor(guild.members.me!)?.has('CreateInstantInvite'),
 			)
@@ -17,7 +17,7 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 		if (!channel) {
 			return 'No invite available';
 		}
-		const invite = await channel.createInvite({
+		const invite: Invite = await channel.createInvite({
 			maxAge: 0,
 			maxUses: 0,
 		});
