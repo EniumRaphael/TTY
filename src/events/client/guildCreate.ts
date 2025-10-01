@@ -1,4 +1,4 @@
-import { Events, EmbedBuilder, Guild, GuildChannel, Invite } from 'discord.js';
+import { Events, EmbedBuilder, Guild } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
 import { Bot as BotPrisma } from '@prisma/client';
 
