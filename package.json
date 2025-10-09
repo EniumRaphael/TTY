@@ -3,7 +3,7 @@
   "module": "./src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun ./src/internal/deploy-command.ts && bun --watch src/index.ts",
+    "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "prepare": "husky"
   },
@@ -21,16 +21,16 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.3",
     "prettier": "^3.6.2",
-    "prisma": "^6.16.2",
+    "prisma": "^6.16.3",
     "typescript-eslint": "^8.45.0"
   },
   "peerDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^6.16.3",
     "discord.js": "^14.22.1",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "mariadb": "^3.4.5"
   }
 }
