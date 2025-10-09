@@ -3,15 +3,17 @@ import {
 	EmbedBuilder,
 	PresenceUpdateStatus,
 	Events,
+	User,
 } from 'discord.js';
 import { prisma } from '../../lib/prisma.ts';
+import { Bot as BotPrisma } from '@prisma/client';
 
 export default {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client: User) {
 		try {
-			const botData: Bot = await prisma.bot.findUnique({
+			const botData: BotPrisma = await prisma.bot.findUnique({
 				where: {
 					id: 1,
 				},
