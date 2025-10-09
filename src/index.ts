@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import 'dotenv/config';
-import { Client, Collection, GatewayIntentBits } from 'discord.js';
+import { Client, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -15,12 +15,12 @@ const client = new Client({
 	],
 });
 
-client.login(process.env.DSC_TOKEN);
-
 client.commands = new Collection();
 
 const commandFolderPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(commandFolderPath);
+
+const commands = [];
 
 console.log('\n🔍 | Commands search:');
 for (const folder of commandFolders) {
@@ -35,6 +35,7 @@ for (const folder of commandFolders) {
 			const command = commandModule.default || commandModule;
 			if ('data' in command && 'execute' in command) {
 				client.commands.set(command.data.name, command);
+				commands.push(command.data.toJSON());
 				console.log(`\t✅ | ${command.data.name}`);
 			}
 		}
@@ -78,55 +79,43 @@ console.log('\n\n');
 
 client.once('ready', async () => {
 	console.log(`🤖 | Connecté en tant que ${client.user?.tag}`);
-
 	await prisma.bot.upsert({
-		where: {
-			id: 1,
-		},
+		where: { id: 1 },
 		update: {},
 		create: {},
 	});
 	for (const [guildId, guild] of client.guilds.cache) {
 		await prisma.guild.upsert({
-			where: {
-				id: guildId,
-			},
+			where: { id: guildId },
 			update: {},
-			create: {
-				id: guildId,
-			},
+			create: { id: guildId },
 		});
 
 		const members = await guild.members.fetch();
-
 		for (const [memberId] of members) {
 			await prisma.user.upsert({
-				where: {
-					id: memberId,
-				},
+				where: { id: memberId },
 				update: {},
-				create: {
-					id: memberId,
-				},
+				create: { id: memberId },
 			});
-
 			await prisma.guildUser.upsert({
-				where: {
-					userId_guildId: {
-						userId: memberId,
-						guildId: guildId,
-					},
-				},
+				where: { userId_guildId: { userId: memberId, guildId } },
 				update: {},
-				create: {
-					userId: memberId,
-					guildId: guildId,
-				},
+				create: { userId: memberId, guildId },
 			});
 		}
-
-		console.log(
-			`✅ | Guild ${guild.name} synchronisée avec ${members.size} membres.`,
+		console.log(`✅ | Guild ${guild.name} synchronisée avec ${members.size} membres.`);
+	}
+	try {
+		const rest = new REST().setToken(process.env.DSC_TOKEN!);
+		const data = await rest.put(
+			Routes.applicationCommands(process.env.CLIENT_ID!),
+			{ body: commands },
 		);
+		console.log(`✅ | ${data.length} commandes déployées globalement.`);
+	}
+	catch (err) {
+		console.error('⚠️ | Erreur lors du déploiement des commandes :', err);
 	}
 });
+client.login(process.env.DSC_TOKEN);
