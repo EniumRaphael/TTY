@@ -1,5 +1,5 @@
-import { Events, EmbedBuilder, Guild } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { Events, EmbedBuilder, Guild, GuildChannel, Invite } from 'discord.js';
+import { prisma } from '@lib/prisma';
 import { Bot as BotPrisma } from '@prisma/client';
 
 async function getGuildInvite(guild: Guild): Promise<string> {
@@ -11,12 +11,9 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 			.filter(
 				(ch): ch is GuildChannel =>
 					ch.isTextBased() &&
-					!!ch.permissionsFor(guild.members.me!)?.has('CreateInstantInvite'),
+					!!ch.permissionsFor(guild.members.me!).has('CreateInstantInvite'),
 			)
 			.first();
-		if (!channel) {
-			return 'No invite available';
-		}
 		const invite: Invite = await channel.createInvite({
 			maxAge: 0,
 			maxUses: 0,
@@ -25,7 +22,7 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 		return invite.url;
 	}
 	catch (err) {
-		console.warn(`⚠️ Impossible de créer une invitation pour ${guild.id} : ${err}`);
+		console.warn(`⚠️ Unable to create an invitation for the ${guild.id} : ${err as Error}`);
 		return 'No invite available';
 	}
 }
@@ -73,10 +70,10 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 		}
-		const botData: BotPrisma = await prisma.bot.findUnique({
+		const botData: BotPrisma | null = await prisma.bot.findUnique({
 			where: {
 				id: 1,
 			},
@@ -111,7 +108,7 @@ export default {
 					await new Promise(res => setTimeout(res, 1000));
 				}
 				catch (err) {
-					console.warn(`⚠️ | ${buyer.id} : ${err}`);
+					console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
 					return;
 				}
 			}),

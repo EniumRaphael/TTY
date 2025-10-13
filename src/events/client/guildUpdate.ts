@@ -1,5 +1,5 @@
 import { Events, Guild, EmbedBuilder, channelMention } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
 
 export default {
 	name: Events.GuildUpdate,
@@ -44,7 +44,7 @@ export default {
 				.setFooter({
 					text: guildData.footer,
 				})
-				.setDescription(`${toPrint}`);
+				.setDescription(toPrint);
 			logChannel.send({
 				embeds: [
 					toRep,

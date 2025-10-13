@@ -5,7 +5,7 @@ import {
 	Events,
 	User,
 } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
 import { Bot as BotPrisma } from '@prisma/client';
 
 export default {
@@ -120,7 +120,7 @@ export default {
 						await new Promise((res) => setTimeout(res, 1000));
 					}
 					catch (err) {
-						console.warn(`⚠️ | ${buyer.id} : ${err}`);
+						console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
 						return;
 					}
 				}),
@@ -128,7 +128,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			return;
 		}
