@@ -1,10 +1,11 @@
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import {
 	userMention,
 	roleMention,
 	MessageFlags,
-	SlashCommandBuilder,
 	EmbedBuilder,
+	Guild,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
@@ -21,7 +22,7 @@ function getUserRoles(target: GuildMember): string {
 	const roles = target.roles.cache
 		.filter((role) => role.id !== target.guild.id)
 		.sort((a, b) => b.position - a.position)
-		.map((role) => `${roleMention(role.id)}`);
+		.map((role) => roleMention(role.id));
 
 	return roles.length > 0 ? roles.join(', ') : 'No role';
 }
@@ -34,11 +35,11 @@ function getUserBadges(userData: {
 }): string {
 	const badges: string[] = [];
 
-	if (userData.isDev) badges.push(`${emoji.badge.dev}`);
-	if (userData.isEnium) badges.push(`${emoji.badge.enium}`);
-	if (userData.isPwn) badges.push(`${emoji.badge.dash}`);
-	if (userData.isBuyer) badges.push(`${emoji.badge.buyer}`);
-	if (userData.isOwner) badges.push(`${emoji.badge.owner}`);
+	if (userData.isDev) badges.push(emoji.badge.dev);
+	if (userData.isEnium) badges.push(emoji.badge.enium);
+	if (userData.isPwn) badges.push(emoji.badge.dash);
+	if (userData.isBuyer) badges.push(emoji.badge.buyer);
+	if (userData.isOwner) badges.push(emoji.badge.owner);
 
 	return badges.length > 0 ? badges.join(' ') : 'Aucun badge';
 }
@@ -75,7 +76,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -99,7 +100,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+					`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -112,7 +113,7 @@ export default {
 				targetServer = await interaction.guild.members.fetch(targetGlobal.id);
 			}
 			catch (err) {
-				console.error(`\t⚠️ | Cannot get the targetServer!\n\t\t(${err}).`);
+				console.error(`\t⚠️ | Cannot get the targetServer!\n\t\t(${err as Error}).`);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot get the guild profile of the user`,
 					flags: MessageFlags.Ephemeral,

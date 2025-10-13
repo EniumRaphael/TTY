@@ -1,4 +1,5 @@
-import { MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { MessageFlags } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
 export default {
