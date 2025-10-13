@@ -64,7 +64,6 @@ export default [
       "spaced-comment": "error",
       yoda: "error",
 
-      // TypeScript rules - less strict for better DX
       "@typescript-eslint/no-unsafe-*": "off",
       "@typescript-eslint/restrict-template-expressions": "warn",
       "@typescript-eslint/no-deprecated": "warn",
