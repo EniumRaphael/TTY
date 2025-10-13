@@ -1,9 +1,9 @@
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import {
 	ActivityType,
 	PresenceUpdateStatus,
 	MessageFlags,
-	SlashCommandBuilder,
 	CommandInteraction,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
@@ -120,7 +120,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -208,7 +208,7 @@ export default {
 			}
 			const newPicture: string = interaction.options.getString('link');
 			try {
-				interaction.client.user.setAvatar(newPicture);
+				await interaction.client.user.setAvatar(newPicture);
 			}
 			catch (err) {
 				await interaction.reply({
@@ -216,7 +216,7 @@ export default {
 					flags: MessageFlags.Ephemeral,
 				});
 				console.error(
-					`\t⚠️ | Cannot change the bot profile picture!\n\t\t(${err}).`,
+					`\t⚠️ | Cannot change the bot profile picture!\n\t\t(${err as Error}).`,
 				);
 			}
 			await interaction.reply({
@@ -312,7 +312,7 @@ export default {
 			}
 			catch (err) {
 				await interaction.reply({
-					content: `${emoji.answer.no} | Cannot change the status\n\n\t${err}`,
+					content: `${emoji.answer.no} | Cannot change the status\n\n\t${err as Error}`,
 					flags: MessageFlags.Ephemeral,
 				});
 				return;
