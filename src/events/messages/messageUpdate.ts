@@ -1,5 +1,5 @@
 import { Events, EmbedBuilder, Message, Channel } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 
 export default {
@@ -25,20 +25,18 @@ export default {
 					text: guildData.footer,
 				})
 				.setDescription(`
-					Channel: ${newMessage.channel}
-					Before: ${oldMessage.content}
-					After: ${newMessage.content}
+					__Channel:__ <#${message.channel.id}> (${message.channel.name})
+					__Before:__ ${oldMessage.content}
+					__After:__ ${newMessage.content}
 				`);
 			const logChannel: Promise<Channel | null> = await newMessage.guild.client.channels
 				.fetch(guildData.logMsg)
-				.catch((err) => console.error(err));
-			if (logChannel) {
-				logChannel.send({
-					embeds: [
-						log,
-					],
-				});
-			}
+				.catch((err) => { console.error(err); });
+			logChannel.send({
+				embeds: [
+					log,
+				],
+			});
 		}
 	},
 };

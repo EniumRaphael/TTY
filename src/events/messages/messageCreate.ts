@@ -1,5 +1,5 @@
 import { Events, Message } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
 import { User as UserPrisma } from '@prisma/client';
 
 const xpCooldown: Map<string, number> = new Map<string, number>();
@@ -18,7 +18,7 @@ export default {
 	name: Events.MessageCreate,
 	async execute(message: Message) {
 		if (message.author.bot || !message.guildId || !canGainXp(message.author.id)) return;
-		const Author: UserPrisma = await prisma.user.findUnique({
+		const Author: UserPrisma | null = await prisma.user.findUnique({
 			where: { id: message.author.id },
 		});
 		if (!Author) {
@@ -53,7 +53,7 @@ export default {
 		if (newXp >= requiredXp) {
 			newLevel++;
 			await message.channel.send(
-				`🎉 | Félicitations ${message.author}, tu es maintenant niveau **${newLevel}** !`,
+				`🎉 | Félicitations <@${message.author.id}>, tu es maintenant niveau **${newLevel}** !`,
 			);
 		}
 		console.log(`${message.author.username} | ${newLevel} -> ${newXp} [${requiredXp}]`);
