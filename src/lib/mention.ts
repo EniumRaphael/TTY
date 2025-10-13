@@ -1,3 +1,5 @@
+import { Guild } from 'discord.js';
+
 export function getCorrectMention(guild: Guild, id: string): string {
 	if (id === guild.id) {
 		return '@everyone';
