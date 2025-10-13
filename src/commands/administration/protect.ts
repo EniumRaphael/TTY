@@ -1,8 +1,6 @@
+import { ButtonBuilder, ActionRowBuilder, SlashCommandBuilder } from '@discordjs/builders';
 import {
-	SlashCommandBuilder,
-	ActionRowBuilder,
 	StringSelectMenuBuilder,
-	ButtonBuilder,
 	ButtonStyle,
 	EmbedBuilder,
 	ComponentType,
@@ -45,7 +43,10 @@ function getEmbed(guildData: GuildPrisma): EmbedBuilder {
 	return baseEmbed;
 }
 
-function getButton(selected: string, active: boolean): ActionRowBuilder<ButtonBuilder> {
+function getButton(
+	selected: string,
+	active: boolean,
+): ActionRowBuilder<ButtonBuilder> {
 	const button = new ActionRowBuilder<ButtonBuilder>().addComponents(
 		new ButtonBuilder()
 			.setCustomId(`enable_${selected}`)
@@ -74,8 +75,16 @@ export default {
 		.setDescription('Manage guild protections interactively'),
 
 	async execute(interaction: ChatInputCommandInteraction) {
-		const guildId: string | null = interaction.guildId!;
-		let guildData: GuildPrisma = await prisma.guild.findUnique({
+		const guildId = interaction.guildId;
+		if (!guildId) {
+			await interaction.reply({
+				content: 'This command can only be used in a guild.',
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+
+		let guildData = await prisma.guild.findUnique({
 			where: {
 				id: guildId,
 			},
@@ -98,87 +107,107 @@ export default {
 			);
 		const msg = await interaction.reply({
 			embeds: [getEmbed(guildData)],
-			components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu)],
+			components: [
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu),
+			],
 			flags: MessageFlags.Ephemeral,
 		});
 		const collector = msg.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			time: 5 * 60 * 1000,
 		});
-		collector.on('collect', async (selectInteraction) => {
-			if (selectInteraction.user.id !== interaction.user.id) {
-				return selectInteraction.reply({
-					content: '❌ You cannot use this menu.',
-					flags: MessageFlags.Ephemeral,
+		collector.on('collect', (selectInteraction) => {
+			void (async () => {
+				if (selectInteraction.user.id !== interaction.user.id) {
+					await selectInteraction.reply({
+						content: '❌ You cannot use this menu.',
+						flags: MessageFlags.Ephemeral,
+					});
+					return;
+				}
+				const selected: string = selectInteraction
+					.values[0] as keyof typeof modules;
+				const enabled = guildData[
+          `protect${camel(selected)}` as keyof GuildPrisma
+				] as boolean;
+				const moduleEmbed = new EmbedBuilder()
+					.setTitle(`⚙️ | Manage ${modules[selected as keyof typeof modules]}`)
+					.setFooter({
+						text: guildData.footer,
+					})
+					.setDescription(
+						`This module is currently: **${enabled ? 'Enabled ✅' : 'Disabled ❌'}**`,
+					)
+					.setColor(enabled ? '#00ff00' : '#ff0000');
+				await selectInteraction.update({
+					embeds: [moduleEmbed],
+					components: [getButton(selected, true)],
 				});
-			}
-			const selected: string = selectInteraction.values[0] as keyof typeof modules;
-			const enabled = guildData![`protect${camel(selected)}`];
-			const moduleEmbed = new EmbedBuilder()
-				.setTitle(`⚙️ | Manage ${modules[selected]}`)
-				.setFooter({
-					text: guildData.footer,
-				})
-				.setDescription(
-					`This module is currently: **${enabled ? 'Enabled ✅' : 'Disabled ❌'}**`,
-				)
-				.setColor(enabled ? '#00ff00' : '#ff0000');
-			await selectInteraction.update({
-				embeds: [moduleEmbed],
-				components: [getButton(selected, true)],
-			});
+			})();
 		});
 		const buttonCollector = msg.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: 5 * 60 * 1000,
 		});
-		buttonCollector.on('collect', async (btnInteraction) => {
-			if (btnInteraction.user.id !== interaction.user.id) {
-				return btnInteraction.reply({
-					content: '❌ | You cannot use these buttons.',
-					flags: MessageFlags.Ephemeral,
+		buttonCollector.on('collect', (btnInteraction) => {
+			void (async () => {
+				if (btnInteraction.user.id !== interaction.user.id) {
+					await btnInteraction.reply({
+						content: '❌ | You cannot use these buttons.',
+						flags: MessageFlags.Ephemeral,
+					});
+					return;
+				}
+				if (btnInteraction.customId === 'return') {
+					await btnInteraction.update({
+						embeds: [getEmbed(guildData)],
+						components: [
+							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+								menu,
+							),
+						],
+					});
+					return;
+				}
+				const [action, moduleName] = btnInteraction.customId.split('_');
+				if (!moduleName) return;
+
+				const field = `protect${camel(moduleName)}`;
+				await prisma.guild.update({
+					where: {
+						id: guildId,
+					},
+					data: {
+						[field]: action === 'enable',
+					},
 				});
-			}
-			if (btnInteraction.customId === 'return') {
-				return btnInteraction.update({
-					embeds: [getEmbed(guildData)],
-					components: [
-						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu),
+				const updatedGuildData = await prisma.guild.findUnique({
+					where: {
+						id: guildId,
+					},
+				});
+				if (!updatedGuildData) return;
+
+				guildData = updatedGuildData;
+				await btnInteraction.update({
+					embeds: [
+						new EmbedBuilder()
+							.setTitle(
+								`⚙️ | Manage ${modules[moduleName as keyof typeof modules]}`,
+							)
+							.setFooter({
+								text: updatedGuildData.footer,
+							})
+							.setDescription(
+								`This module is now: **${
+									action === 'enable' ? '✅ Enabled' : '❌ Disabled'
+								}**`,
+							)
+							.setColor(action === 'enable' ? '#00ff00' : '#ff0000'),
 					],
+					components: [getButton(moduleName, false)],
 				});
-			}
-			const [action, moduleName] = btnInteraction.customId.split('_');
-			const field = `protect${camel(moduleName)}`;
-			await prisma.guild.update({
-				where: {
-					id: guildId,
-				},
-				data: {
-					[field]: action === 'enable',
-				},
-			});
-			guildData = await prisma.guild.findUnique({
-				where: {
-					id: guildId,
-				},
-			});
-			await btnInteraction.update({
-				embeds: [
-					new EmbedBuilder()
-						.setTitle(`⚙️ | Manage ${modules[moduleName as keyof typeof modules]}`)
-						.setFooter({
-							text: guildData.footer,
-						})
-						.setDescription(
-							`This module is now: **${
-								action === 'enable' ? '✅ Enabled' : '❌ Disabled'
-							}**`,
-						)
-						.setColor(action === 'enable' ? '#00ff00' : '#ff0000'),
-				],
-				components: [getButton(null, false)],
-			});
+			})();
 		});
 	},
 };
-
