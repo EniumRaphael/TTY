@@ -40,7 +40,7 @@ for (const folder of commandFolders) {
 			}
 		}
 		catch (err) {
-			console.error(`\t⚠️ | Command at ${file}\n\t\t(${err}).`);
+			console.error(`\t⚠️ | Command at ${file}\n\t\t(${err as Error}).`);
 		}
 	}
 }
@@ -71,51 +71,49 @@ for (const folder of eventFolders) {
 			}
 		}
 		catch (err) {
-			console.error(`\t⚠️ | Event at ${file}\n\t\t(${err}).`);
+			console.error(`\t⚠️ | Event at ${file}\n\t\t(${err as Error}).`);
 		}
 	}
 }
 console.log('\n\n');
 
-client.once('ready', async () => {
-	console.log(`🤖 | Connecté en tant que ${client.user?.tag}`);
-	await prisma.bot.upsert({
-		where: { id: 1 },
-		update: {},
-		create: {},
-	});
-	for (const [guildId, guild] of client.guilds.cache) {
-		await prisma.guild.upsert({
-			where: { id: guildId },
-			update: {},
-			create: { id: guildId },
+client.once('ready', () => {
+	void (async () => {
+		console.log(`🤖 | Connecté en tant que ${client.user?.tag}`);
+		await prisma.bot.upsert({
+			where: { id: 1 },
+			create: {},
 		});
+		for (const [guildId, guild] of client.guilds.cache) {
+			await prisma.guild.upsert({
+				where: { id: guildId },
+				create: { id: guildId },
+			});
 
-		const members = await guild.members.fetch();
-		for (const [memberId] of members) {
-			await prisma.user.upsert({
-				where: { id: memberId },
-				update: {},
-				create: { id: memberId },
-			});
-			await prisma.guildUser.upsert({
-				where: { userId_guildId: { userId: memberId, guildId } },
-				update: {},
-				create: { userId: memberId, guildId },
-			});
+			const members = await guild.members.fetch();
+			for (const [memberId] of members) {
+				await prisma.user.upsert({
+					where: { id: memberId },
+					create: { id: memberId },
+				});
+				await prisma.guildUser.upsert({
+					where: { userId_guildId: { userId: memberId, guildId } },
+					create: { userId: memberId, guildId },
+				});
+			}
+			console.log(`✅ | Guild ${guild.name} synchronisée avec ${members.size} membres.`);
 		}
-		console.log(`✅ | Guild ${guild.name} synchronisée avec ${members.size} membres.`);
-	}
-	try {
-		const rest = new REST().setToken(process.env.DSC_TOKEN!);
-		const data = await rest.put(
-			Routes.applicationCommands(process.env.CLIENT_ID!),
-			{ body: commands },
-		);
-		console.log(`✅ | ${data.length} commandes déployées globalement.`);
-	}
-	catch (err) {
-		console.error('⚠️ | Erreur lors du déploiement des commandes :', err);
-	}
+		try {
+			const rest = new REST().setToken(process.env.DSC_TOKEN!);
+			const data = await rest.put(
+				Routes.applicationCommands(process.env.CLIENT_ID!),
+				{ body: commands },
+			);
+			console.log(`✅ | ${data.length} commandes déployées globalement.`);
+		}
+		catch (err) {
+			console.error('⚠️ | Erreur lors du déploiement des commandes :', err);
+		}
+	});
 });
-client.login(process.env.DSC_TOKEN);
+await client.login(process.env.DSC_TOKEN);
