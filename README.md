@@ -11,7 +11,7 @@ This project is ideal for learning, experimenting, or enhancing your Discord exp
 
 ### Main Features
 
-- Custom commands (add an example here)
+- Custom commands
 - Easily extensible
 - Fast, thanks to Bun
 
@@ -85,7 +85,7 @@ Ce projet est idéal pour apprendre, expérimenter ou enrichir votre expérience
 
 ### Fonctionnalités principales
 
-- Commandes personnalisées (ajoutez ici un exemple)
+- Commandes personnalisées
 - Facilement extensible
 - Rapide grâce à Bun
 
