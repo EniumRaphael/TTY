@@ -6,20 +6,12 @@ export default {
 	async execute(interaction: Interaction) {
 		if (!interaction.isChatInputCommand()) return;
 		const command: CommandInteraction = interaction.client.commands.get(interaction.commandName);
-		if (!command) {
-			console.error(`⚠️ | Can't execute ${interaction.commandName}`);
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot execute the command ${interaction.commandName}`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
 		try {
 			await command.execute(interaction);
 		}
-		catch (error) {
+		catch (err) {
 			console.error(
-				`⚠️ | Error when occured this command ${interaction.commandName}\n\t${error}`,
+				`⚠️ | Error when occured this command ${interaction.commandName}\n\t${err as Error}`,
 			);
 			if (interaction.replied || interaction.deferred) {
 				await interaction.followUp({
