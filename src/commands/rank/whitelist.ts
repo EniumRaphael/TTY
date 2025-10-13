@@ -1,5 +1,6 @@
-import { CommandInteraction, EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { CommandInteraction, EmbedBuilder, MessageFlags } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { prisma } from '@lib/prisma';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { User as UserPrisma } from '@prisma/client';
 import { Guild as GuildPrisma } from '@prisma/client';
@@ -45,7 +46,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Whitelist => Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Whitelist => Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -63,7 +64,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -113,7 +114,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Error when adding ${target.username} to the whitelist\n\t${err}`,
+					`⚠️ | Error when adding ${target.username} to the whitelist\n\t${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Error when adding ${target.username} to the whitelist`,
@@ -173,7 +174,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Error when removing ${target.username} to the username\n\t${err}`,
+					`⚠️ | Error when removing ${target.username} to the username\n\t${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot remove ${target.username} from the whitelist`,
@@ -219,7 +220,7 @@ export default {
 							return `- ${user.username} (\`${user.id}\`)\n`;
 						}
 						catch (err) {
-							console.warn(`⚠️ | ${whitelist.id} : ${err}`);
+							console.warn(`⚠️ | ${whitelist.id} : ${err as Error}`);
 							return null;
 						}
 					}),
@@ -239,7 +240,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Whitelist => error when fetching infromation from the database: ${err}`,
+					`⚠️ | Whitelist => error when fetching infromation from the database: ${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,
