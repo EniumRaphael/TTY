@@ -1,6 +1,6 @@
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
+import { ActionRowBuilder, SlashCommandBuilder } from '@discordjs/builders';
 import {
-	ActionRowBuilder,
 	ChannelType,
 	PermissionsBitField,
 	ComponentType,
@@ -8,12 +8,13 @@ import {
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
-	SlashCommandBuilder,
 	MessageFlags,
 	EmbedBuilder,
-	CommandInteraction,
+	ChatInputCommandInteraction,
+	CategoryChannel,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+import { Guild, User } from '@prisma/client';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -43,8 +44,16 @@ export default {
 					},
 				),
 		),
-	async execute(interaction: CommandInteraction) {
-		let guildData: Guild;
+	async execute(interaction: ChatInputCommandInteraction) {
+		if (!interaction.guild) {
+			await interaction.reply({
+				content: `${emoji.answer.error} | This command can only be used in a guild`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+
+		let guildData: Guild | null;
 		try {
 			guildData = await prisma.guild.findUnique({
 				where: {
@@ -52,9 +61,10 @@ export default {
 				},
 			});
 		}
-		catch (err) {
+		catch (err: unknown) {
+			const errorMessage = err instanceof Error ? err.message : String(err);
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${errorMessage}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -62,7 +72,16 @@ export default {
 			});
 			return;
 		}
-		let userData: User;
+
+		if (!guildData) {
+			await interaction.reply({
+				content: `${emoji.answer.error} | Guild data not found`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+
+		let userData: User | null;
 		try {
 			userData = await prisma.user.findUnique({
 				where: {
@@ -70,10 +89,23 @@ export default {
 				},
 			});
 		}
-		catch (err) {
-			throw `\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`;
+		catch (err: unknown) {
+			const errorMessage = err instanceof Error ? err.message : String(err);
+			throw new Error(
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${errorMessage}).`,
+			);
 		}
-		const choice: string = interaction.options.getString('action');
+
+		if (!userData) {
+			await interaction.reply({
+				content: `${emoji.answer.error} | User data not found`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+
+		const choice = interaction.options.getString('action', true);
+
 		switch (choice) {
 		case 'logs_show': {
 			if (!userData.isOwner) {
@@ -86,7 +118,7 @@ export default {
 			if (guildData.logEnable) {
 				const logsData: EmbedBuilder = new EmbedBuilder()
 					.setTitle(`Logs for ${interaction.guild.name}`)
-					.setColor(`${guildData.color}`)
+					.setColor(guildData.color)
 					.setFooter({
 						text: guildData.footer,
 					}).setDescription(`
@@ -128,8 +160,8 @@ export default {
 				return;
 			}
 
-			const roles = interaction.guild?.roles.cache
-				.filter((role) => !role.managed && role.id !== interaction.guild?.id)
+			const roles = interaction.guild.roles.cache
+				.filter((role) => !role.managed && role.id !== interaction.guild.id)
 				.sort((a, b) => b.position - a.position);
 
 			const menu = new StringSelectMenuBuilder()
@@ -150,7 +182,7 @@ export default {
 
 			const permSelector: EmbedBuilder = new EmbedBuilder()
 				.setTitle('Which role will have access')
-				.setColor(`${guildData.color}`)
+				.setColor(guildData.color)
 				.setFooter({
 					text: guildData.footer,
 				});
@@ -158,27 +190,29 @@ export default {
 			const msg = await interaction.reply({
 				embeds: [permSelector],
 				components: [roleSelection],
-				flags: MessageFlags.fetchReply,
 			});
 			const collector = msg.createMessageComponentCollector({
 				componentType: ComponentType.StringSelect,
 				time: 60_000,
 				max: 25,
 			});
-			collector.on('end', async (collected) => {
-				if (collected.size === 0) {
-					await interaction.editReply({
-						content: '⏰ | Too many time to select roles allowed to see the logs',
-						embeds: [],
-						components: [],
-					});
-				}
+			collector.on('end', (collected) => {
+				void (async () => {
+					if (collected.size === 0) {
+						await interaction.editReply({
+							content:
+                  '⏰ | Too many time to select roles allowed to see the logs',
+							embeds: [],
+							components: [],
+						});
+					}
+				})();
 			});
 			collector.on(
 				'collect',
 				async (selectInteraction: StringSelectMenuInteraction) => {
 					if (selectInteraction.user.id !== interaction.user.id) {
-						selectInteraction.reply({
+						void selectInteraction.reply({
 							content: `${emoji.answer.no} | You cannot use this selector !`,
 							ephemeral: true,
 						});
@@ -199,53 +233,53 @@ export default {
 						})),
 					];
 
-					const category = (await interaction.guild.channels.create({
+					const category = await interaction.guild.channels.create({
 						name: 'Logs',
 						type: ChannelType.GuildCategory,
 						permissionOverwrites,
-					})) as CategoryChannel;
+					});
 
-					const logBot = (await interaction.guild.channels.create({
+					const logBot = await interaction.guild.channels.create({
 						name: 'bot-logs',
 						type: ChannelType.GuildText,
 						parent: category,
 						permissionOverwrites,
-					})) as TextChannel;
+					});
 
-					const logChannels = (await interaction.guild.channels.create({
+					const logChannels = await interaction.guild.channels.create({
 						name: 'channel-logs',
 						type: ChannelType.GuildText,
 						parent: category,
 						permissionOverwrites,
-					})) as TextChannel;
+					});
 
-					const logMember = (await interaction.guild.channels.create({
+					const logMember = await interaction.guild.channels.create({
 						name: 'member-logs',
 						type: ChannelType.GuildText,
 						parent: category,
 						permissionOverwrites,
-					})) as TextChannel;
+					});
 
-					const logMod = (await interaction.guild.channels.create({
+					const logMod = await interaction.guild.channels.create({
 						name: 'mod-logs',
 						type: ChannelType.GuildText,
 						parent: category,
 						permissionOverwrites,
-					})) as TextChannel;
+					});
 
-					const logMsg = (await interaction.guild.channels.create({
+					const logMsg = await interaction.guild.channels.create({
 						name: 'message-logs',
 						type: ChannelType.GuildText,
 						parent: category,
 						permissionOverwrites,
-					})) as TextChannel;
+					});
 
-					const logServer = (await interaction.guild.channels.create({
+					const logServer = await interaction.guild.channels.create({
 						name: 'server-logs',
 						type: ChannelType.GuildText,
 						parent: category,
 						permissionOverwrites,
-					})) as TextChannel;
+					});
 
 					await prisma.guild.update({
 						where: {
@@ -273,7 +307,7 @@ export default {
 						${mentionList}
 					`,
 						)
-						.setColor(`${guildData.color}`)
+						.setColor(guildData.color)
 						.setFooter({
 							text: guildData.footer,
 						});
@@ -301,27 +335,47 @@ export default {
 				});
 				return;
 			}
-			const category: GuildCategory = await interaction.guild.channels.fetch(guildData.logCategory);
+			if (!guildData.logCategory) {
+				await interaction.reply({
+					content: `${emoji.answer.error} | No log category found`,
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+			const category = (await interaction.guild.channels.fetch(
+				guildData.logCategory,
+			)) as CategoryChannel | null;
+			if (!category) {
+				await interaction.reply({
+					content: `${emoji.answer.error} | Category not found`,
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
 			try {
 				for (const channel of category.children.cache.values()) {
 					await channel.delete(
-						`Delete cat of ${channel.name} (by ${interaction.username})`,
+						`Delete cat of ${channel.name} (by ${interaction.user.username})`,
 					);
 				}
 				await category.delete(
-					`Delete cat of ${category.name} (by ${interaction.username})`,
+					`Delete cat of ${category.name} (by ${interaction.user.username})`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.yes} | Disabled the logs of the guild`,
 					flags: MessageFlags.Ephemeral,
 				});
 			}
-			catch (err) {
+			catch (err: unknown) {
+				const errorMessage =
+            err instanceof Error ? err.message : (err as string);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot suppress the category's channels`,
 					flags: MessageFlags.Ephemeral,
 				});
-				console.error(`Cannot suppress the category's channel:\n\t${err}`);
+				console.error(
+					`Cannot suppress the category's channel:\n\t${errorMessage}`,
+				);
 				return;
 			}
 			await prisma.guild.update({
@@ -343,6 +397,10 @@ export default {
 		}
 		default:
 			console.error(`no choice on logs command ${choice}`);
+			await interaction.reply({
+				content: `${emoji.answer.error} | Invalid choice`,
+				flags: MessageFlags.Ephemeral,
+			});
 			return;
 		}
 	},
