@@ -1,5 +1,7 @@
-import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { EmbedBuilder, MessageFlags } from 'discord.js';
+import { prisma } from '@lib/prisma';
+import { Guild as GuildPrisma } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
 export default {
@@ -43,7 +45,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -51,7 +53,7 @@ export default {
 			});
 			return;
 		}
-		let guildData: Guild;
+		let guildData: GuildPrisma;
 		try {
 			guildData = await prisma.guild.findUnique({
 				where: {
@@ -61,7 +63,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -114,7 +116,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Error when adding ${target.username} to the buyer list\n\t${err}`,
+					`⚠️ | Error when adding ${target.username} to the buyer list\n\t${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Error when adding ${target.username} to the owner list`,
@@ -177,7 +179,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Error when removing ${target.username} to the buyer list\n\t${err}`,
+					`⚠️ | Error when removing ${target.username} to the buyer list\n\t${err as Error}`,
 				);
 				return;
 			}
@@ -219,7 +221,7 @@ export default {
 							return `- ${user.username} (\`${user.id}\`)\n`;
 						}
 						catch (err) {
-							console.warn(`⚠️ | ${buyer.id} : ${err}`);
+							console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
 							return null;
 						}
 					}),
@@ -239,7 +241,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | error when fetching infromation from the database: ${err}`,
+					`⚠️ | error when fetching infromation from the database: ${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,

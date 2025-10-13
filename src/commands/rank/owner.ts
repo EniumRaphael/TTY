@@ -1,5 +1,7 @@
-import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandInteraction, EmbedBuilder, MessageFlags } from 'discord.js';
+import { prisma } from '@lib/prisma';
+import { Guild as GuildPrisma, User as UserPrima } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
 export default {
@@ -33,7 +35,7 @@ export default {
 		),
 	async execute(interaction: CommandInteraction) {
 		const subcommand = interaction.options.getSubcommand();
-		let userData: User;
+		let userData: UserPrima | null;
 		try {
 			userData = await prisma.user.findUnique({
 				where: {
@@ -43,7 +45,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -51,7 +53,7 @@ export default {
 			});
 			return;
 		}
-		let guildData: Guild;
+		let guildData: GuildPrisma | null;
 		try {
 			guildData = await prisma.guild.findUnique({
 				where: {
@@ -61,7 +63,7 @@ export default {
 		}
 		catch (err) {
 			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err}).`,
+				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
 			);
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
@@ -107,7 +109,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Error when adding ${target.username} to the owner list\n\t${err}`,
+					`⚠️ | Error when adding ${target.username} to the owner list\n\t${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Error when adding ${target.username} to the owner list`,
@@ -163,7 +165,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | Error when removing ${target.username} to the owner list\n\t${err}`,
+					`⚠️ | Error when removing ${target.username} to the owner list\n\t${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot removing the user from the owner list`,
@@ -209,7 +211,7 @@ export default {
 							return `- ${user.username} (\`${user.id}\`)\n`;
 						}
 						catch (err) {
-							console.warn(`⚠️ | ${owner.id} : ${err}`);
+							console.warn(`⚠️ | ${owner.id} : ${err as Error}`);
 							return null;
 						}
 					}),
@@ -229,7 +231,7 @@ export default {
 			}
 			catch (err) {
 				console.error(
-					`⚠️ | error when fetching infromation from the database: ${err}`,
+					`⚠️ | error when fetching infromation from the database: ${err as Error}`,
 				);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,
