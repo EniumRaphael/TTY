@@ -20,7 +20,7 @@ export default {
 				limit: 5,
 			});
 			const entry = [...logs.entries.values()]
-				.filter(e => (e.target as GuildChannel)?.id === newChannel.id)
+				.filter(e => (e.target as GuildChannel).id === newChannel.id)
 				.sort((a, b) => b.createdTimestamp - a.createdTimestamp)[0];
 			const executor = entry?.executor;
 			const guildData: GuildPrisma | null = await prisma.guild.findUnique({
@@ -78,7 +78,7 @@ export default {
 			}
 		}
 		catch (err) {
-			console.error(`⚠️ | ChannelUpdate log error: ${err}`);
+			console.error(`⚠️ | ChannelUpdate log error: ${err as Error}`);
 		}
 	},
 };

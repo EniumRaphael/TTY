@@ -1,7 +1,7 @@
 import { Events, AuditLogEvent, TextChannel, EmbedBuilder, Channel } from 'discord.js';
 import { prisma } from '../../lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
-import { isWhitelisted } from '../../lib/perm.ts';
+import { isWhitelisted } from '@lib/perm';
 
 export default {
 	name: Events.ChannelCreate,
@@ -21,8 +21,7 @@ export default {
 					id: channel.guild.id,
 				},
 			});
-			if (!guildData) return;
-			if (!isWhitelisted(executor.id, channel.guild.id)) {
+			if (!(await isWhitelisted(executor.id, channel.guild.id))) {
 				await channel.delete(`Unauthorized channel creation by ${executor.tag}`);
 				const member = await channel.guild.members.fetch(executor.id).catch(() => null);
 				if (member) {
@@ -44,7 +43,7 @@ export default {
 							.setFooter({
 								text: guildData.footer,
 							});
-						(logChannel as TextChannel).send({
+						await (logChannel as TextChannel).send({
 							embeds: [embed],
 						});
 					}
@@ -62,14 +61,14 @@ export default {
 						.setFooter({
 							text: guildData.footer,
 						});
-					(logChannel as TextChannel).send({
+					await (logChannel as TextChannel).send({
 						embeds: [embed],
 					});
 				}
 			}
 		}
 		catch (err) {
-			console.error(`⚠️ | ChannelCreate protection error: ${err}`);
+			console.error(`⚠️ | ChannelCreate protection error: ${err as Error}`);
 		}
 	},
 };
