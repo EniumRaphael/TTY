@@ -1,5 +1,5 @@
 import { Events, Guild, EmbedBuilder, channelMention, Channel } from 'discord.js';
-import { prisma } from '../../lib/prisma.ts';
+import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 
 const verificationLevels: string[] = [
@@ -29,7 +29,7 @@ export default {
 			const logChannel : Channel = await newGuild.client.channels
 				.fetch(guildData.logServer)
 				.catch(() => null);
-			if (!logChannel || !logChannel.isTextBased()) {return;}
+			if (!logChannel.isTextBased()) {return;}
 			if (oldGuild.name !== newGuild.name) {
 				toPrint += `- Name:\n\`${oldGuild.name}\` => \`${newGuild.name}\`\n`;
 			}
@@ -55,11 +55,11 @@ export default {
 				toPrint += `- Filter:\n\`${oldGuild.premiumTier}\` => \`${newGuild.premiumTier}\`\n`;
 			}
 			const toRep = new EmbedBuilder()
-				.setColor(`${guildData.color}`)
+				.setColor(guildData.color)
 				.setFooter({
 					text: guildData.footer,
 				})
-				.setDescription(`${toPrint}`);
+				.setDescription(toPrint);
 			logChannel.send({
 				embeds: [
 					toRep,
