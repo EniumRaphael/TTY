@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "debug": "bun --watch src/index.ts --debug",
+    "build": "bun build $(find src -name '*.ts') --outdir dist --minify --target bun",
     "lint": "bunx eslint src --ext .ts,.js --fix || watch -n 0.5 bunx eslint src --ext .ts,.js",
     "lint:fix": "bunx eslint src --ext .ts,.js --fix",
     "type-check": "bunx tsc --noEmit",
