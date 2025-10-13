@@ -1,6 +1,7 @@
-import { MessageFlags, SlashCommandBuilder, ChannelType, CommandInteraction } from 'discord.js';
-import emoji from '../../../assets/emoji.json' assert { type: 'json' };
-import { isWhitelisted } from '../../lib/perm.ts';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { MessageFlags, ChannelType, TextChannel, ChatInputCommandInteraction } from 'discord.js';
+import emoji from '../../../assets/emoji.json' with { type: 'json' };
+import { isWhitelisted } from '../../lib/perm.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -12,33 +13,54 @@ export default {
 				.setDescription('Choose the channel you want to renew')
 				.addChannelTypes(ChannelType.GuildText),
 		),
-	async execute(interaction: CommandInteraction) {
+	async execute(interaction: ChatInputCommandInteraction) {
+		if (!interaction.guild) {
+			await interaction.reply({
+				content: `${emoji.answer.error} | This command can only be used in a server.`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
 		if (!(await isWhitelisted(interaction.user.id, interaction.guild.id))) {
-			interaction.reply({
+			await interaction.reply({
 				content: `${emoji.answer.no} | You're not whitelisted on this server`,
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
 		}
-		const oldChannel : ChannelType.GuildText = interaction.options.getChannel(
-			'channel',
-		) || interaction.channel;
+		const oldChannel = (interaction.options.getChannel('channel') ?? interaction.channel) as TextChannel | null;
+		if (!oldChannel) {
+			await interaction.reply({
+				content: `${emoji.answer.error} | Invalid or missing text channel.`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
 		const pos: number = oldChannel.position;
 
-		oldChannel.clone().then((newchannel) => {
-			newchannel.setPosition(pos);
-			interaction.client.channels.fetch(newchannel.id).then(
-				channel => channel.send({
-					content: `${emoji.answer.yes} | ${newchannel} has been nuked by \`${interaction.user.username}\``,
-					ephermal: true,
-				}),
+		try {
+			const newchannel = await oldChannel.clone();
+			await newchannel.setPosition(pos);
+			const fetchedChannel = await interaction.client.channels.fetch(
+				newchannel.id,
 			);
-			try {
-				oldChannel.delete();
+			if (
+				fetchedChannel &&
+        fetchedChannel.type === ChannelType.GuildText &&
+        typeof (fetchedChannel as TextChannel).send === 'function'
+			) {
+				await (fetchedChannel as TextChannel).send({
+					content: `${emoji.answer.yes} | ${newchannel.toString()} has been nuked by \`${interaction.user.username}\``,
+				});
 			}
-			catch (err) {
-				console.error(`⚠️ | Error when suppressing the channel\n\t${err}`);
-			}
-		});
+			await oldChannel.delete();
+		}
+		catch (err) {
+			console.error(`⚠️ | Error when nuking the channel\n\t${err as Error}`);
+			await interaction.reply({
+				content: `${emoji.answer.no} | An error occurred while nuking the channel.`,
+				flags: MessageFlags.Ephemeral,
+			});
+		}
 	},
 };
