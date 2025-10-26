@@ -8,6 +8,7 @@ import {
 	Guild,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+import { log } from '@lib/log';
 
 function getGuildRoles(guild: Guild): string {
 	const roles = guild.roles.cache
@@ -75,9 +76,7 @@ export default {
 			});
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection!');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -99,9 +98,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-				);
+				log.error(err, 'Cannot get the database connection!');
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot connect to the database`,
 					flags: MessageFlags.Ephemeral,
@@ -113,7 +110,7 @@ export default {
 				targetServer = await interaction.guild.members.fetch(targetGlobal.id);
 			}
 			catch (err) {
-				console.error(`\t⚠️ | Cannot get the targetServer!\n\t\t(${err as Error}).`);
+				log.error(err, 'Cannot get the targetServer!');
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot get the guild profile of the user`,
 					flags: MessageFlags.Ephemeral,
@@ -139,12 +136,12 @@ export default {
 						${targetGlobal.username}
 						**🆔 | ID:**
 						${targetGlobal.id}
-		
+
 						**🔰 | Roles:**
 						${getUserRoles(targetServer)}
 						**🎖️ | Badges:**
 						${getUserBadges(userData)}
-		
+
 						**🍼 | Account Creation:**
 						<t:${parseInt(targetGlobal.createdTimestamp / 1000)}:f> (<t:${parseInt(targetGlobal.createdTimestamp / 1000)}:R>)
 						**🛬 | Server Join:**
