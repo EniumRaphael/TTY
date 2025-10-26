@@ -1,6 +1,7 @@
 import { Events, Message } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { User as UserPrisma } from '@prisma/client';
+import { GuildUser as GuildUserPrisma } from '@prisma/client';
 
 const xpCooldown: Map<string, number> = new Map<string, number>();
 
@@ -28,7 +29,7 @@ export default {
 				},
 			});
 		}
-		let guildUser = await prisma.guildUser.findUnique({
+		let guildUser: GuildUserPrisma | null = await prisma.guildUser.findUnique({
 			where: {
 				userId_guildId: {
 					userId: message.author.id,

@@ -1,5 +1,6 @@
 import { Events, EmbedBuilder, Message, Channel } from 'discord.js';
 import { prisma } from '@lib/prisma';
+import { log } from '@lib/log';
 import { Guild as GuildPrisma } from '@prisma/client';
 
 export default {
@@ -11,7 +12,7 @@ export default {
 			},
 		});
 		if (guildData.logMsg) {
-			const log = new EmbedBuilder()
+			const logEmbed = new EmbedBuilder()
 				.setAuthor({
 					name: `${newMessage.author.tag} (${newMessage.author.id})`,
 					iconURL: newMessage.author.displayAvatarURL({
@@ -31,10 +32,12 @@ export default {
 				`);
 			const logChannel: Promise<Channel | null> = await newMessage.guild.client.channels
 				.fetch(guildData.logMsg)
-				.catch((err) => { console.error(err); });
+				.catch((err) => {
+					log.error(err, 'Unable to fetch the log channel');
+				});
 			logChannel.send({
 				embeds: [
-					log,
+					logEmbed,
 				],
 			});
 		}
