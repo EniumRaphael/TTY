@@ -10,11 +10,14 @@ export default {
 			},
 		});
 		if (guildData.logServer) {
-			let toPrint: string = 'The update of the guild had changes theses thing\n';
+			let toPrint: string =
+        'The update of the guild had changes theses thing\n';
 			const logChannel = await newGuild.client.channels
 				.fetch(guildData.logServer)
 				.catch(() => null);
-			if (!logChannel || !logChannel.isTextBased()) {return;}
+			if (!logChannel || !logChannel.isTextBased()) {
+				return;
+			}
 			if (oldGuild.name !== newGuild.name) {
 				toPrint += `- Name:\n\`${oldGuild.name}\` => \`${newGuild.name}\`\n`;
 			}
@@ -46,9 +49,7 @@ export default {
 				})
 				.setDescription(toPrint);
 			logChannel.send({
-				embeds: [
-					toRep,
-				],
+				embeds: [toRep],
 			});
 		}
 	},

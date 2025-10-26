@@ -1,17 +1,18 @@
 import { Events, EmbedBuilder, Guild, GuildChannel, Invite } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { Bot as BotPrisma } from '@prisma/client';
+import { log } from '@lib/log';
 
 async function getGuildInvite(guild: Guild): Promise<string> {
 	try {
 		if (guild.vanityURLCode) {
 			return `https://discord.gg/${guild.vanityURLCode}`;
 		}
-		const channel : GuildChannel = guild.channels.cache
+		const channel: GuildChannel = guild.channels.cache
 			.filter(
 				(ch): ch is GuildChannel =>
 					ch.isTextBased() &&
-					!!ch.permissionsFor(guild.members.me!).has('CreateInstantInvite'),
+          !!ch.permissionsFor(guild.members.me!).has('CreateInstantInvite'),
 			)
 			.first();
 		const invite: Invite = await channel.createInvite({
@@ -22,7 +23,7 @@ async function getGuildInvite(guild: Guild): Promise<string> {
 		return invite.url;
 	}
 	catch (err) {
-		console.warn(`⚠️ Unable to create an invitation for the ${guild.id} : ${err as Error}`);
+		log.warn(err, `Unable to create an invitation for the ${guild.id}`);
 		return 'No invite available';
 	}
 }
@@ -69,9 +70,7 @@ export default {
 			}
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection');
 		}
 		const botData: BotPrisma | null = await prisma.bot.findUnique({
 			where: {
@@ -88,27 +87,27 @@ export default {
 		const buyerNotification: EmbedBuilder = new EmbedBuilder()
 			.setTitle(`${guild.client.user.username} joined a new server`)
 			.setColor('#663399')
-			.setDescription(`
+			.setDescription(
+				`
 			Name: ${guild.name}
 			Owner id: ${guild.ownerId}
-			Invite: ${guild.vanityURLCode || await getGuildInvite(guild)}
+			Invite: ${guild.vanityURLCode || (await getGuildInvite(guild))}
 			Member: ${guild.memberCount}
-			`)
+			`,
+			)
 			.setTimestamp();
 		await Promise.all(
 			botData.buyers.map(async (buyer) => {
 				try {
 					const user = await guild.client.users.fetch(buyer.id);
 					const dm = await user.createDM();
-					await dm.send ({
-						embeds: [
-							buyerNotification,
-						],
+					await dm.send({
+						embeds: [buyerNotification],
 					});
-					await new Promise(res => setTimeout(res, 1000));
+					await new Promise((res) => setTimeout(res, 1000));
 				}
 				catch (err) {
-					console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
+					log.warn(err, `Unable to fetch ${buyer.id} user`);
 					return;
 				}
 			}),

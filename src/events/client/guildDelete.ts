@@ -1,6 +1,7 @@
-import { Events, EmbedBuilder, Guild } from 'discord.js';
+import { Events, EmbedBuilder, Guild, User } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { Bot as BotPrisma } from '@prisma/client';
+import { log } from '@lib/log';
 
 export default {
 	name: Events.GuildDelete,
@@ -23,26 +24,26 @@ export default {
 			.setFooter({
 				text: guildData.footer,
 			})
-			.setDescription(`
+			.setDescription(
+				`
 			Name: ${guild.name}
 			Owner id: ${guild.ownerId}
 			Member: ${guild.memberCount}
-			`)
+			`,
+			)
 			.setTimestamp();
 		await Promise.all(
-			botData.buyers.map(async (buyer) => {
+			botData.buyers.map(async (buyer: User) => {
 				try {
 					const user = await guild.client.users.fetch(buyer.id);
 					const dm = await user.createDM();
-					await dm.send ({
-						embeds: [
-							buyerNotification,
-						],
+					await dm.send({
+						embeds: [buyerNotification],
 					});
-					await new Promise(res => setTimeout(res, 1000));
+					await new Promise((res) => setTimeout(res, 1000));
 				}
 				catch (err) {
-					console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
+					log.warn(err, `Not able to fetch user ${buyer.id}`);
 					return;
 				}
 			}),
