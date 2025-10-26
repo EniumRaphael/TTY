@@ -20,7 +20,9 @@ export default {
 	async execute(message: Message) {
 		if (message.author.bot || !message.guildId || !canGainXp(message.author.id)) return;
 		const Author: UserPrisma | null = await prisma.user.findUnique({
-			where: { id: message.author.id },
+			where: {
+				id: message.author.id,
+			},
 		});
 		if (!Author) {
 			await prisma.user.create({
@@ -29,24 +31,29 @@ export default {
 				},
 			});
 		}
-		let guildUser: GuildUserPrisma | null = await prisma.guildUser.findUnique({
+		const guildUser: GuildUserPrisma = await prisma.guildUser.upsert({
 			where: {
 				userId_guildId: {
 					userId: message.author.id,
 					guildId: message.guildId,
 				},
 			},
-		});
-		if (!guildUser) {
-			guildUser = await prisma.guildUser.create({
-				data: {
-					userId: message.author.id,
-					guildId: message.guildId,
-					xp: 0,
-					level: 0,
+			update: {},
+			create: {
+				xp: 0,
+				level: 0,
+				user: {
+					connect: {
+						id: message.author.id,
+					},
 				},
-			});
-		}
+				guild: {
+					connect: {
+						id: message.guildId,
+					},
+				},
+			},
+		});
 		const gainXp: number = Math.abs(message.content.length - Math.round(Math.random() * 13)) % 7;
 		const newXp: number = guildUser.xp + gainXp;
 		let newLevel: number = guildUser.level;
@@ -57,7 +64,6 @@ export default {
 				`🎉 | Félicitations <@${message.author.id}>, tu es maintenant niveau **${newLevel}** !`,
 			);
 		}
-		console.log(`${message.author.username} | ${newLevel} -> ${newXp} [${requiredXp}]`);
 		await prisma.guildUser.update({
 			where: {
 				userId_guildId: {
