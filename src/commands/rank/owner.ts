@@ -3,6 +3,7 @@ import { CommandInteraction, EmbedBuilder, MessageFlags } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma, User as UserPrima } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+import { log } from '@lib/log';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -44,9 +45,7 @@ export default {
 			});
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection!');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -62,9 +61,7 @@ export default {
 			});
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection!');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -108,9 +105,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`⚠️ | Error when adding ${target.username} to the owner list\n\t${err as Error}`,
-				);
+				log.error(err, `Error when adding ${target.username} to the owner list`);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Error when adding ${target.username} to the owner list`,
 					flags: MessageFlags.Ephemeral,
@@ -164,9 +159,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`⚠️ | Error when removing ${target.username} to the owner list\n\t${err as Error}`,
-				);
+				log.error(err, `Error when removing ${target.username} to the owner list`);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot removing the user from the owner list`,
 					flags: MessageFlags.Ephemeral,
@@ -211,7 +204,7 @@ export default {
 							return `- ${user.username} (\`${user.id}\`)\n`;
 						}
 						catch (err) {
-							console.warn(`⚠️ | ${owner.id} : ${err as Error}`);
+							log.warn(err, `Unable to fetch ${owner.id} user`);
 							return null;
 						}
 					}),
@@ -230,9 +223,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`⚠️ | error when fetching infromation from the database: ${err as Error}`,
-				);
+				log.error(err, 'Error when fetching infromation from the database');
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,
 					flags: MessageFlags.Ephemeral,

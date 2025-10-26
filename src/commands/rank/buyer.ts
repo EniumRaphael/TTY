@@ -3,6 +3,7 @@ import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+import { log } from '@lib/log';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -44,9 +45,7 @@ export default {
 			});
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -62,9 +61,7 @@ export default {
 			});
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -115,9 +112,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`⚠️ | Error when adding ${target.username} to the buyer list\n\t${err as Error}`,
-				);
+				log.error(err, `Error when adding ${target.username} to the buyer list`);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Error when adding ${target.username} to the owner list`,
 					flags: MessageFlags.Ephemeral,
@@ -178,9 +173,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`⚠️ | Error when removing ${target.username} to the buyer list\n\t${err as Error}`,
-				);
+				log.error(err, `Error when removing ${target.username} from the buyer list`);
 				return;
 			}
 			await interaction.reply({
@@ -221,7 +214,7 @@ export default {
 							return `- ${user.username} (\`${user.id}\`)\n`;
 						}
 						catch (err) {
-							console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
+							log.warn(err, `Fetching user ${buyer.id}`);
 							return null;
 						}
 					}),
@@ -240,9 +233,7 @@ export default {
 				});
 			}
 			catch (err) {
-				console.error(
-					`⚠️ | error when fetching infromation from the database: ${err as Error}`,
-				);
+				log.error(err, 'Error when fetching information from the database');
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot fetch the infromation of the database.`,
 					flags: MessageFlags.Ephemeral,
