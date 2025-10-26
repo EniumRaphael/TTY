@@ -6,8 +6,12 @@ import {
 	MessageFlags,
 	EmbedBuilder,
 	Guild,
+	CommandInteraction,
+	GuildMember,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+import { User as UserPrisma } from '@prisma/client';
+import { Guild as GuildPrisma } from '@prisma/client';
 import { log } from '@lib/log';
 
 function getGuildRoles(guild: Guild): string {
@@ -67,7 +71,7 @@ export default {
 				.setDescription('Show the infromation of the server'),
 		),
 	async execute(interaction: CommandInteraction) {
-		let guildData: Guild;
+		let guildData: GuildPrisma;
 		try {
 			guildData = await prisma.guild.findUnique({
 				where: {
@@ -86,10 +90,9 @@ export default {
 		const subcommand: string = interaction.options.getSubcommand();
 		switch (subcommand) {
 		case 'user': {
-			const targetGlobal: GuildMember =
-          interaction.options.getUser('target') || interaction.user;
+			const targetGlobal: GuildMember = interaction.options.getUser('target') || interaction.user;
 			await targetGlobal.fetch();
-			let userData: User;
+			let userData: UserPrisma;
 			try {
 				userData = await prisma.user.findUnique({
 					where: {
@@ -119,7 +122,7 @@ export default {
 			}
 			const userResult: EmbedBuilder = new EmbedBuilder()
 				.setTitle(`${targetGlobal.displayName}'s information`)
-				.setColor(`${guildData.color}`)
+				.setColor(guildData.color)
 				.setThumbnail(
 					`${targetGlobal.displayAvatarURL({ dynamic: true, size: 2048 })}`,
 				)
@@ -131,7 +134,8 @@ export default {
 						size: 2048,
 						dynamic: true,
 					}),
-				).setDescription(`
+				)
+				.setDescription(`
 						**👤 | Username:**
 						${targetGlobal.username}
 						**🆔 | ID:**
@@ -180,9 +184,9 @@ export default {
 						**🫂 | All Members:**
 						${guild.members.cache.size}
 						**🗣️ | Users:**
-						${guild.members.cache.filter((m) => !m.user.bot).size}
+						${guild.members.cache.filter((m: GuildMember): boolean => !m.user.bot).size}
 						**🤖 | Bots:**
-						${guild.members.cache.filter((m) => m.user.bot).size}
+						${guild.members.cache.filter((m: GuildMember): boolean => m.user.bot).size}
 
 						**🏅 | Roles:**
 						There is ${guild.roles.cache.size - 1} on __${guild.name}__
@@ -193,6 +197,6 @@ export default {
 				flags: MessageFlags.Ephemeral,
 			});
 		}
-		}
+		};
 	},
 };
