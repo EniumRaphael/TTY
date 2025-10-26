@@ -5,6 +5,6 @@ export default {
 	name: Events.Error,
 	once: false,
 	async execute(error: string) {
-		console.debug(chalk.yellow('❌ |', error));
+		console.error(chalk.red('❌ |', error));
 	},
 };

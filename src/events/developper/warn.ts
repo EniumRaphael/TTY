@@ -5,6 +5,6 @@ export default {
 	name: Events.Warn,
 	once: false,
 	async execute(warn: string) {
-		console.debug(chalk.yellow('⚠️ |', warn));
+		console.warn(chalk.yellow('⚠️ |', warn));
 	},
 };

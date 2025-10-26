@@ -6,6 +6,8 @@ export default {
 	name: Events.Debug,
 	once: false,
 	async execute(info: string) {
-		if (isDebug) {console.debug(chalk.blueBright('🔍 |', info));}
+		if (isDebug) {
+			console.debug(chalk.blueBright('🔍 |', info));
+		}
 	},
 };
