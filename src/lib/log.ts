@@ -19,7 +19,7 @@ export const log = {
 	search: (name: string) => {
 		console.log(chalk.blueBright(`🔍 | Searching for ${name}`));
 	},
-	list: (name: string) => {
-		console.log(chalk.cyanBright(`\t✅ | ${name}`));
+	list: (indentation: number, name: string) => {
+		console.log(chalk.cyanBright(`${'\t'.repeat(indentation)}✅ | ${name}`));
 	},
 };
