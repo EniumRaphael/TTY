@@ -1,4 +1,10 @@
-import { Events, Guild, EmbedBuilder, channelMention, Channel } from 'discord.js';
+import {
+	Events,
+	Guild,
+	EmbedBuilder,
+	channelMention,
+	Channel,
+} from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 
@@ -25,11 +31,14 @@ export default {
 			},
 		});
 		if (guildData.logServer) {
-			let toPrint: string = 'The update of the guild had changes theses thing\n';
-			const logChannel : Channel = await newGuild.client.channels
+			let toPrint: string =
+        'The update of the guild had changes theses thing\n';
+			const logChannel: Channel = await newGuild.client.channels
 				.fetch(guildData.logServer)
 				.catch(() => null);
-			if (!logChannel.isTextBased()) {return;}
+			if (!logChannel.isTextBased()) {
+				return;
+			}
 			if (oldGuild.name !== newGuild.name) {
 				toPrint += `- Name:\n\`${oldGuild.name}\` => \`${newGuild.name}\`\n`;
 			}
@@ -61,9 +70,7 @@ export default {
 				})
 				.setDescription(toPrint);
 			logChannel.send({
-				embeds: [
-					toRep,
-				],
+				embeds: [toRep],
 			});
 		}
 	},
