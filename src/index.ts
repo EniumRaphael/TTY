@@ -40,7 +40,7 @@ for (const folder of commandFolders) {
 			if ('data' in command && 'execute' in command) {
 				client.commands.set(command.data.name, command);
 				commands.push(command.data.toJSON());
-				log.list(command.data.name);
+				log.list(1, command.data.name);
 			}
 		}
 		catch (err) {
@@ -71,7 +71,7 @@ for (const folder of eventFolders) {
 				else {
 					client.on(event.name, (...args) => event.execute(...args));
 				}
-				log.list(event.name);
+				log.list(1, event.name);
 			}
 		}
 		catch (err) {
@@ -80,7 +80,6 @@ for (const folder of eventFolders) {
 	}
 }
 console.log('\n\n');
-
 try {
 	const rest = new REST().setToken(process.env.DSC_TOKEN!);
 	const data = await rest.put(
