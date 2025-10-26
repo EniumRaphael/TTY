@@ -1,7 +1,13 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { MessageFlags, ChannelType, TextChannel, ChatInputCommandInteraction } from 'discord.js';
+import {
+	MessageFlags,
+	ChannelType,
+	TextChannel,
+	ChatInputCommandInteraction,
+} from 'discord.js';
 import emoji from '../../../assets/emoji.json' with { type: 'json' };
 import { isWhitelisted } from '../../lib/perm.js';
+import { log } from '@lib/log';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -28,7 +34,8 @@ export default {
 			});
 			return;
 		}
-		const oldChannel = (interaction.options.getChannel('channel') ?? interaction.channel) as TextChannel | null;
+		const oldChannel = (interaction.options.getChannel('channel') ??
+      interaction.channel) as TextChannel | null;
 		if (!oldChannel) {
 			await interaction.reply({
 				content: `${emoji.answer.error} | Invalid or missing text channel.`,
@@ -56,7 +63,7 @@ export default {
 			await oldChannel.delete();
 		}
 		catch (err) {
-			console.error(`⚠️ | Error when nuking the channel\n\t${err as Error}`);
+			log.error(err, 'Error when nuking the channel');
 			await interaction.reply({
 				content: `${emoji.answer.no} | An error occurred while nuking the channel.`,
 				flags: MessageFlags.Ephemeral,
