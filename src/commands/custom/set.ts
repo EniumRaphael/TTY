@@ -8,6 +8,7 @@ import {
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { User as UserPrisma } from '@prisma/client';
+import { log } from '@lib/log.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -119,9 +120,7 @@ export default {
 			});
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection!');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -215,9 +214,7 @@ export default {
 					content: `${emoji.answer.no} | Error during changing the bot profile picture`,
 					flags: MessageFlags.Ephemeral,
 				});
-				console.error(
-					`\t⚠️ | Cannot change the bot profile picture!\n\t\t(${err as Error}).`,
-				);
+				log.error(err, 'Cannot change the bot profile picture!');
 			}
 			await interaction.reply({
 				content: `${emoji.answer.yes} | The picture profile of the bot is now updated.`,
