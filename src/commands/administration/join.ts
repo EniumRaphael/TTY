@@ -95,7 +95,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 		currentGuildData = await prisma.guild.create({ data: { id: guildId } });
 	}
 
-	const mainRow : ActionRowBuilder = createMainRow(currentGuildData);
+	const mainRow: ActionRowBuilder = createMainRow(currentGuildData);
 
 	await interaction.reply({
 		embeds: [getEmbed(currentGuildData)],

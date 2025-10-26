@@ -15,6 +15,7 @@ import {
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { Guild, User } from '@prisma/client';
+import { log } from '@lib/log';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -62,10 +63,7 @@ export default {
 			});
 		}
 		catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : String(err);
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${errorMessage}).`,
-			);
+			log.error(err, 'Cannot get the database connection');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -367,15 +365,11 @@ export default {
 				});
 			}
 			catch (err: unknown) {
-				const errorMessage =
-            err instanceof Error ? err.message : (err as string);
 				await interaction.reply({
 					content: `${emoji.answer.error} | Cannot suppress the category's channels`,
 					flags: MessageFlags.Ephemeral,
 				});
-				console.error(
-					`Cannot suppress the category's channel:\n\t${errorMessage}`,
-				);
+				log.error(err, 'Cannot suppress the category\'s channels');
 				return;
 			}
 			await prisma.guild.update({
@@ -396,7 +390,7 @@ export default {
 			break;
 		}
 		default:
-			console.error(`no choice on logs command ${choice}`);
+			log.error(new Error(`no choice on logs command ${choice}`), 'Invalid logs command choice');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Invalid choice`,
 				flags: MessageFlags.Ephemeral,

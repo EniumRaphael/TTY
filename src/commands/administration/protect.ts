@@ -1,4 +1,8 @@
-import { ButtonBuilder, ActionRowBuilder, SlashCommandBuilder } from '@discordjs/builders';
+import {
+	ButtonBuilder,
+	ActionRowBuilder,
+	SlashCommandBuilder,
+} from '@discordjs/builders';
 import {
 	StringSelectMenuBuilder,
 	ButtonStyle,

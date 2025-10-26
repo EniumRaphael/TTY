@@ -8,6 +8,7 @@ import {
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { prisma } from '@lib/prisma';
+import { log } from '@lib/log';
 import { User as UserPrisma } from '@prisma/client';
 
 export default {
@@ -30,13 +31,7 @@ export default {
 			});
 		}
 		catch (err: unknown) {
-			if (err instanceof Error) {
-				console.error(`❌ ${err.name}: ${err.message}`);
-				console.error(err.stack);
-			}
-			else {
-				console.error('❌ Unknown error:', err);
-			}
+			log.error(err, 'Cannot get user data');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Cannot connect to the database`,
 				flags: MessageFlags.Ephemeral,
@@ -81,10 +76,7 @@ export default {
 			});
 		}
 		catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : String(err);
-			console.error(
-				`Cannot delete category or its channels:\n\t${errorMessage}`,
-			);
+			log.error(err, 'Cannot delete category or its channels');
 			await interaction.reply({
 				content: `${emoji.answer.error} | Failed to delete the category or its channels.`,
 				flags: MessageFlags.Ephemeral,
