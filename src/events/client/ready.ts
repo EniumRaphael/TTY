@@ -137,6 +137,60 @@ export default {
 			log.error(err, 'Cannot get the database connection');
 			return;
 		}
+		log.search('Guild');
+		for (const [guildId, guild] of client.guilds.cache) {
+			try {
+				await prisma.guild.upsert({
+					where: {
+						id: guildId,
+					},
+					update: {},
+					create: {
+						id: guildId,
+					},
+				});
+				log.list(1, guild.name);
+				const members = await guild.members.fetch();
+				for (const [memberId, member] of members) {
+					await prisma.user.upsert({
+						where: {
+							id: memberId,
+						},
+						update: {},
+						create: {
+							id: memberId,
+						},
+					});
+					await prisma.guildUser.upsert({
+						where: {
+							userId_guildId: {
+								userId: memberId,
+								guildId: guildId,
+							},
+						},
+						update: {},
+						create: {
+							user: {
+								connect:
+								{
+									id: memberId,
+								},
+							},
+							guild: {
+								connect: {
+									id: guildId,
+								},
+							},
+						},
+					});
+					log.list(2, `${member.user.username} (${memberId})`);
+				}
+			}
+			catch (err) {
+				log.error(err, `Error when loading the guild with id: ${guildId}`);
+			}
+		}
+		console.log('\n\n');
 		log.success(`${client.user.username} is now running under TTS bot`);
 	},
 };
