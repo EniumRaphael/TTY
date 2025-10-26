@@ -81,43 +81,15 @@ for (const folder of eventFolders) {
 }
 console.log('\n\n');
 
-client.once('ready', () => {
-	void (async () => {
-		console.log(`🤖 | Connecté en tant que ${client.user?.tag}`);
-		await prisma.bot.upsert({
-			where: { id: 1 },
-			create: {},
-		});
-		for (const [guildId, guild] of client.guilds.cache) {
-			await prisma.guild.upsert({
-				where: { id: guildId },
-				create: { id: guildId },
-			});
-
-			const members = await guild.members.fetch();
-			for (const [memberId] of members) {
-				await prisma.user.upsert({
-					where: { id: memberId },
-					create: { id: memberId },
-				});
-				await prisma.guildUser.upsert({
-					where: { userId_guildId: { userId: memberId, guildId } },
-					create: { userId: memberId, guildId },
-				});
-			}
-			console.log(`✅ | Guild ${guild.name} synchronisée avec ${members.size} membres.`);
-		}
-		try {
-			const rest = new REST().setToken(process.env.DSC_TOKEN!);
-			const data = await rest.put(
-				Routes.applicationCommands(process.env.CLIENT_ID!),
-				{ body: commands },
-			);
-			console.log(`✅ | ${data.length} commandes déployées globalement.`);
-		}
-		catch (err) {
-			console.error('⚠️ | Erreur lors du déploiement des commandes :', err);
-		}
-	});
-});
+try {
+	const rest = new REST().setToken(process.env.DSC_TOKEN!);
+	const data = await rest.put(
+		Routes.applicationCommands(process.env.CLIENT_ID!),
+		{ body: commands },
+	);
+	log.success(`${data.length} commands globally deployed`);
+}
+catch (err) {
+	log.error(err, 'Error when loading command');
+}
 await client.login(process.env.DSC_TOKEN);
