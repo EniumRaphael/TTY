@@ -1,10 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import 'dotenv/config';
-import { Client, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import {
+	Client,
+	Collection,
+	GatewayIntentBits,
+	REST,
+	Routes,
+} from 'discord.js';
+import { log } from '@lib/log';
 
 const client = new Client({
 	intents: [
@@ -22,7 +26,7 @@ const commandFolders = fs.readdirSync(commandFolderPath);
 
 const commands = [];
 
-console.log('\n🔍 | Commands search:');
+log.search('Commands');
 for (const folder of commandFolders) {
 	const commandsPath = path.join(commandFolderPath, folder);
 	const commandFiles = fs
@@ -36,11 +40,11 @@ for (const folder of commandFolders) {
 			if ('data' in command && 'execute' in command) {
 				client.commands.set(command.data.name, command);
 				commands.push(command.data.toJSON());
-				console.log(`\t✅ | ${command.data.name}`);
+				log.list(command.data.name);
 			}
 		}
 		catch (err) {
-			console.error(`\t⚠️ | Command at ${file}\n\t\t(${err as Error}).`);
+			log.error(err, `Command at ${file}`);
 		}
 	}
 }
@@ -49,7 +53,7 @@ console.log('\n\n');
 const eventFolderPath = path.join(__dirname, 'events');
 const eventFolders = fs.readdirSync(eventFolderPath);
 
-console.log('\n🔍 | Events search:');
+log.search('Events');
 for (const folder of eventFolders) {
 	const eventsPath = path.join(eventFolderPath, folder);
 	const eventFiles = fs
@@ -67,11 +71,11 @@ for (const folder of eventFolders) {
 				else {
 					client.on(event.name, (...args) => event.execute(...args));
 				}
-				console.log(`\t✅ | ${event.name}`);
+				log.list(event.name);
 			}
 		}
 		catch (err) {
-			console.error(`\t⚠️ | Event at ${file}\n\t\t(${err as Error}).`);
+			log.error(err, `Event at ${file}`);
 		}
 	}
 }
