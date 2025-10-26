@@ -1,4 +1,5 @@
 import { Events, EmbedBuilder, Message, Channel, Collection, Snowflake, PartialMessage } from 'discord.js';
+import { log } from '@lib/log';
 import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 
@@ -18,15 +19,15 @@ export default {
 				try {
 					fullMsg = await msg.fetch();
 				}
-				catch {
-					console.warn('BulkDelete cannot load a message');
+				catch (err) {
+					log.warn(err, 'BulkDelete cannot load a message');
 				}
 			}
 
 			description += `**${fullMsg.author?.username ?? 'Unknown'}**: ${fullMsg.content || '[no content]'}\n`;
 		}
 		if (guildData.logMsg) {
-			const log = new EmbedBuilder()
+			const logEmbed = new EmbedBuilder()
 				.setAuthor({
 					name: `${message.author.tag} (${message.author.id})`,
 					iconURL: message.author.displayAvatarURL({
@@ -47,10 +48,12 @@ export default {
 				`);
 			const logChannel: Promise<Channel | null> = await message.guild.client.channels
 				.fetch(guildData.logMsg)
-				.catch((err) => { console.error(err); });
+				.catch((err) => {
+					log.error(err, 'Unable to fetch the log channel');
+				});
 			logChannel.send({
 				embeds: [
-					log,
+					logEmbed,
 				],
 			});
 		}
