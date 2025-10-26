@@ -1,7 +1,14 @@
-import { Events, AuditLogEvent, TextChannel, EmbedBuilder, Channel } from 'discord.js';
+import {
+	Events,
+	AuditLogEvent,
+	TextChannel,
+	EmbedBuilder,
+	Channel,
+} from 'discord.js';
 import { prisma } from '../../lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 import { isWhitelisted } from '@lib/perm';
+import { log } from '@lib/log';
 
 export default {
 	name: Events.ChannelDelete,
@@ -22,18 +29,27 @@ export default {
 				},
 			});
 			if (!(await isWhitelisted(executor.id, channel.guild.id))) {
-				const member = await channel.guild.members.fetch(executor.id).catch(() => null);
+				const member = await channel.guild.members
+					.fetch(executor.id)
+					.catch(() => null);
 				if (member) {
-					const rolesToRemove = member.roles.cache.filter(r => r.id !== channel.guild.id);
+					const rolesToRemove = member.roles.cache.filter(
+						(r) => r.id !== channel.guild.id,
+					);
 					for (const [id] of rolesToRemove) {
-						await member.roles.remove(id, 'Unauthorized channel deletion [TTY AntiRaid]');
+						await member.roles.remove(
+							id,
+							'Unauthorized channel deletion [TTY AntiRaid]',
+						);
 					}
 				}
 				channel.clone().then((newchannel) => {
 					newchannel.setPosition(channel.position);
 				});
 				if (guildData.logMod) {
-					const logChannel = await channel.guild.channels.fetch(guildData.logMod).catch(() => null);
+					const logChannel = await channel.guild.channels
+						.fetch(guildData.logMod)
+						.catch(() => null);
 					if (logChannel instanceof TextChannel) {
 						const embed = new EmbedBuilder()
 							.setTitle('⚠️ | Anti-Channel Protection')
@@ -45,7 +61,7 @@ export default {
 							.setFooter({
 								text: guildData.footer,
 							});
-						await (logChannel).send({
+						await logChannel.send({
 							embeds: [embed],
 						});
 					}
@@ -53,7 +69,9 @@ export default {
 				return;
 			}
 			if (guildData.logChannels) {
-				const logChannel = await channel.guild.channels.fetch(guildData.logChannel).catch(() => null);
+				const logChannel = await channel.guild.channels
+					.fetch(guildData.logChannel)
+					.catch(() => null);
 				if (logChannel instanceof TextChannel) {
 					const embed = new EmbedBuilder()
 						.setTitle('🗑️ | Channel Deleted')
@@ -63,14 +81,14 @@ export default {
 						.setFooter({
 							text: guildData.footer,
 						});
-					await (logChannel).send({
+					await logChannel.send({
 						embeds: [embed],
 					});
 				}
 			}
 		}
 		catch (err) {
-			console.error(`⚠️ | ChannelDelete protection error: ${err as Error}`);
+			log.error(err, 'ChannelDelete protection error');
 		}
 	},
 };

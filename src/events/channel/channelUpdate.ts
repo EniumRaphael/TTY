@@ -9,6 +9,7 @@ import {
 import { prisma } from '../../lib/prisma';
 import { Guild as GuildPrisma } from '@prisma/client';
 import { getCorrectMention } from '../../lib/mention';
+import { log } from '@lib/log';
 
 export default {
 	name: Events.ChannelUpdate,
@@ -16,11 +17,15 @@ export default {
 		if (!newChannel.guild) return;
 		try {
 			const logs = await newChannel.guild.fetchAuditLogs({
-				type: AuditLogEvent.ChannelUpdate | AuditLogEvent.ChannelOverwriteCreate | AuditLogEvent.ChannelOverwriteDelete | AuditLogEvent.ChannelOverwriteUpdate,
+				type:
+          AuditLogEvent.ChannelUpdate |
+          AuditLogEvent.ChannelOverwriteCreate |
+          AuditLogEvent.ChannelOverwriteDelete |
+          AuditLogEvent.ChannelOverwriteUpdate,
 				limit: 5,
 			});
 			const entry = [...logs.entries.values()]
-				.filter(e => (e.target as GuildChannel).id === newChannel.id)
+				.filter((e) => (e.target as GuildChannel).id === newChannel.id)
 				.sort((a, b) => b.createdTimestamp - a.createdTimestamp)[0];
 			const executor = entry?.executor;
 			const guildData: GuildPrisma | null = await prisma.guild.findUnique({
@@ -29,7 +34,9 @@ export default {
 			if (!guildData) return;
 			const changes: string[] = [];
 			if (oldChannel.name !== newChannel.name) {
-				changes.push(`**Name:** \`${oldChannel.name}\` → \`${newChannel.name}\``);
+				changes.push(
+					`**Name:** \`${oldChannel.name}\` → \`${newChannel.name}\``,
+				);
 			}
 			if ('topic' in oldChannel && 'topic' in newChannel) {
 				if (oldChannel.topic !== newChannel.topic) {
@@ -43,12 +50,14 @@ export default {
 			newPerms.forEach((overwrite, id) => {
 				const old = oldPerms.get(id);
 				if (!old) {
-					changes.push(`New overwrite added for ${getCorrectMention(oldChannel.guild, id)}`);
+					changes.push(
+						`New overwrite added for ${getCorrectMention(oldChannel.guild, id)}`,
+					);
 					return;
 				}
 				if (
 					overwrite.allow.bitfield !== old.allow.bitfield ||
-						overwrite.deny.bitfield !== old.deny.bitfield
+          overwrite.deny.bitfield !== old.deny.bitfield
 				) {
 					changes.push(`Overwrite changed for <@&${id}> / <@${id}>`);
 				}
@@ -78,7 +87,7 @@ export default {
 			}
 		}
 		catch (err) {
-			console.error(`⚠️ | ChannelUpdate log error: ${err as Error}`);
+			log.error(err, 'ChannelUpdate log error');
 		}
 	},
 };
