@@ -4,16 +4,20 @@ import {
 	PresenceUpdateStatus,
 	Events,
 	User,
+	Message,
+	DMChannel,
+	Collection,
 } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { Bot as BotPrisma } from '@prisma/client';
+import { log } from '@lib/log';
 
 export default {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client: User) {
 		try {
-			const botData: BotPrisma = await prisma.bot.findUnique({
+			const botData: BotPrisma | null = await prisma.bot.upsert({
 				where: {
 					id: 1,
 				},
@@ -23,6 +27,10 @@ export default {
 							id: true,
 						},
 					},
+				},
+				update: {},
+				create: {
+					id: 1,
 				},
 			});
 			const newStatus: string = botData.status;
@@ -35,9 +43,6 @@ export default {
 			case 'listen':
 				newType = ActivityType.Listening;
 				break;
-			case 'watch':
-				newType = ActivityType.Watching;
-				break;
 			case 'stream':
 				newType = ActivityType.Streaming;
 				break;
@@ -45,7 +50,8 @@ export default {
 				newType = ActivityType.Competing;
 				break;
 			default:
-				return;
+				newType = ActivityType.Watching;
+				break;
 			}
 			const tmpPresence: string = botData.presence;
 			let newPresence: PresenceUpdateStatus;
@@ -89,7 +95,8 @@ export default {
 			const buyerNotification: EmbedBuilder = new EmbedBuilder()
 				.setTitle(`${client.user.username} running`)
 				.setColor('#008000')
-				.setDescription(`
+				.setDescription(
+					`
 					**On:** ${client.guilds.cache.size} guild${client.guilds.cache.size > 1 ? 's' : ''}
 					**With:** ${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)} users
 				`,
@@ -97,15 +104,15 @@ export default {
 				.setTimestamp();
 
 			await Promise.all(
-				botData.buyers.map(async (buyer) => {
+				botData.buyers.map(async (buyer: User) => {
 					try {
-						const user = await client.users.fetch(buyer.id);
-						const dm = await user.createDM();
-						const messages = await dm.messages.fetch({
+						const user = await client.client.users.fetch(buyer.id);
+						const dm: DMChannel = await user.createDM();
+						const messages: Collection<string, Message<boolean>> = await dm.messages.fetch({
 							limit: 20,
 						});
-						const lastBotMsg = messages.find(
-							(m) => m.author.id === client.user!.id,
+						const lastBotMsg: Message<boolean> | undefined = messages.find(
+							(m: Message): boolean => m.author.id === client.client.user!.id,
 						);
 						if (!lastBotMsg) {
 							await lastBotMsg.edit({
@@ -120,18 +127,16 @@ export default {
 						await new Promise((res) => setTimeout(res, 1000));
 					}
 					catch (err) {
-						console.warn(`⚠️ | ${buyer.id} : ${err as Error}`);
+						log.warn(err, `Not able to fetch user ${buyer.id}`);
 						return;
 					}
 				}),
 			);
 		}
 		catch (err) {
-			console.error(
-				`\t⚠️ | Cannot get the database connection!\n\t\t(${err as Error}).`,
-			);
+			log.error(err, 'Cannot get the database connection');
 			return;
 		}
-		console.log(`✅ | ${client.user.username} is now running under TTS bot`);
+		log.success(`${client.user.username} is now running under TTS bot`);
 	},
 };
