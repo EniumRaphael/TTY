@@ -112,8 +112,6 @@ export default {
 				}
 			}),
 		);
-		console.log(
-			`✅ | Guild ${guild.name} synchronisée avec ${guild.memberCount} membres.`,
-		);
+		log.success(`Guild ${guild.name} now sync with ${guild.memberCount} members.`);
 	},
 };
