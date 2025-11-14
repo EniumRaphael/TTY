@@ -9,6 +9,8 @@ import {
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { User as UserPrisma } from '@prisma/client';
 import { log } from '@lib/log.js';
+import { color as colorLib } from '@lib/color';
+import { isBuyer, isOwner } from '@lib/perm.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -150,11 +152,11 @@ export default {
 					id: interaction.guild.id,
 				},
 				update: {
-					color: newColor,
+					color: colorLib.encode(newColor),
 				},
 				create: {
 					id: interaction.guild.id,
-					color: newColor,
+					color: colorLib.encode(newColor),
 				},
 			});
 			await interaction.reply({
