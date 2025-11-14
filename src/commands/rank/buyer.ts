@@ -4,6 +4,7 @@ import { prisma } from '@lib/prisma';
 import { Guild as GuildPrisma, User as UserPrisma } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { log } from '@lib/log';
+import { isBuyer } from '@lib/perm.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -182,7 +183,7 @@ export default {
 			});
 			return;
 		case 'list':
-			if (!userData.isBuyer) {
+			if (!await isBuyer(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for buyer`,
 					flags: MessageFlags.Ephemeral,
