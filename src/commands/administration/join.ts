@@ -1,4 +1,4 @@
-import { ActionRowBuilder, SlashCommandBuilder } from '@discordjs/builders';
+import { ActionRowBuilder, SlashCommandBuilder, ButtonBuilder } from '@discordjs/builders';
 import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
