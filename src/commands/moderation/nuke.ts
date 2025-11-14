@@ -18,6 +18,11 @@ export default {
 				.setName('channel')
 				.setDescription('Choose the channel you want to renew')
 				.addChannelTypes(ChannelType.GuildText),
+		)
+		.addBooleanOption((opt) =>
+			opt
+				.setName('silent')
+				.setDescription('Choose if a notification will be send'),
 		),
 	async execute(interaction: ChatInputCommandInteraction) {
 		if (!interaction.guild) {
@@ -34,6 +39,7 @@ export default {
 			});
 			return;
 		}
+		const notification: boolean = interaction.options.getBoolean('silent') ?? false;
 		const oldChannel = (interaction.options.getChannel('channel') ??
       interaction.channel) as TextChannel | null;
 		if (!oldChannel) {
@@ -46,18 +52,24 @@ export default {
 		const pos: number = oldChannel.position;
 
 		try {
-			const newchannel = await oldChannel.clone();
-			await newchannel.setPosition(pos);
+			const newChannel = await oldChannel.clone();
+			await newChannel.setPosition(pos);
 			const fetchedChannel = await interaction.client.channels.fetch(
-				newchannel.id,
+				newChannel.id,
 			);
 			if (
-				fetchedChannel &&
-        fetchedChannel.type === ChannelType.GuildText &&
-        typeof (fetchedChannel as TextChannel).send === 'function'
+				!notification && fetchedChannel &&
+					fetchedChannel.type === ChannelType.GuildText &&
+					typeof (fetchedChannel as TextChannel).send === 'function'
 			) {
 				await (fetchedChannel as TextChannel).send({
-					content: `${emoji.answer.yes} | ${newchannel.toString()} has been nuked by \`${interaction.user.username}\``,
+					content: `${emoji.answer.yes} | ${newChannel.toString()} has been nuked by \`${interaction.user.username}\``,
+				});
+			}
+			if (interaction.channel != oldChannel) {
+				await interaction.reply({
+					content: `${emoji.answer.yes} | ${newChannel.toString()} is now created.`,
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 			await oldChannel.delete();
