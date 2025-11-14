@@ -2,22 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import 'dotenv/config';
 import {
-	Client,
 	Collection,
-	GatewayIntentBits,
 	REST,
 	Routes,
 } from 'discord.js';
 import { log } from '@lib/log';
-
-const client = new Client({
-	intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildMembers,
-	],
-});
+import { client } from '@lib/client';
 
 client.commands = new Collection();
 
