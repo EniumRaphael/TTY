@@ -6,7 +6,7 @@ import {
 	ChatInputCommandInteraction,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' with { type: 'json' };
-import { isWhitelisted } from '../../lib/perm.js';
+import { isWhitelisted } from '@lib/perm';
 import { log } from '@lib/log';
 
 export default {
