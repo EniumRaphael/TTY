@@ -7,7 +7,6 @@ import {
 	CommandInteraction,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
-import { User as UserPrisma } from '@prisma/client';
 import { log } from '@lib/log.js';
 import { color as colorLib } from '@lib/color';
 import { isBuyer, isOwner } from '@lib/perm.js';
@@ -113,39 +112,28 @@ export default {
 				),
 		),
 	async execute(interaction: CommandInteraction) {
-		let userData: UserPrisma | null;
-		try {
-			userData = await prisma.user.findUnique({
-				where: {
-					id: interaction.user.id,
-				},
-			});
-		}
-		catch (err) {
-			log.error(err, 'Cannot get the database connection!');
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot connect to the database`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
 		const subcommand: string = interaction.options.getSubcommand();
 		switch (subcommand) {
 		case 'color': {
-			if (!userData.isOwner) {
+			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
 					flags: MessageFlags.Ephemeral,
 				});
 				return;
 			}
-			const newColor: string = interaction.options.getString('color');
-			if (!/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-				await interaction.reply({
-					content: `${emoji.answer.no} | You have to give a color with the syntax: \`#000000\`.`,
-					flags: MessageFlags.Ephemeral,
-				});
-				return;
+			let newColor: string = interaction.options.getString('color');
+			if (!/^[0-9A-Fa-f]{6}$/.test(newColor)) {
+				if (!/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+					await interaction.reply({
+						content: `${emoji.answer.no} | You have to give a color with the syntax: \`(#)000000\`.`,
+						flags: MessageFlags.Ephemeral,
+					});
+					return;
+				}
+				else {
+					newColor = newColor.replace('#', '');
+				}
 			}
 			await prisma.guild.upsert({
 				where: {
@@ -166,7 +154,7 @@ export default {
 			return;
 		}
 		case 'footer': {
-			if (!userData.isOwner) {
+			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
 					flags: MessageFlags.Ephemeral,
@@ -200,7 +188,7 @@ export default {
 			return;
 		}
 		case 'pp': {
-			if (!userData.isBuyer) {
+			if (!await isBuyer(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for buyer`,
 					flags: MessageFlags.Ephemeral,
@@ -225,7 +213,7 @@ export default {
 			return;
 		}
 		case 'status': {
-			if (!userData.isBuyer) {
+			if (!await isBuyer(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for buyer`,
 					flags: MessageFlags.Ephemeral,
