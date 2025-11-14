@@ -1,4 +1,5 @@
 import { prisma } from '@lib/prisma';
+import { client } from '@lib/client';
 import { User as UserPrisma } from '@prisma/client';
 
 /**
@@ -7,6 +8,9 @@ import { User as UserPrisma } from '@prisma/client';
  * @returns true if the user is whitelisted flase overwise
  */
 export async function isWhitelisted(userId: string, guildId: string): Promise<boolean> {
+	if (client.user?.id == userId) {
+		return true;
+	}
 	const userData: UserPrisma = await prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -22,5 +26,5 @@ export async function isWhitelisted(userId: string, guildId: string): Promise<bo
 			},
 		},
 	});
-	return (userData.isOwner || userData.isBuyer || count != 0);
+	return (userData.isDev || userData.isOwner || userData.isBuyer || count != 0);
 }
