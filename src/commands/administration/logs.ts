@@ -16,6 +16,7 @@ import {
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { Guild, User } from '@prisma/client';
 import { log } from '@lib/log';
+import { isOwner } from '@lib/perm.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -106,7 +107,7 @@ export default {
 
 		switch (choice) {
 		case 'logs_show': {
-			if (!userData.isOwner) {
+			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
 					flags: MessageFlags.Ephemeral,
@@ -143,7 +144,7 @@ export default {
 			return;
 		}
 		case 'logs_auto': {
-			if (!userData.isOwner) {
+			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
 					flags: MessageFlags.Ephemeral,
@@ -319,7 +320,7 @@ export default {
 			break;
 		}
 		case 'logs_disable': {
-			if (!userData.isOwner) {
+			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
 					flags: MessageFlags.Ephemeral,
