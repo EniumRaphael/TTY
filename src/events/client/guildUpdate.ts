@@ -1,10 +1,11 @@
 import { Events, Guild, EmbedBuilder, channelMention } from 'discord.js';
 import { prisma } from '@lib/prisma';
+import { Guild as GuildPrisma } from '@prisma/client';
 
 export default {
 	name: Events.GuildUpdate,
-	async execute(oldGuild, newGuild) {
-		const guildData: Guild = await prisma.guild.findUnique({
+	async execute(oldGuild: Guild, newGuild: Guild) {
+		const guildData: GuildPrisma = await prisma.guild.findUnique({
 			where: {
 				id: newGuild.id,
 			},
