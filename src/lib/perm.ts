@@ -28,3 +28,35 @@ export async function isWhitelisted(userId: string, guildId: string): Promise<bo
 	});
 	return (userData.isDev || userData.isOwner || userData.isBuyer || count != 0);
 }
+
+/**
+ * @param userId - Discord identifier for the user
+ * @returns true if the user is whitelisted flase overwise
+ */
+export async function isOwner(userId: string): Promise<boolean> {
+	if (client.user?.id == userId) {
+		return true;
+	}
+	const userData: UserPrisma = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+	return (userData.isDev || userData.isOwner || userData.isBuyer);
+}
+
+/**
+ * @param userId - Discord identifier for the user
+ * @returns true if the user is whitelisted flase overwise
+ */
+export async function isBuyer(userId: string): Promise<boolean> {
+	if (client.user?.id == userId) {
+		return true;
+	}
+	const userData: UserPrisma = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+	return (userData.isDev || userData.isBuyer);
+}
