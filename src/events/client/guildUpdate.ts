@@ -44,7 +44,7 @@ export default {
 				toPrint += `- Filter:\n\`${oldGuild.premiumTier}\` => \`${newGuild.premiumTier}\`\n`;
 			}
 			const toRep = new EmbedBuilder()
-				.setColor(`${guildData.color}`)
+				.setColor(guildData.color)
 				.setFooter({
 					text: guildData.footer,
 				})
