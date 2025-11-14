@@ -60,7 +60,7 @@ model Guild {
   protectAntiBot         Boolean @default(false)
 
   footer String @default("© EniumTeam ~ 2025")
-  color  String @default("#000000")
+  color  Int    @default(000000)
 
   guildUsers GuildUser[] @relation("GuildGuildRelation")
   WlUsers    User[]      @relation("GuildWhitelist")
