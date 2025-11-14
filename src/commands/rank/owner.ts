@@ -1,9 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, EmbedBuilder, MessageFlags } from 'discord.js';
 import { prisma } from '@lib/prisma';
-import { Guild as GuildPrisma, User as UserPrima } from '@prisma/client';
+import { Guild as GuildPrisma } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { log } from '@lib/log';
+import { isBuyer, isOwner } from '@lib/perm.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -36,22 +37,6 @@ export default {
 		),
 	async execute(interaction: CommandInteraction) {
 		const subcommand = interaction.options.getSubcommand();
-		let userData: UserPrima | null;
-		try {
-			userData = await prisma.user.findUnique({
-				where: {
-					id: interaction.user.id,
-				},
-			});
-		}
-		catch (err) {
-			log.error(err, 'Cannot get the database connection!');
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot connect to the database`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
 		let guildData: GuildPrisma | null;
 		try {
 			guildData = await prisma.guild.findUnique({
@@ -71,7 +56,7 @@ export default {
 		const target: GuildMember = interaction.options.getUser('target');
 		switch (subcommand) {
 		case 'add':
-			if (!userData.isBuyer) {
+			if (!await isBuyer(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for buyer`,
 					flags: MessageFlags.Ephemeral,
@@ -118,7 +103,7 @@ export default {
 			});
 			return;
 		case 'delete':
-			if (!userData.isBuyer) {
+			if (!await isBuyer(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for buyer`,
 					flags: MessageFlags.Ephemeral,
@@ -172,7 +157,7 @@ export default {
 			});
 			return;
 		case 'list':
-			if (!userData.isOwner) {
+			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
 					flags: MessageFlags.Ephemeral,
