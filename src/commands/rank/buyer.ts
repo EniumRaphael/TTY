@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { prisma } from '@lib/prisma';
-import { Guild as GuildPrisma } from '@prisma/client';
+import { Guild as GuildPrisma, User as UserPrisma } from '@prisma/client';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { log } from '@lib/log';
 
@@ -36,7 +36,7 @@ export default {
 		),
 	async execute(interaction: CommandInteraction) {
 		const subcommand = interaction.options.getSubcommand();
-		let userData: User;
+		let userData: UserPrisma;
 		try {
 			userData = await prisma.user.findUnique({
 				where: {
