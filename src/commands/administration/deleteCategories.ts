@@ -3,13 +3,11 @@ import {
 	MessageFlags,
 	ChannelType,
 	ChatInputCommandInteraction,
-	type SlashCommandChannelOption,
 	CategoryChannel,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
-import { prisma } from '@lib/prisma';
 import { log } from '@lib/log';
-import { User as UserPrisma } from '@prisma/client';
+import { isOwner } from '@lib/perm.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -24,22 +22,7 @@ export default {
 		),
 
 	async execute(interaction: ChatInputCommandInteraction) {
-		let userData: UserPrisma | null = null;
-		try {
-			userData = await prisma.user.findUnique({
-				where: { id: interaction.user.id },
-			});
-		}
-		catch (err: unknown) {
-			log.error(err, 'Cannot get user data');
-			await interaction.reply({
-				content: `${emoji.answer.error} | Cannot connect to the database`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
-
-		if (!userData?.isOwner) {
+		if (!await isOwner(interaction.user.id)) {
 			await interaction.reply({
 				content: `${emoji.answer.no} | This command is only for owners`,
 				flags: MessageFlags.Ephemeral,
@@ -47,9 +30,9 @@ export default {
 			return;
 		}
 
-		const categoryOption = interaction.options.getChannel('category', true);
+		const categoryOption: CategoryChannel | null = interaction.options.getChannel('category', true);
 
-		if (categoryOption.type !== ChannelType.GuildCategory) {
+		if (!(categoryOption instanceof CategoryChannel)) {
 			await interaction.reply({
 				content: `${emoji.answer.no} | Please choose a valid category.`,
 				flags: MessageFlags.Ephemeral,
