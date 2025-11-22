@@ -148,6 +148,6 @@ N’hésitez pas à ouvrir une issue ou une pull request pour proposer une amél
 
 ### Licence
 
-MIT
+GNU Affero General Public License v3.0
 
 ---
