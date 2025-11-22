@@ -74,7 +74,7 @@ Feel free to open an issue or pull request to suggest an improvement or report a
 
 ### License
 
-MIT
+GNU Affero General Public License v3.0
 
 ---
 
