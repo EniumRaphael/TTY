@@ -209,112 +209,111 @@ export default {
 			});
 			collector.on(
 				'collect',
-				async (selectInteraction: StringSelectMenuInteraction) => {
-					if (selectInteraction.user.id !== interaction.user.id) {
-						void selectInteraction.reply({
-							content: `${emoji.answer.no} | You cannot use this selector !`,
-							ephemeral: true,
+				(selectInteraction: StringSelectMenuInteraction) => {
+					void (async () => {
+						if (selectInteraction.user.id !== interaction.user.id) {
+							void selectInteraction.reply({
+								content: `${emoji.answer.no} | You cannot use this selector !`,
+								ephemeral: true,
+							});
+							return;
+						}
+						const selectedRoles = selectInteraction.values;
+						const permissionOverwrites = [
+							{
+								id: interaction.guild.roles.everyone.id,
+								deny: [
+									PermissionsBitField.Flags.ViewChannel,
+									PermissionsBitField.Flags.SendMessages,
+								],
+							},
+							...selectedRoles.map((id) => ({
+								id,
+								allow: [PermissionsBitField.Flags.ViewChannel],
+							})),
+						];
+
+						const category = await interaction.guild.channels.create({
+							name: 'Logs',
+							type: ChannelType.GuildCategory,
+							permissionOverwrites,
 						});
-						return;
-					}
-					const selectedRoles = selectInteraction.values;
-					const permissionOverwrites = [
-						{
-							id: interaction.guild.roles.everyone.id,
-							deny: [
-								PermissionsBitField.Flags.ViewChannel,
-								PermissionsBitField.Flags.SendMessages,
-							],
-						},
-						...selectedRoles.map((id) => ({
-							id,
-							allow: [PermissionsBitField.Flags.ViewChannel],
-						})),
-					];
 
-					const category = await interaction.guild.channels.create({
-						name: 'Logs',
-						type: ChannelType.GuildCategory,
-						permissionOverwrites,
-					});
-
-					const logBot = await interaction.guild.channels.create({
-						name: 'bot-logs',
-						type: ChannelType.GuildText,
-						parent: category,
-						permissionOverwrites,
-					});
-
-					const logChannels = await interaction.guild.channels.create({
-						name: 'channel-logs',
-						type: ChannelType.GuildText,
-						parent: category,
-						permissionOverwrites,
-					});
-
-					const logMember = await interaction.guild.channels.create({
-						name: 'member-logs',
-						type: ChannelType.GuildText,
-						parent: category,
-						permissionOverwrites,
-					});
-
-					const logMod = await interaction.guild.channels.create({
-						name: 'mod-logs',
-						type: ChannelType.GuildText,
-						parent: category,
-						permissionOverwrites,
-					});
-
-					const logMsg = await interaction.guild.channels.create({
-						name: 'message-logs',
-						type: ChannelType.GuildText,
-						parent: category,
-						permissionOverwrites,
-					});
-
-					const logServer = await interaction.guild.channels.create({
-						name: 'server-logs',
-						type: ChannelType.GuildText,
-						parent: category,
-						permissionOverwrites,
-					});
-
-					await prisma.guild.update({
-						where: {
-							id: interaction.guild.id,
-						},
-						data: {
-							logEnable: true,
-							logCategory: category.id,
-							logBot: logBot.id,
-							logChannels: logChannels.id,
-							logMember: logMember.id,
-							logMod: logMod.id,
-							logMsg: logMsg.id,
-							logServer: logServer.id,
-						},
-					});
-					const mentionList = selectedRoles
-						.map((id) => `- <@&${id}>`)
-						.join('\n');
-					const autoConfig = new EmbedBuilder()
-						.setTitle('The logs category is created')
-						.setDescription(
-							`
-						This following roles will have access to the logs.
-						${mentionList}
-					`,
-						)
-						.setColor(guildData.color)
-						.setFooter({
-							text: guildData.footer,
+						const logBot = await interaction.guild.channels.create({
+							name: 'bot-logs',
+							type: ChannelType.GuildText,
+							parent: category,
+							permissionOverwrites,
 						});
-					await selectInteraction.update({
-						embeds: [autoConfig],
-						components: [],
-					});
-					return;
+
+						const logChannels = await interaction.guild.channels.create({
+							name: 'channel-logs',
+							type: ChannelType.GuildText,
+							parent: category,
+							permissionOverwrites,
+						});
+
+						const logMember = await interaction.guild.channels.create({
+							name: 'member-logs',
+							type: ChannelType.GuildText,
+							parent: category,
+							permissionOverwrites,
+						});
+
+						const logMod = await interaction.guild.channels.create({
+							name: 'mod-logs',
+							type: ChannelType.GuildText,
+							parent: category,
+							permissionOverwrites,
+						});
+
+						const logMsg = await interaction.guild.channels.create({
+							name: 'message-logs',
+							type: ChannelType.GuildText,
+							parent: category,
+							permissionOverwrites,
+						});
+
+						const logServer = await interaction.guild.channels.create({
+							name: 'server-logs',
+							type: ChannelType.GuildText,
+							parent: category,
+							permissionOverwrites,
+						});
+
+						await prisma.guild.update({
+							where: {
+								id: interaction.guild.id,
+							},
+							data: {
+								logEnable: true,
+								logCategory: category.id,
+								logBot: logBot.id,
+								logChannels: logChannels.id,
+								logMember: logMember.id,
+								logMod: logMod.id,
+								logMsg: logMsg.id,
+								logServer: logServer.id,
+							},
+						});
+						const mentionList = selectedRoles
+							.map((id) => `- <@&${id}>`)
+							.join('\n');
+						const autoConfig = new EmbedBuilder()
+							.setTitle('The logs category is created')
+							.setDescription(`
+								This following roles will have access to the logs.
+								${mentionList}
+						`)
+							.setColor(guildData.color)
+							.setFooter({
+								text: guildData.footer,
+							});
+						await selectInteraction.update({
+							embeds: [autoConfig],
+							components: [],
+						});
+					})();
 				},
 			);
 			break;
