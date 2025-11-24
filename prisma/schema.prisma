@@ -46,9 +46,9 @@ model Guild {
   logMsg      String?
   logServer   String?
 
-  welcomeEnabled Boolean @default(false)
-  welcomeMessage String  @default("Bienvenue {user.mention} sur le serveur {server.setName}, tu es le {server.member.count} membre du serveur 👋")
-  welcomeChannel String?
+  joinEnabled    Boolean @default(false)
+  joinMessage    String  @default("Bienvenue {user.mention} sur le serveur {server.setName}, tu es le {server.member.count} membre du serveur 👋")
+  joinChannel    String?
   leaveEnabled   Boolean @default(false)
   leaveMessage   String  @default("Au revoir {user.name} 👋")
   leaveChannel   String?
