@@ -20,6 +20,16 @@ import { Guild as GuildPrisma } from '@prisma/client';
 import { prisma } from '@lib/prisma';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
+function listPlaceholder(): string {
+	let to_ret: string = '';
+	to_ret += '{user.mention} → mentions the user\n';
+	to_ret += '{user.name} → username\n';
+	to_ret += '{user.tag} → username#0000\n';
+	to_ret += '{guild.name} → server name\n';
+	to_ret += '{guild.count} → number of the member in the guild\n';
+	return to_ret;
+}
+
 export default {
 	data: new SlashCommandBuilder()
 		.setName('welcome')
@@ -131,13 +141,8 @@ export default {
 					.setCustomId('placeholder')
 					.setRequired(false)
 					.setStyle(TextInputStyle.Paragraph)
-					.setLabel('The placeholders allowed for this message')
-					.setValue(
-						'{user.mention} → mentions the user\n' +
-						'{user.name} → username\n' +
-						'{user.tag} → username#0000\n' +
-						'{guild.name} → server name\n',
-					);
+					.setLabel('The placeholders (ReadOnly)')
+					.setValue(listPlaceholder());
 				modal.addComponents(
 					new ActionRowBuilder<TextInputBuilder>().addComponents(joinInput),
 					new ActionRowBuilder<TextInputBuilder>().addComponents(placeholdersDisplay),
@@ -224,13 +229,8 @@ export default {
 					.setCustomId('placeholder')
 					.setRequired(false)
 					.setStyle(TextInputStyle.Paragraph)
-					.setLabel('The placeholders allowed for this message')
-					.setValue(
-						'{user.mention} → mentions the user\n' +
-						'{user.name} → username\n' +
-						'{user.tag} → username#0000\n' +
-						'{guild.name} → server name\n',
-					);
+					.setLabel('The placeholders (ReadOnly)')
+					.setValue(listPlaceholder());
 				modal.addComponents(
 					new ActionRowBuilder<TextInputBuilder>().addComponents(leaveInput),
 					new ActionRowBuilder<TextInputBuilder>().addComponents(placeholdersDisplay),
