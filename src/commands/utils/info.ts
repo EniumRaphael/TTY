@@ -42,7 +42,7 @@ function getUserBadges(userData: {
 
 	if (userData.isDev) badges.push(emoji.badge.dev);
 	if (userData.isEnium) badges.push(emoji.badge.enium);
-	if (userData.isPwn) badges.push(emoji.badge.dash);
+	if (userData.isPwn) badges.push(emoji.badge.pwn);
 	if (userData.isBuyer) badges.push(emoji.badge.buyer);
 	if (userData.isOwner) badges.push(emoji.badge.owner);
 
@@ -52,9 +52,7 @@ function getUserBadges(userData: {
 export default {
 	data: new SlashCommandBuilder()
 		.setName('info')
-		.setDescription(
-			'Show the infromation of one of these categories (user, server, bot)',
-		)
+		.setDescription('Show the infromation of one of these categories (user, server, bot)')
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('user')
