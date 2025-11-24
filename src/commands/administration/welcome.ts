@@ -148,12 +148,21 @@ export default {
 					new ActionRowBuilder<TextInputBuilder>().addComponents(joinInput),
 					new ActionRowBuilder<TextInputBuilder>().addComponents(placeholdersDisplay),
 				);
+				let modalSubmit: MessageComponentInteraction<CacheType>;
 				await joinReply!.showModal(modal);
-
-				const modalSubmit = await joinReply!.awaitModalSubmit({
-					filter: i => i.user.id === interaction.user.id && i.customId === 'join_modal',
-					time: 120_000,
-				});
+				try {
+					modalSubmit = await joinReply.awaitModalSubmit({
+						filter: i => i.user.id === interaction.user.id && i.customId === 'join_modal',
+						time: 120_000,
+					});
+				}
+				catch {
+					await joinReply.followUp({
+						content: `${emoji.answer.error} | No answer received, closing...`,
+						flags: MessageFlags.Ephemeral,
+					});
+					break;
+				}
 				const newJoinMsg: string = modalSubmit.fields.getTextInputValue('join_msg');
 				const finalChannel: GuildBasedChannel | null = interaction.guild.channels.cache.get(joinChannel!);
 				if (!finalChannel || !finalChannel.isTextBased()) {
@@ -237,12 +246,21 @@ export default {
 					new ActionRowBuilder<TextInputBuilder>().addComponents(leaveInput),
 					new ActionRowBuilder<TextInputBuilder>().addComponents(placeholdersDisplay),
 				);
+				let modalSubmit: MessageComponentInteraction<CacheType>;
 				await leaveReply!.showModal(modal);
-
-				const modalSubmit = await leaveReply!.awaitModalSubmit({
-					filter: i => i.user.id === interaction.user.id && i.customId === 'leave_modal',
-					time: 120_000,
-				});
+				try {
+					modalSubmit = await leaveReply.awaitModalSubmit({
+						filter: i => i.user.id === interaction.user.id && i.customId === 'leave_modal',
+						time: 120_000,
+					});
+				}
+				catch {
+					await leaveReply.followUp({
+						content: `${emoji.answer.error} | No answer received, closing...`,
+						flags: MessageFlags.Ephemeral,
+					});
+					break;
+				}
 				const newleaveMsg: string = modalSubmit.fields.getTextInputValue('leave_msg');
 				const finalChannel: GuildBasedChannel | null = interaction.guild.channels.cache.get(leaveChannel!);
 				if (!finalChannel || !finalChannel.isTextBased()) {
