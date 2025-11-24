@@ -80,7 +80,7 @@ export default {
 						id: interaction.guild.id,
 					},
 					data: {
-						welcomeEnabled: false,
+						joinEnabled: false,
 					},
 				});
 				await interaction.editReply({
@@ -133,9 +133,9 @@ export default {
 						id: interaction.guild.id,
 					},
 					data: {
-						welcomeEnabled: true,
-						welcomeMessage: newJoinMsg,
-						welcomeChannel: finalChannel.id,
+						joinEnabled: true,
+						joinMessage: newJoinMsg,
+						joinChannel: finalChannel.id,
 					},
 				});
 
@@ -173,7 +173,7 @@ export default {
 						id: interaction.guild.id,
 					},
 					data: {
-						welcomeEnabled: false,
+						leaveEnabled: false,
 					},
 				});
 				await interaction.editReply({
@@ -226,9 +226,9 @@ export default {
 						id: interaction.guild.id,
 					},
 					data: {
-						welcomeEnabled: true,
-						welcomeMessage: newleaveMsg,
-						welcomeChannel: finalChannel.id,
+						leaveEnabled: true,
+						leaveMessage: newleaveMsg,
+						leaveChannel: finalChannel.id,
 					},
 				});
 
