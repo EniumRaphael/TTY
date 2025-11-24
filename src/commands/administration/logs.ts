@@ -14,7 +14,7 @@ import {
 	CategoryChannel,
 } from 'discord.js';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
-import { Guild, User } from '@prisma/client';
+import { Guild as GuildPrisma, User as UserPrisma } from '@prisma/client';
 import { log } from '@lib/log';
 import { isOwner } from '@lib/perm.js';
 
@@ -55,7 +55,7 @@ export default {
 			return;
 		}
 
-		let guildData: Guild | null;
+		let guildData: GuildPrisma | null;
 		try {
 			guildData = await prisma.guild.findUnique({
 				where: {
@@ -80,7 +80,7 @@ export default {
 			return;
 		}
 
-		let userData: User | null;
+		let userData: UserPrisma | null;
 		try {
 			userData = await prisma.user.findUnique({
 				where: {
@@ -120,14 +120,15 @@ export default {
 					.setColor(guildData.color)
 					.setFooter({
 						text: guildData.footer,
-					}).setDescription(`
-							${guildData.logBot ? `${emoji.config.enable} Bot ${channelMention(guildData.logBot)}` : `${emoji.config.disable} Bot`}
-							${guildData.logChannels ? `${emoji.config.enable} Channels ${channelMention(guildData.logChannels)}` : `${emoji.config.disable} Channels`}
-							${guildData.logMember ? `${emoji.config.enable} Member ${channelMention(guildData.logMember)}` : `${emoji.config.disable} Member`}
-							${guildData.logMod ? `${emoji.config.enable} Moderation ${channelMention(guildData.logMod)}` : `${emoji.config.disable} Moderation`}
-							${guildData.logMsg ? `${emoji.config.enable} Message ${channelMention(guildData.logMsg)}` : `${emoji.config.disable} Message`}
-							${guildData.logServer ? `${emoji.config.enable} Server ${channelMention(guildData.logServer)}` : `${emoji.config.disable} Server`}
-						`);
+					})
+					.setDescription(`
+						${guildData.logBot ? `${emoji.config.enable} Bot ${channelMention(guildData.logBot)}` : `${emoji.config.disable} Bot`}
+						${guildData.logChannels ? `${emoji.config.enable} Channels ${channelMention(guildData.logChannels)}` : `${emoji.config.disable} Channels`}
+						${guildData.logMember ? `${emoji.config.enable} Member ${channelMention(guildData.logMember)}` : `${emoji.config.disable} Member`}
+						${guildData.logMod ? `${emoji.config.enable} Moderation ${channelMention(guildData.logMod)}` : `${emoji.config.disable} Moderation`}
+						${guildData.logMsg ? `${emoji.config.enable} Message ${channelMention(guildData.logMsg)}` : `${emoji.config.disable} Message`}
+						${guildData.logServer ? `${emoji.config.enable} Server ${channelMention(guildData.logServer)}` : `${emoji.config.disable} Server`}
+					`);
 
 				await interaction.reply({
 					embeds: [logsData],
