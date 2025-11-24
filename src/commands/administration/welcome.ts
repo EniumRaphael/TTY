@@ -136,6 +136,7 @@ export default {
 					.setCustomId('join_msg')
 					.setRequired(true)
 					.setLabel('The new message for joinning user')
+					.setValue(guildData.joinMessage)
 					.setStyle(TextInputStyle.Short);
 				const placeholdersDisplay = new TextInputBuilder()
 					.setCustomId('placeholder')
@@ -224,6 +225,7 @@ export default {
 					.setCustomId('leave_msg')
 					.setRequired(true)
 					.setLabel('The new message for leavening user')
+					.setValue(guildData.leaveMessage)
 					.setStyle(TextInputStyle.Short);
 				const placeholdersDisplay = new TextInputBuilder()
 					.setCustomId('placeholder')
