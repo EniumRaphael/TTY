@@ -12,7 +12,11 @@ import {
 	ChannelSelectMenuInteraction,
 	GuildBasedChannel,
 	TextInputStyle,
+	MessageComponentInteraction,
+	CacheType,
 } from 'discord.js';
+import { channelMention, EmbedBuilder } from '@discordjs/builders';
+import { Guild as GuildPrisma } from '@prisma/client';
 import { prisma } from '@lib/prisma';
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 
@@ -49,10 +53,35 @@ export default {
 			});
 			return;
 		}
+		const guildData: GuildPrisma = await prisma.guild.findUnique({
+			where: {
+				id: interaction.guild.id,
+			},
+		});
+
 
 		const choice: string = interaction.options.getString('action', true);
 
 		switch (choice) {
+		case 'welcome_show': {
+			const status: EmbedBuilder = new EmbedBuilder()
+				.setTitle(`Welcome status for ${interaction.guild.name}`)
+				.setColor(guildData.color)
+				.setFooter({
+					text: guildData.footer,
+				})
+				.setDescription(`
+					${guildData.joinEnabled ? `${emoji.config.enable}` : `${emoji.config.disable}`} **Join message:**
+					${guildData.joinEnabled ? `> in ${channelMention(guildData.joinChannel)} with the message \`${guildData.joinMessage}\`\n` : ''}
+					${guildData.leaveEnabled ? `${emoji.config.enable}` : `${emoji.config.disable}`} **Leave message:**
+					${guildData.leaveEnabled ? `> in ${channelMention(guildData.joinChannel)} with the message \`${guildData.leaveMessage}\`` : ''}
+				`);
+			await interaction.reply({
+				embeds: [status],
+				flags: MessageFlags.Ephemeral,
+			});
+			break;
+		}
 		case 'welcome_join': {
 			const joinSelectMenu: ChannelSelectMenuBuilder = new ChannelSelectMenuBuilder()
 				.setCustomId('join_select_channel')
