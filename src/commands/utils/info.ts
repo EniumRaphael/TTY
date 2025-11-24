@@ -46,7 +46,7 @@ function getUserBadges(userData: {
 	if (userData.isBuyer) badges.push(emoji.badge.buyer);
 	if (userData.isOwner) badges.push(emoji.badge.owner);
 
-	return badges.length > 0 ? badges.join(' ') : 'Aucun badge';
+	return badges.length > 0 ? badges.join(' ') : 'No badge';
 }
 
 export default {
