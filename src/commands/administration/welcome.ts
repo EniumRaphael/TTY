@@ -144,6 +144,100 @@ export default {
 					flags: MessageFlags.Ephemeral,
 				});
 			}
+			break;
+		}
+		case 'welcome_leave': {
+			const leaveSelectMenu: ChannelSelectMenuBuilder = new ChannelSelectMenuBuilder()
+				.setCustomId('leave_select_channel')
+				.setPlaceholder('Choose a channel to send the leave notification')
+				.addChannelTypes(ChannelType.GuildText);
+			const leaveDisable = new ButtonBuilder()
+				.setCustomId('leave_no_channel')
+				.setLabel('Disabled')
+				.setStyle(ButtonStyle.Danger);
+			await interaction.reply({
+				content: 'Select the channel where the leave message will be send:',
+				components: [
+					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(leaveSelectMenu),
+					new ActionRowBuilder<ButtonBuilder>().addComponents(leaveDisable),
+				],
+				flags: MessageFlags.Ephemeral,
+			});
+			const leaveReply: ChannelSelectMenuInteraction = await interaction.channel?.awaitMessageComponent({
+				filter: i => i.user.id === interaction.user.id && (i.customId === 'leave_select_channel' || i.customId === 'leave_no_channel'),
+				time: 60_000,
+			});
+			if (leaveReply.customId == 'leave_no_channel') {
+				await prisma.guild.update({
+					where: {
+						id: interaction.guild.id,
+					},
+					data: {
+						welcomeEnabled: false,
+					},
+				});
+				await interaction.editReply({
+					content: `${emoji.answer.yes} | The leaving message is now **disabled**`,
+					components: [],
+				});
+			}
+			else {
+				const leaveChannel: string = leaveReply!.values[0];
+				const modal: ModalBuilder = new ModalBuilder()
+					.setCustomId('leave_modal')
+					.setTitle('leave Form');
+				const leaveInput: TextInputBuilder = new TextInputBuilder()
+					.setCustomId('leave_msg')
+					.setRequired(true)
+					.setLabel('The new message for leavening user')
+					.setStyle(TextInputStyle.Short);
+				const placeholdersDisplay = new TextInputBuilder()
+					.setCustomId('placeholder')
+					.setRequired(false)
+					.setStyle(TextInputStyle.Paragraph)
+					.setLabel('The placeholders allowed for this message')
+					.setValue(
+						'{user.mention} → mentions the user\n' +
+						'{user.name} → username\n' +
+						'{user.tag} → username#0000\n' +
+						'{guild.name} → server name\n',
+					);
+				modal.addComponents(
+					new ActionRowBuilder<TextInputBuilder>().addComponents(leaveInput),
+					new ActionRowBuilder<TextInputBuilder>().addComponents(placeholdersDisplay),
+				);
+				await leaveReply!.showModal(modal);
+
+				const modalSubmit = await leaveReply!.awaitModalSubmit({
+					filter: i => i.user.id === interaction.user.id && i.customId === 'leave_modal',
+					time: 120_000,
+				});
+				const newleaveMsg: string = modalSubmit.fields.getTextInputValue('leave_msg');
+				const finalChannel: GuildBasedChannel | null = interaction.guild.channels.cache.get(leaveChannel!);
+				if (!finalChannel || !finalChannel.isTextBased()) {
+					return modalSubmit.reply({
+						content: `${emoji.answer.error} | The channel collected is invalid`,
+						flags: MessageFlags.Ephemeral,
+					});
+				}
+
+				await prisma.guild.update({
+					where: {
+						id: interaction.guild.id,
+					},
+					data: {
+						welcomeEnabled: true,
+						welcomeMessage: newleaveMsg,
+						welcomeChannel: finalChannel.id,
+					},
+				});
+
+				await modalSubmit.reply({
+					content: `${emoji.answer.yes} | The leaving message is now **enabled**`,
+					flags: MessageFlags.Ephemeral,
+				});
+			}
+			break;
 		}
 		}
 	},
