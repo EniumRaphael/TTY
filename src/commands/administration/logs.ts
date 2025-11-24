@@ -121,13 +121,12 @@ export default {
 					.setFooter({
 						text: guildData.footer,
 					}).setDescription(`
-							${guildData.logCategory ? `${emoji.answer.yes} | Categories` : `${emoji.answer.no} | Categories`}
-							${guildData.logBot ? `${emoji.answer.yes} | Bot ${channelMention(guildData.logBot)}` : `${emoji.answer.no} | Bot`}
-							${guildData.logChannels ? `${emoji.answer.yes} | Channels ${channelMention(guildData.logChannels)}` : `${emoji.answer.no} | Channels`}
-							${guildData.logMember ? `${emoji.answer.yes} | Member ${channelMention(guildData.logMember)}` : `${emoji.answer.no} | Member`}
-							${guildData.logMod ? `${emoji.answer.yes} | Moderation ${channelMention(guildData.logMod)}` : `${emoji.answer.no} | Moderation`}
-							${guildData.logMsg ? `${emoji.answer.yes} | Message ${channelMention(guildData.logMsg)}` : `${emoji.answer.no} | Message`}
-							${guildData.logServer ? `${emoji.answer.yes} | Server ${channelMention(guildData.logServer)}` : `${emoji.answer.no} | Server`}
+							${guildData.logBot ? `${emoji.config.enable} Bot ${channelMention(guildData.logBot)}` : `${emoji.config.disable} Bot`}
+							${guildData.logChannels ? `${emoji.config.enable} Channels ${channelMention(guildData.logChannels)}` : `${emoji.config.disable} Channels`}
+							${guildData.logMember ? `${emoji.config.enable} Member ${channelMention(guildData.logMember)}` : `${emoji.config.disable} Member`}
+							${guildData.logMod ? `${emoji.config.enable} Moderation ${channelMention(guildData.logMod)}` : `${emoji.config.disable} Moderation`}
+							${guildData.logMsg ? `${emoji.config.enable} Message ${channelMention(guildData.logMsg)}` : `${emoji.config.disable} Message`}
+							${guildData.logServer ? `${emoji.config.enable} Server ${channelMention(guildData.logServer)}` : `${emoji.config.disable} Server`}
 						`);
 
 				await interaction.reply({
