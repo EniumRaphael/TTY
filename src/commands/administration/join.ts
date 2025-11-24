@@ -1,0 +1,150 @@
+import {
+	SlashCommandBuilder,
+	CommandInteraction,
+	ActionRowBuilder,
+	ChannelSelectMenuBuilder,
+	ChannelType,
+	ModalBuilder,
+	TextInputBuilder,
+	MessageFlags,
+	ButtonStyle,
+	ButtonBuilder,
+	ChannelSelectMenuInteraction,
+	GuildBasedChannel,
+	TextInputStyle,
+} from 'discord.js';
+import { prisma } from '@lib/prisma';
+import emoji from '../../../assets/emoji.json' assert { type: 'json' };
+
+export default {
+	data: new SlashCommandBuilder()
+		.setName('welcome')
+		.setDescription('Configuration of the welcome system')
+		.addStringOption((option) =>
+			option
+				.setName('action')
+				.setDescription('What is the action you to perform')
+				.setRequired(true)
+				.addChoices(
+					{
+						name: 'Show',
+						value: 'welcome_show',
+					},
+					{
+						name: 'Join',
+						value: 'welcome_join',
+					},
+					{
+						name: 'Leave',
+						value: 'welcome_leave',
+					},
+				),
+		),
+
+	async execute(interaction: CommandInteraction) {
+		if (!(interaction.guild)) {
+			await interaction.reply({
+				content: `${emoji.answer.error} | This command can only be used in a guild`,
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+
+		const choice: string = interaction.options.getString('action', true);
+
+		switch (choice) {
+		case 'welcome_join': {
+			const joinSelectMenu: ChannelSelectMenuBuilder = new ChannelSelectMenuBuilder()
+				.setCustomId('join_select_channel')
+				.setPlaceholder('Choose a channel to send the join notification')
+				.addChannelTypes(ChannelType.GuildText);
+			const joinDisable = new ButtonBuilder()
+				.setCustomId('join_no_channel')
+				.setLabel('Disabled')
+				.setStyle(ButtonStyle.Danger);
+			await interaction.reply({
+				content: 'Select the channel where the join message will be send:',
+				components: [
+					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(joinSelectMenu),
+					new ActionRowBuilder<ButtonBuilder>().addComponents(joinDisable),
+				],
+				flags: MessageFlags.Ephemeral,
+			});
+			const joinReply: ChannelSelectMenuInteraction = await interaction.channel?.awaitMessageComponent({
+				filter: i => i.user.id === interaction.user.id && (i.customId === 'join_select_channel' || i.customId === 'join_no_channel'),
+				time: 60_000,
+			});
+			if (joinReply.customId == 'join_no_channel') {
+				await prisma.guild.update({
+					where: {
+						id: interaction.guild.id,
+					},
+					data: {
+						welcomeEnabled: false,
+					},
+				});
+				await interaction.editReply({
+					content: `${emoji.answer.yes} | The joining message is now **disabled**`,
+					components: [],
+				});
+			}
+			else {
+				const joinChannel: string = joinReply!.values[0];
+				const modal: ModalBuilder = new ModalBuilder()
+					.setCustomId('join_modal')
+					.setTitle('Join Form');
+				const joinInput: TextInputBuilder = new TextInputBuilder()
+					.setCustomId('join_msg')
+					.setRequired(true)
+					.setLabel('The new message for joinning user')
+					.setStyle(TextInputStyle.Short);
+				const placeholdersDisplay = new TextInputBuilder()
+					.setCustomId('placeholder')
+					.setRequired(false)
+					.setStyle(TextInputStyle.Paragraph)
+					.setLabel('The placeholders allowed for this message')
+					.setValue(
+						'{user.mention} → mentions the user\n' +
+						'{user.name} → username\n' +
+						'{user.tag} → username#0000\n' +
+						'{guild.name} → server name\n',
+					);
+				modal.addComponents(
+					new ActionRowBuilder<TextInputBuilder>().addComponents(joinInput),
+					new ActionRowBuilder<TextInputBuilder>().addComponents(placeholdersDisplay),
+				);
+				await joinReply!.showModal(modal);
+
+				const modalSubmit = await joinReply!.awaitModalSubmit({
+					filter: i => i.user.id === interaction.user.id && i.customId === 'join_modal',
+					time: 120_000,
+				});
+				const newJoinMsg: string = modalSubmit.fields.getTextInputValue('join_msg');
+				const finalChannel: GuildBasedChannel | null = interaction.guild.channels.cache.get(joinChannel!);
+				if (!finalChannel || !finalChannel.isTextBased()) {
+					return modalSubmit.reply({
+						content: `${emoji.answer.error} | The channel collected is invalid`,
+						flags: MessageFlags.Ephemeral,
+					});
+				}
+
+				await prisma.guild.update({
+					where: {
+						id: interaction.guild.id,
+					},
+					data: {
+						welcomeEnabled: true,
+						welcomeMessage: newJoinMsg,
+						welcomeChannel: finalChannel.id,
+					},
+				});
+
+				await modalSubmit.reply({
+					content: `${emoji.answer.yes} | The joining message is now **enabled**`,
+					flags: MessageFlags.Ephemeral,
+				});
+			}
+		}
+		}
+	},
+};
