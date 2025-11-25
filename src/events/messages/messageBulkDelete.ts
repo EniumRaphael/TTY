@@ -36,6 +36,7 @@ export default {
 					}),
 				})
 				.setTitle('🚯 | Message Cleared')
+				.setTimestamp()
 				.setColor(guildData.color)
 				.setFooter({
 					text: guildData.footer,
