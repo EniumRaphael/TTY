@@ -54,9 +54,7 @@ export default {
 		try {
 			const newChannel = await oldChannel.clone();
 			await newChannel.setPosition(pos);
-			const fetchedChannel = await interaction.client.channels.fetch(
-				newChannel.id,
-			);
+			const fetchedChannel = await interaction.client.channels.fetch(newChannel.id);
 			if (
 				!notification && fetchedChannel &&
 					fetchedChannel.type === ChannelType.GuildText &&
