@@ -12,20 +12,12 @@ import {
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { User as UserPrisma } from '@prisma/client';
 import { Guild as GuildPrisma } from '@prisma/client';
+import { getUserRoles } from '@lib/roles';
 import { log } from '@lib/log';
 
 function getGuildRoles(guild: Guild): string {
 	const roles = guild.roles.cache
 		.filter((role) => role.id !== guild.id)
-		.sort((a, b) => b.position - a.position)
-		.map((role) => roleMention(role.id));
-
-	return roles.length > 0 ? roles.join(', ') : 'No role';
-}
-
-function getUserRoles(target: GuildMember): string {
-	const roles = target.roles.cache
-		.filter((role) => role.id !== target.guild.id)
 		.sort((a, b) => b.position - a.position)
 		.map((role) => roleMention(role.id));
 
