@@ -13,6 +13,9 @@ export const log = {
 		console.error(chalk.redBright(`\t${error.message}`));
 		console.error(chalk.redBright(`\tStack:\n${error.stack ?? 'No stack available'}`));
 	},
+	info: (str: string) => {
+		console.log(chalk.grey(`ℹ️ | ${str}`));
+	},
 	success: (str: string) => {
 		console.log(chalk.greenBright(`✅ | ${str}`));
 	},
