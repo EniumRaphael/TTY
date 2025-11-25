@@ -9,13 +9,14 @@ import {
 	Collection,
 } from 'discord.js';
 import { prisma } from '@lib/prisma';
+import { client } from '@lib/client';
 import { Bot as BotPrisma } from '@prisma/client';
 import { log } from '@lib/log';
 
 export default {
 	name: Events.ClientReady,
 	once: true,
-	async execute(client: User) {
+	async execute(clientUser: User) {
 		try {
 			const botData: BotPrisma | null = await prisma.bot.upsert({
 				where: {
@@ -70,7 +71,7 @@ export default {
 				break;
 			}
 			if (botData.type === 'steam') {
-				client.user.setPresence({
+				clientUser.user.setPresence({
 					status: newPresence,
 					activities: [
 						{
@@ -82,7 +83,7 @@ export default {
 				});
 			}
 			else {
-				client.user.setPresence({
+				clientUser.user.setPresence({
 					status: newPresence,
 					activities: [
 						{
@@ -93,12 +94,13 @@ export default {
 				});
 			}
 			const buyerNotification: EmbedBuilder = new EmbedBuilder()
-				.setTitle(`${client.user.username} running`)
+				.setTitle(`${clientUser.user.username} running`)
 				.setColor('#008000')
+				.setTimestamp()
 				.setDescription(
 					`
-					**On:** ${client.guilds.cache.size} guild${client.guilds.cache.size > 1 ? 's' : ''}
-					**With:** ${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)} users
+					**On:** ${clientUser.guilds.cache.size} guild${clientUser.guilds.cache.size > 1 ? 's' : ''}
+					**With:** ${clientUser.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)} users
 				`,
 				)
 				.setTimestamp();
@@ -106,13 +108,13 @@ export default {
 			await Promise.all(
 				botData.buyers.map(async (buyer: User) => {
 					try {
-						const user = await client.client.users.fetch(buyer.id);
+						const user = await client.users.fetch(buyer.id);
 						const dm: DMChannel = await user.createDM();
 						const messages: Collection<string, Message<boolean>> = await dm.messages.fetch({
 							limit: 20,
 						});
 						const lastBotMsg: Message<boolean> | undefined = messages.find(
-							(m: Message): boolean => m.author.id === client.client.user!.id,
+							(m: Message): boolean => m.author.id === client.user!.id,
 						);
 						if (!lastBotMsg) {
 							await lastBotMsg.edit({
@@ -138,7 +140,7 @@ export default {
 			return;
 		}
 		log.search('Guild');
-		for (const [guildId, guild] of client.guilds.cache) {
+		for (const [guildId, guild] of clientUser.guilds.cache) {
 			try {
 				await prisma.guild.upsert({
 					where: {
@@ -191,6 +193,6 @@ export default {
 			}
 		}
 		console.log('\n\n');
-		log.success(`${client.user.username} is now running under TTS bot`);
+		log.success(`${clientUser.user.username} is now running under TTS bot`);
 	},
 };
