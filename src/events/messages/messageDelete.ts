@@ -22,6 +22,7 @@ export default {
 				})
 				.setTitle('🗑️ | Message Deleted')
 				.setColor(guildData.color)
+				.setTimestamp()
 				.setFooter({
 					text: guildData.footer,
 				})

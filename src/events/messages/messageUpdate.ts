@@ -25,6 +25,7 @@ export default {
 				.setFooter({
 					text: guildData.footer,
 				})
+				.setTimestamp()
 				.setDescription(`
 					__Channel:__ <#${message.channel.id}> (${message.channel.name})
 					__Before:__ ${oldMessage.content}
