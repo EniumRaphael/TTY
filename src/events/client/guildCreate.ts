@@ -87,14 +87,16 @@ export default {
 		const buyerNotification: EmbedBuilder = new EmbedBuilder()
 			.setTitle(`${guild.client.user.username} joined a new server`)
 			.setColor('#663399')
-			.setDescription(
-				`
+			.setTimestamp()
+			.setFooter({
+				text: '© EniumTeam ~ 2025',
+			})
+			.setDescription(`
 			Name: ${guild.name}
 			Owner id: ${guild.ownerId}
 			Invite: ${guild.vanityURLCode || (await getGuildInvite(guild))}
 			Member: ${guild.memberCount}
-			`,
-			)
+			`)
 			.setTimestamp();
 		await Promise.all(
 			botData.buyers.map(async (buyer) => {
@@ -107,7 +109,7 @@ export default {
 					await new Promise((res) => setTimeout(res, 1000));
 				}
 				catch (err) {
-					log.warn(err, `Unable to fetch ${buyer.id} user`);
+					log.info(`Not able to fetch user ${buyer.id}`);
 					return;
 				}
 			}),
