@@ -45,6 +45,7 @@ export default {
 			}
 			const toRep = new EmbedBuilder()
 				.setColor(guildData.color)
+				.setTimestamp()
 				.setFooter({
 					text: guildData.footer,
 				})
