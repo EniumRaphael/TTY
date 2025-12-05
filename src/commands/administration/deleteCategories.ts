@@ -42,6 +42,11 @@ export default {
 
 		const category = categoryOption as CategoryChannel;
 
+		await interaction.reply({
+			content: `${emoji.answer.loading} | Starting the deletion of **${category.name}**.`,
+			flags: MessageFlags.Ephemeral,
+		});
+
 		try {
 			for (const channel of category.children.cache.values()) {
 				await channel.delete(
@@ -53,10 +58,11 @@ export default {
 				`Deleted ${category.name} (requested by ${interaction.user.username})`,
 			);
 
-			await interaction.reply({
-				content: `${emoji.answer.yes} | Deleted category **${category.name}** and its channels.`,
-				flags: MessageFlags.Ephemeral,
-			});
+			if (interaction.channel) {
+				await interaction.editReply({
+					content: `${emoji.answer.yes} | Deleted category **${category.name}** and its channels.`,
+				});
+			}
 		}
 		catch (err: unknown) {
 			log.error(err, 'Cannot delete category or its channels');
