@@ -108,7 +108,7 @@ export default {
 					});
 					await new Promise((res) => setTimeout(res, 1000));
 				}
-				catch (err) {
+				catch {
 					log.info(`Not able to fetch user ${buyer.id}`);
 					return;
 				}
