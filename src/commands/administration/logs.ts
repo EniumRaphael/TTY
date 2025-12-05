@@ -16,7 +16,7 @@ import {
 import emoji from '../../../assets/emoji.json' assert { type: 'json' };
 import { Guild as GuildPrisma, User as UserPrisma } from '@prisma/client';
 import { log } from '@lib/log';
-import { isOwner } from '@lib/perm.js';
+import { isOwner } from '@lib/perm';
 
 export default {
 	data: new SlashCommandBuilder()
