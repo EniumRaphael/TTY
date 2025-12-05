@@ -33,10 +33,6 @@ export default {
 						value: 'logs_show',
 					},
 					{
-						name: 'Auto-configuration',
-						value: 'logs_auto',
-					},
-					{
 						name: 'Configuration',
 						value: 'logs_config',
 					},
@@ -143,7 +139,7 @@ export default {
 			}
 			return;
 		}
-		case 'logs_auto': {
+		case 'logs_config': {
 			if (!await isOwner(interaction.user.id)) {
 				await interaction.reply({
 					content: `${emoji.answer.no} | This command is only for owner`,
