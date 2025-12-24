@@ -78,6 +78,9 @@ model GuildUser {
   level    Int     @default(0)
   isWlUser Boolean @default(false)
 
+  invitationCount Int @default(0)
+  invitatedBy     String?
+
   user  User  @relation("UserGuildRelation", fields: [userId], references: [id])
   guild Guild @relation("GuildGuildRelation", fields: [guildId], references: [id])
 
