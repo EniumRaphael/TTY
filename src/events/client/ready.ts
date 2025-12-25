@@ -7,6 +7,7 @@ import {
 	Message,
 	DMChannel,
 	Collection,
+	Invite,
 } from 'discord.js';
 import { prisma } from '@lib/prisma';
 import { client } from '@lib/client';
@@ -152,6 +153,8 @@ export default {
 						id: guildId,
 					},
 				});
+				const invites: Collection<string, Invite> = await guild.invites.fetch();
+				invitesCache.set(guildId, invites);
 				log.list(1, guild.name);
 				const members = await guild.members.fetch();
 				for (const [memberId, member] of members) {
