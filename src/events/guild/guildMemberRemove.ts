@@ -1,5 +1,8 @@
 import { Channel, EmbedBuilder, Events, GuildMember } from 'discord.js';
-import { Guild as GuildPrisma } from '@prisma/client';
+import {
+	GuildUser as GuildUserPrisma,
+	Guild as GuildPrisma,
+} from '@prisma/client';
 import { prisma } from '@lib/prisma';
 import { placeholder } from '@lib/placeholder';
 import { getUserRoles } from '@lib/roles.js';
@@ -9,7 +12,7 @@ export default {
 	name: Events.GuildMemberRemove,
 	async execute(member: GuildMember) {
 		if (member.id === client.user.id) {
-			return ;
+			return;
 		}
 		const memberId: string = member.id;
 		const guildId: string = member.guild.id;
@@ -19,7 +22,9 @@ export default {
 			},
 		});
 		if (guildData.leaveEnabled) {
-			const fetchedChannel: Channel | null = await member.client.channels.fetch(guildData.leaveChannel as string);
+			const fetchedChannel: Channel | null = await member.client.channels.fetch(
+        guildData.leaveChannel as string,
+			);
 			if (fetchedChannel) {
 				fetchedChannel.send({
 					content: placeholder(guildData.leaveMessage, member),
@@ -42,20 +47,59 @@ export default {
 				})
 				.setTimestamp()
 				.setDescription(`
-					**Roles:**
-					${getUserRoles(member)}
+			**Roles:**
+			${getUserRoles(member)}
 
-					**Acount Creation:**
-					<t:${Math.floor(member.user.createdTimestamp / 1000)}:D> <t:${Math.floor(member.user.createdTimestamp / 1000)}:R>
-					**JoinDate:**
-					<t:${Math.floor(member.joinedTimestamp / 1000)}:D> <t:${Math.floor(member.joinedTimestamp / 1000)}:R>
-				`);
-			const fetchedChannel: Channel | null = await member.client.channels.fetch(guildData.logMember as string);
+			**Acount Creation:**
+			<t:${Math.floor(member.user.createdTimestamp / 1000)}:D> <t:${Math.floor(member.user.createdTimestamp / 1000)}:R>
+			**JoinDate:**
+			<t:${Math.floor(member.joinedTimestamp / 1000)}:D> <t:${Math.floor(member.joinedTimestamp / 1000)}:R>
+		`);
+			const fetchedChannel: Channel | null = await member.client.channels.fetch(
+        guildData.logMember as string,
+			);
 			if (fetchedChannel) {
 				fetchedChannel.send({
 					embeds: [toSend],
 				});
 			}
+		}
+		const guildUserData: GuildUserPrisma | null =
+      await prisma.guildUser.findUnique({
+      	where: {
+      		userId_guildId: {
+      			userId: memberId,
+      			guildId: guildId,
+      		},
+      	},
+      });
+		const inviterId: string | null = guildUserData?.invitedBy ?? null;
+		if (inviterId && inviterId !== memberId) {
+			await prisma.guildUser.upsert({
+				where: {
+					userId_guildId: {
+						userId: inviterId,
+						guildId: guildId,
+					},
+				},
+				update: {
+					invitationCount: {
+						decrement: 1,
+					},
+				},
+				create: {
+					user: {
+						connect: {
+							id: inviterId,
+						},
+					},
+					guild: {
+						connect: {
+							id: guildId,
+						},
+					},
+				},
+			});
 		}
 		await prisma.user.upsert({
 			where: {
@@ -73,11 +117,12 @@ export default {
 					guildId: guildId,
 				},
 			},
-			update: {},
+			update: {
+				invitedBy: null,
+			},
 			create: {
 				user: {
-					connect:
-					{
+					connect: {
 						id: memberId,
 					},
 				},
