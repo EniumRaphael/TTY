@@ -5,6 +5,10 @@ import { GuildUser as GuildUserPrisma } from '@prisma/client';
 
 const xpCooldown: Map<string, number> = new Map<string, number>();
 
+/**
+ * @param userId the id of the user to check
+ * @return boolean for know if the user can win xp
+ */
 function canGainXp(userId: string): boolean {
 	const now: number = Date.now();
 	const last: number = xpCooldown.get(userId) ?? 0;
