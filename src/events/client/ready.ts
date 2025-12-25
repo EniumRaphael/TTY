@@ -195,17 +195,6 @@ export default {
 			catch (err) {
 				log.error(err, `Error when loading the guild with id: ${guildId}`);
 			}
-			log.search('Invites');
-			const invites = await guild.invites.fetch();
-			const guildInviteMap = new Map<string, number>();
-			for (const invite of invites.values()) {
-				const inviterId = invite.inviter?.id;
-				if (inviterId) {
-					const uses = invite.uses ?? 0;
-					guildInviteMap.set(inviterId, (guildInviteMap.get(inviterId) ?? 0) + uses);
-				}
-			}
-			inviteUsageCache.set(guildId, guildInviteMap);
 		}
 		console.log('\n\n');
 		log.success(`${clientUser.user.username} is now running under TTS bot`);
