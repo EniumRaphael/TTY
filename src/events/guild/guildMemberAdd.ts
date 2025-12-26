@@ -112,7 +112,7 @@ export default {
 				id: memberId,
 			},
 		});
-		const invitedByUpdate = inviter ? { invitedBy: inviter.id } : {};
+		const invitedByUpdate = inviter ? { invitedBy: inviter.id } : { invitedBy: null };
 		await prisma.guildUser.upsert({
 			where: {
 				userId_guildId: {
