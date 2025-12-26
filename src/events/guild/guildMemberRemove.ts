@@ -64,15 +64,14 @@ export default {
 				});
 			}
 		}
-		const guildUserData: GuildUserPrisma | null =
-      await prisma.guildUser.findUnique({
-      	where: {
-      		userId_guildId: {
-      			userId: memberId,
-      			guildId: guildId,
-      		},
-      	},
-      });
+		const guildUserData: GuildUserPrisma | null = await prisma.guildUser.findUnique({
+			where: {
+				userId_guildId: {
+					userId: memberId,
+					guildId: guildId,
+				},
+			},
+		});
 		const inviterId: string | null = guildUserData?.invitedBy ?? null;
 		if (inviterId && inviterId !== memberId) {
 			await prisma.guildUser.upsert({
