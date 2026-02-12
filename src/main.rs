@@ -12,7 +12,7 @@ async fn main() {
     let token: String =
         env::var("DISCORD_TOKEN").expect("❌ | DISCORD_TOKEN missing (check the env file)");
 
-    let intents: GatewayIntents = GatewayIntents::empty();
+    let intents: GatewayIntents = GatewayIntents::default();
 
     let bot: Bot = Bot {
         commands: commands::import(),
