@@ -16,6 +16,7 @@ async fn main() {
 
     let bot: Bot = Bot {
         commands: commands::import(),
+        events: events::import(),
     };
 
     let mut client: Client = Client::builder(&token, intents)
