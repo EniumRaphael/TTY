@@ -9,6 +9,7 @@ use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateInteractionResponse,
     CreateInteractionResponseMessage, EditInteractionResponse,
 };
+use sqlx::PgPool;
 
 pub struct Ping;
 
@@ -28,7 +29,7 @@ impl SlashCommand for Ping {
             .description(self.description())
     }
 
-    async fn run(&self, ctx: &Context, command: &CommandInteraction) -> Result<(), serenity::Error> {
+    async fn run(&self, ctx: &Context, command: &CommandInteraction, _database: &PgPool) -> Result<(), serenity::Error> {
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content("🏓 | Pong!")
             .ephemeral(true);
