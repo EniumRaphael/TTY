@@ -1,6 +1,4 @@
-use serenity::all::{
-    CommandInteraction, Context, CreateCommand
-};
+use serenity::all::{CommandInteraction, Context, CreateCommand};
 
 include!("./mod_gen.rs");
 
@@ -11,7 +9,8 @@ pub trait SlashCommand: Send + Sync {
 
     fn register(&self) -> CreateCommand;
 
-    async fn run(&self, ctx: &Context, command: &CommandInteraction) -> Result<(), serenity::Error>;
+    async fn run(&self, ctx: &Context, command: &CommandInteraction)
+    -> Result<(), serenity::Error>;
 }
 
 pub struct CommandEntry {
