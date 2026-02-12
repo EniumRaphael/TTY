@@ -6,8 +6,9 @@ use std::{
 };
 
 const COMMAND_DIR: &str = "./src/commands/";
-const EVENT_DIR: &str = "./src/events";
+const EVENT_DIR: &str = "./src/events/";
 const MOD_PREFIX: &str = "pub mod ";
+const MOD_FILE: &str = "/mod_gen.rs";
 
 fn clear_name(s: &mut String, n: usize) -> String {
     if n >= s.len() {
@@ -30,6 +31,7 @@ fn read_dir(dir: &Path) -> Vec<String> {
         if pb.is_file()
             && pb.to_string_lossy().ends_with(".rs")
             && !pb.to_string_lossy().ends_with("mod.rs")
+            && !pb.to_string_lossy().ends_with("mod_gen.rs")
         {
             dir_content.push(clear_name(pb.to_string_lossy().to_mut(), len));
         }
@@ -64,17 +66,17 @@ fn commands() -> io::Result<()> {
         println!("'{}'", subdir);
         let mut submodules: String = String::new();
         for command in commands {
-            submodules = String::from(MOD_PREFIX) + command + &String::from(";\n");
+            submodules = submodules + &String::from(MOD_PREFIX) + command + &String::from(";\n");
             println!("\t'{}'", command);
         }
         write(
-            String::from(COMMAND_DIR) + subdir + &String::from("/mod.rs"),
+            String::from(COMMAND_DIR) + subdir + &String::from(MOD_FILE),
             submodules,
         )?;
         modules = modules + &String::from(MOD_PREFIX) + subdir + &String::from(";\n");
     }
     write(
-        String::from(COMMAND_DIR) + &String::from("/mod.rs"),
+        String::from(COMMAND_DIR) + &String::from(MOD_FILE),
         modules,
     )?;
 
@@ -89,16 +91,16 @@ fn events() -> io::Result<()> {
         println!("'{}'", subdir);
         let mut submodules: String = String::new();
         for event in events {
-            submodules = String::from(MOD_PREFIX) + event + &String::from(";\n");
+            submodules = submodules + &String::from(MOD_PREFIX) + event + &String::from(";\n");
             println!("\t'{}'", event);
         }
         write(
-            String::from(EVENT_DIR) + subdir + &String::from("/mod.rs"),
+            String::from(EVENT_DIR) + subdir + &String::from(MOD_FILE),
             submodules,
         )?;
         modules = modules + &String::from(MOD_PREFIX) + subdir + &String::from(";\n");
     }
-    write(String::from(EVENT_DIR) + &String::from("/mod.rs"), modules)?;
+    write(String::from(EVENT_DIR) + &String::from(MOD_FILE), modules)?;
 
     Ok(())
 }
