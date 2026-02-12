@@ -75,10 +75,7 @@ fn commands() -> io::Result<()> {
         )?;
         modules = modules + &String::from(MOD_PREFIX) + subdir + &String::from(";\n");
     }
-    write(
-        String::from(COMMAND_DIR) + &String::from(MOD_FILE),
-        modules,
-    )?;
+    write(String::from(COMMAND_DIR) + &String::from(MOD_FILE), modules)?;
 
     Ok(())
 }
