@@ -1,8 +1,8 @@
 mod commands;
 mod events;
 
-use events::Bot;
 use commands::all_commands;
+use events::Bot;
 use serenity::all::*;
 use std::env;
 
@@ -10,8 +10,8 @@ use std::env;
 async fn main() {
     dotenvy::dotenv().ok();
 
-    let token: String = env::var("DISCORD_TOKEN")
-        .expect("❌ | DISCORD_TOKEN missing (check the env file)");
+    let token: String =
+        env::var("DISCORD_TOKEN").expect("❌ | DISCORD_TOKEN missing (check the env file)");
 
     let intents: GatewayIntents = GatewayIntents::empty();
 
