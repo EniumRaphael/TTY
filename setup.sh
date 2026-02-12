@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DATABASE_USER="tty_dev"
-DATABASE_PASS="PasswordCompliqueOuPasMdr!"
-DATABASE_NAME="bot_db"
-DATABASE_URL="postgres://${DATABASE_USER}:${DATABASE_PASS}@localhost:5432/${DATABASE_NAME}"
+DATABASE_USER="user"
+DATABASE_PASS="password"
+DATABASE_NAME="database"
+DATABASE_PORT="database"
+DATABASE_URL="postgres://${DATABASE_USER}:${DATABASE_PASS}@localhost:${DATABASE_PORT}/${DATABASE_NAME}"
 
 function log_info() {
     echo -e "\033[1;34m[INFO]\033[0m $1"
