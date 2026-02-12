@@ -1,32 +1,53 @@
 use std::time::Instant;
 
+use crate::commands::{
+    CommandEntry,
+    SlashCommand,
+};
+
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateInteractionResponse,
     CreateInteractionResponseMessage, EditInteractionResponse,
 };
 
-pub const COMMAND_NAME: &str = "ping";
-pub const COMMAND_DESC: &str = "Show the discord API latency";
+pub struct Ping;
 
-pub async fn run(ctx: &Context, command: &CommandInteraction) -> Result<(), serenity::Error> {
-    let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
-        .content("🏓 | Pong!")
-        .ephemeral(true);
+#[serenity::async_trait]
+impl SlashCommand for Ping {
+    fn name(&self) -> &'static str {
+        "ping"
+    }
 
-    let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+    fn description(&self) -> &'static str {
+        "Show the Discord API latency"
+    }
 
-    let start: Instant = Instant::now();
-    command.create_response(&ctx.http, response).await?;
-    let delta_time: u128 = start.elapsed().as_millis();
+    fn register(&self) -> CreateCommand {
+        println!("\t✅ | {}", self.name());
+        CreateCommand::new(self.name())
+            .description(self.description())
+    }
 
-    let edit_msg: String = format!("Ping: **{}**ms", delta_time);
-    let message: EditInteractionResponse = EditInteractionResponse::new().content(edit_msg);
+    async fn run(&self, ctx: &Context, command: &CommandInteraction) -> Result<(), serenity::Error> {
+        let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+            .content("🏓 | Pong!")
+            .ephemeral(true);
 
-    command.edit_response(&ctx.http, message).await?;
+        let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
 
-    Ok(())
+        let start: Instant = Instant::now();
+        command.create_response(&ctx.http, response).await?;
+        let delta_time: u128 = start.elapsed().as_millis();
+
+        let edit_msg: EditInteractionResponse = EditInteractionResponse::new()
+            .content(format!("Ping: **{delta_time}**ms"));
+
+        command.edit_response(&ctx.http, edit_msg).await?;
+
+        Ok(())
+    }
 }
 
-pub fn register() -> CreateCommand {
-    CreateCommand::new(COMMAND_NAME).description(COMMAND_DESC)
+inventory::submit! {
+    CommandEntry { create: || Box::new(Ping) }
 }
