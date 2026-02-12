@@ -1,8 +1,8 @@
 CREATE TABLE bots (
-    id       SERIAL PRIMARY KEY,
-    status   TEXT         NOT NULL DEFAULT 'TTY by EniumTeam',
-    type     bot_activity NOT NULL DEFAULT 'Watching',
-    presence bot_presence NOT NULL DEFAULT 'dnd'
+    id            SERIAL PRIMARY KEY,
+    status        TEXT         NOT NULL DEFAULT 'TTY by EniumTeam',
+    activity_type bot_activity NOT NULL DEFAULT 'Watching',
+    presence      bot_presence NOT NULL DEFAULT 'dnd'
 );
 
 CREATE TABLE users (
