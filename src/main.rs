@@ -1,7 +1,6 @@
 mod commands;
 mod events;
 
-use commands::all_commands;
 use events::Bot;
 use serenity::all::*;
 use std::env;
@@ -16,7 +15,7 @@ async fn main() {
     let intents: GatewayIntents = GatewayIntents::empty();
 
     let bot: Bot = Bot {
-        commands: all_commands(),
+        commands: commands::import(),
     };
 
     let mut client: Client = Client::builder(&token, intents)

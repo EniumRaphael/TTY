@@ -19,7 +19,7 @@ pub struct CommandEntry {
 
 inventory::collect!(CommandEntry);
 
-pub fn all_commands() -> Vec<Box<dyn SlashCommand>> {
+pub fn import() -> Vec<Box<dyn SlashCommand>> {
     inventory::iter::<CommandEntry>
         .into_iter()
         .map(|entry| (entry.create)())
