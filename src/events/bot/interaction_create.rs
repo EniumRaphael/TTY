@@ -1,24 +1,28 @@
 use serenity::all::*;
 use crate::commands::SlashCommand;
+use crate::events::{BotEvent, EventEntry};
 
-pub async fn handle(
-    ctx: &Context,
-    interaction: &Interaction,
-    commands: &[Box<dyn SlashCommand>],
-) {
-    let Interaction::Command(command) = interaction else {
-        return;
-    };
+pub struct InteractionHandler;
 
-    let name: &str = command.data.name.as_str();
+#[serenity::async_trait]
+impl BotEvent for InteractionHandler {
+    fn event_type(&self) -> &'static str { "interaction_create" }
 
-    match commands.iter().find(|cmd| cmd.name() == name) {
-        Some(cmd) => {
-            if let Err(why) = cmd.run(ctx, command).await {
-                eprintln!("❌ | Error on {name}: {why:?}");
+    async fn on_interaction_create(&self, ctx: &Context, interaction: &Interaction, commands: &[Box<dyn SlashCommand>]) {
+        let Interaction::Command(command) = interaction else { return };
+
+        let name = command.data.name.as_str();
+        match commands.iter().find(|cmd| cmd.name() == name) {
+            Some(cmd) => {
+                if let Err(why) = cmd.run(ctx, command).await {
+                    eprintln!("❌ | Error on {name}: {why:?}");
+                }
             }
+            None => eprintln!("⚠️ | Unable to fetch: /{name}"),
         }
-        None => eprintln!("⚠️ | Unable to fetch: /{name}"),
     }
 }
 
+inventory::submit! {
+    EventEntry { create: || Box::new(InteractionHandler) }
+}
