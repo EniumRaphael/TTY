@@ -7,6 +7,7 @@ use std::{
 
 const COMMAND_DIR: &str = "./src/commands/";
 const EVENT_DIR: &str = "./src/events/";
+const MODEL_DIR: &str = "./src/models/";
 const MOD_PREFIX: &str = "pub mod ";
 const MOD_FILE: &str = "/mod_gen.rs";
 
@@ -102,11 +103,28 @@ fn events() -> io::Result<()> {
     Ok(())
 }
 
+fn models() -> io::Result<()> {
+    let root: &Path = Path::new(MODEL_DIR);
+    let sources: Vec<String> = read_dir(root);
+    let mut modules: String = String::new();
+    println!("'modules'");
+    for source in sources {
+        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
+        println!("\t'{}'", source);
+    }
+    write(String::from(MODEL_DIR) + &String::from(MOD_FILE), modules)?;
+
+    Ok(())
+}
+
 fn main() {
     if let Err(e) = commands() {
         panic!("Error when writing the commands \n{}", e)
     }
     if let Err(e) = events() {
         panic!("Error when writing the events:\n{}", e)
+    }
+    if let Err(e) = models() {
+        panic!("Error when writing the models:\n{}", e)
     }
 }
