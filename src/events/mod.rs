@@ -1,7 +1,7 @@
 include!("./mod_gen.rs");
 
-use serenity::all::*;
 use crate::commands::SlashCommand;
+use serenity::all::*;
 
 pub struct Bot {
     pub commands: Vec<Box<dyn SlashCommand>>,
@@ -9,7 +9,6 @@ pub struct Bot {
 
 #[serenity::async_trait]
 impl EventHandler for Bot {
-
     async fn ready(&self, ctx: Context, ready: Ready) {
         bot::ready::handle(&ctx, &ready, &self.commands).await;
     }
