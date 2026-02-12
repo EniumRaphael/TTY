@@ -16,7 +16,7 @@ impl BotEvent for ReadyHandler {
             .await
             .expect("❌ | Cannot register commands");
 
-        println!("TTY now running with {} commands loaded", commands.len());
+        println!("\nTTY now running with {} commands loaded", commands.len());
     }
 }
 
