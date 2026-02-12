@@ -72,7 +72,7 @@
           shellHook = ''
             export RUST_BACKTRACE=1;
             export RUST_LOG="debug";
-            printf "\n\033[0;90mRust env loaded for: \033[38;5;220m${system}\033[0;90m [rustc: $(rustc --version) | cargo: $(cargo --version)]]\033[0m\n"
+            printf "\n\033[0;90mRust env loaded for: \033[38;5;220m${system}\033[0;90m [rustc: $(rustc --version | awk '{print $2}') | cargo: $(cargo --version | awk '{print $2})]]\033[0m\n"
           '';
         };
       }
