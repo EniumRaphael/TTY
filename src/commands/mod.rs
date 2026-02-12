@@ -1,4 +1,5 @@
 use serenity::all::{CommandInteraction, Context, CreateCommand};
+use sqlx::PgPool;
 
 include!("./mod_gen.rs");
 
@@ -9,7 +10,7 @@ pub trait SlashCommand: Send + Sync {
 
     fn register(&self) -> CreateCommand;
 
-    async fn run(&self, ctx: &Context, command: &CommandInteraction)
+    async fn run(&self, ctx: &Context, command: &CommandInteraction, database: &PgPool)
     -> Result<(), serenity::Error>;
 }
 
