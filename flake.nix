@@ -29,8 +29,6 @@
             tmux send-keys -t $SESSION:0.1 'exec zsh' C-m
             tmux new-window -t $SESSION:1 -n git -c "$DIR"
             tmux send-keys -t $SESSION:1 'lazygit' C-m
-            tmux new-window -t $SESSION:2 -n docker -c "$DIR"
-            tmux send-keys -t $SESSION:2 'lazydocker' C-m
           fi
           tmux select-window -t $SESSION:0
           tmux select-pane -t $SESSION:0.0
