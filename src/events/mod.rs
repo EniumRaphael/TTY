@@ -2,6 +2,7 @@ pub mod bot;
 
 use crate::commands::SlashCommand;
 use serenity::all::*;
+use sqlx::PgPool;
 
 #[serenity::async_trait]
 pub trait BotEvent: Send + Sync {
@@ -13,6 +14,7 @@ pub trait BotEvent: Send + Sync {
         _ctx: &Context,
         _interaction: &Interaction,
         _commands: &[Box<dyn SlashCommand>],
+        _db: &PgPool,
     ) {
     }
     async fn on_message(&self, _ctx: &Context, _msg: &Message) {}
@@ -34,6 +36,7 @@ pub fn import() -> Vec<Box<dyn BotEvent>> {
 pub struct Bot {
     pub commands: Vec<Box<dyn SlashCommand>>,
     pub events: Vec<Box<dyn BotEvent>>,
+    pub database: PgPool,
 }
 
 #[serenity::async_trait]
@@ -51,7 +54,7 @@ impl EventHandler for Bot {
             .filter(|e| e.event_type() == "interaction_create")
         {
             event
-                .on_interaction_create(&ctx, &interaction, &self.commands)
+                .on_interaction_create(&ctx, &interaction, &self.commands, &self.database)
                 .await;
         }
     }
