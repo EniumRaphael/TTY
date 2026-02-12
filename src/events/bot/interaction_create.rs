@@ -1,4 +1,5 @@
 use serenity::all::*;
+use sqlx::PgPool;
 use crate::commands::SlashCommand;
 use crate::events::{BotEvent, EventEntry};
 
@@ -8,13 +9,13 @@ pub struct InteractionHandler;
 impl BotEvent for InteractionHandler {
     fn event_type(&self) -> &'static str { "interaction_create" }
 
-    async fn on_interaction_create(&self, ctx: &Context, interaction: &Interaction, commands: &[Box<dyn SlashCommand>]) {
+    async fn on_interaction_create(&self, ctx: &Context, interaction: &Interaction, commands: &[Box<dyn SlashCommand>], db: &PgPool) {
         let Interaction::Command(command) = interaction else { return };
 
-        let name = command.data.name.as_str();
+        let name: &str = command.data.name.as_str();
         match commands.iter().find(|cmd| cmd.name() == name) {
             Some(cmd) => {
-                if let Err(why) = cmd.run(ctx, command).await {
+                if let Err(why) = cmd.run(ctx, command, db).await {
                     eprintln!("❌ | Error on {name}: {why:?}");
                 }
             }
