@@ -70,6 +70,12 @@
           shellHook = ''
             export RUST_BACKTRACE=1;
             export RUST_LOG="debug";
+            export PATH="$CARGO_HOME/bin:$PATH";
+            if command -v brew &> /dev/null; then
+              export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
+              export LDFLAGS="-L/opt/homebrew/opt/postgresql@15/lib"
+              export CPPFLAGS="-I/opt/homebrew/opt/postgresql@15/include"
+            fi
             printf "\n\033[0;90mRust env loaded for: \033[38;5;220m${system}\033[0;90m [rustc: $(rustc --version | awk '{print $2}') | cargo: $(cargo --version | awk '{print $2}')]\033[0m\n"
           '';
         };
