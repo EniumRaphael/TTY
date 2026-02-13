@@ -4,6 +4,7 @@ CREATE TABLE bots (
     activity_type bot_activity NOT NULL DEFAULT 'Watching',
     presence      bot_presence NOT NULL DEFAULT 'dnd'
 );
+INSERT INTO bots DEFAULT VALUES;
 
 CREATE TABLE users (
     user_id  TEXT PRIMARY KEY,
