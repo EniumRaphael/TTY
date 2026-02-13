@@ -47,6 +47,22 @@ fn protect_select(asked: Protect) -> &'static str {
     }
 }
 
+pub async fn create(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
+    query("INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING")
+        .bind(guild_id)
+        .execute(db)
+        .await?;
+    Ok(())
+}
+
+pub async fn delete(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
+    query("DELETE FROM guilds WHERE guild_id = $1")
+        .bind(guild_id)
+        .execute(db)
+        .await?;
+    Ok(())
+}
+
 pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<Guild>, sqlx::Error> {
     let guild: Option<Guild> = query_as::<_, Guild>(
         "SELECT * FROM guilds WHERE guild_id = $1",
