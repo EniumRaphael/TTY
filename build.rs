@@ -7,9 +7,9 @@ use std::{
 
 const COMMAND_DIR: &str = "./src/commands/";
 const EVENT_DIR: &str = "./src/events/";
-const MODEL_DIR: &str = "./src/models/";
-const DB_DIR: &str = "./src/database/";
-const UTILS_DIR: &str = "./src/database/";
+const MODEL_DIR: &str = "./src/models";
+const DB_DIR: &str = "./src/database";
+const UTILS_DIR: &str = "./src/utils";
 const MOD_PREFIX: &str = "pub mod ";
 const MOD_FILE: &str = "/mod_gen.rs";
 
@@ -42,9 +42,10 @@ fn read_dir(dir: &Path) -> Vec<String> {
     dir_content
 }
 
-/// @brief Search all the subfolder and read all the rust files
-/// @return Map<key(subfoldername), filenames>
-/// * `dir`: Path to search src
+/// Search all the subfolder and read all the rust files
+/// * `dir` - Path to search src
+///
+/// Return Map<key(subfoldername), filenames>
 fn list_srcs(dir: &Path) -> HashMap<String, Vec<String>> {
     let mut to_ret: HashMap<String, Vec<String>> = HashMap::new();
     let root: ReadDir = fs::read_dir(dir).unwrap();
