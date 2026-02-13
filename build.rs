@@ -9,6 +9,7 @@ const COMMAND_DIR: &str = "./src/commands/";
 const EVENT_DIR: &str = "./src/events/";
 const MODEL_DIR: &str = "./src/models/";
 const DB_DIR: &str = "./src/database/";
+const UTILS_DIR: &str = "./src/database/";
 const MOD_PREFIX: &str = "pub mod ";
 const MOD_FILE: &str = "/mod_gen.rs";
 
@@ -132,6 +133,20 @@ fn database_helper() -> io::Result<()> {
     Ok(())
 }
 
+fn utils() -> io::Result<()> {
+    let root: &Path = Path::new(UTILS_DIR);
+    let sources: Vec<String> = read_dir(root);
+    let mut modules: String = String::new();
+    println!("'utils'");
+    for source in sources {
+        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
+        println!("\t'{}'", source);
+    }
+    write(String::from(UTILS_DIR) + &String::from(MOD_FILE), modules)?;
+
+    Ok(())
+}
+
 fn main() {
     if let Err(e) = commands() {
         panic!("Error when writing the commands \n{}", e)
@@ -143,6 +158,9 @@ fn main() {
         panic!("Error when writing the models:\n{}", e)
     }
     if let Err(e) = database_helper() {
+        panic!("Error when writing the database_helper:\n{}", e)
+    }
+    if let Err(e) = utils() {
         panic!("Error when writing the database_helper:\n{}", e)
     }
 }
