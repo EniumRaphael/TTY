@@ -58,8 +58,8 @@ pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<Guild>, sqlx::Err
 }
 
 pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<Option<String>, sqlx::Error> {
-    let query: String = format!("SELECT {} FROM guilds WHERE guild_id = $1", log_select(asked));
-    let channel_id: Option<String> = query_scalar(&query)
+    let sql: String = format!("SELECT {} FROM guilds WHERE guild_id = $1", log_select(asked));
+    let channel_id: Option<String> = query_scalar(&sql)
         .bind(guild_id)
         .fetch_optional(db)
         .await?;
@@ -67,8 +67,8 @@ pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<O
 }
 
 pub async fn set_log(db: &PgPool, user_id: &str, asked: LogChannel, value: &str) -> Result<(), sqlx::Error> {
-    let query = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_select(asked));
-    query(&query)
+    let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_select(asked));
+    query(&sql)
         .bind(value)
         .bind(user_id)
         .execute(db)
@@ -77,8 +77,8 @@ pub async fn set_log(db: &PgPool, user_id: &str, asked: LogChannel, value: &str)
 }
 
 pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<Option<bool>, sqlx::Error> {
-    let query: String = format!("SELECT {} FROM guilds WHERE guild_id = $1", protect_select(asked));
-    let state: Option<bool> = query_scalar(&query)
+    let sql: String = format!("SELECT {} FROM guilds WHERE guild_id = $1", protect_select(asked));
+    let state: Option<bool> = query_scalar(&sql)
         .bind(guild_id)
         .fetch_optional(db)
         .await?;
@@ -86,8 +86,8 @@ pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<
 }
 
 pub async fn set_protect(db: &PgPool, user_id: &str, asked: Protect, value: &str) -> Result<(), sqlx::Error> {
-    let query = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_protect(asked));
-    query(&query)
+    let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_protect(asked));
+    query(&sql)
         .bind(value)
         .bind(user_id)
         .execute(db)
