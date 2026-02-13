@@ -1,9 +1,6 @@
 use std::time::Instant;
 
-use crate::commands::{
-    CommandEntry,
-    SlashCommand,
-};
+use crate::commands::{CommandEntry, SlashCommand};
 
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateInteractionResponse,
@@ -25,11 +22,15 @@ impl SlashCommand for Ping {
 
     fn register(&self) -> CreateCommand {
         println!("\t✅ | {}", self.name());
-        CreateCommand::new(self.name())
-            .description(self.description())
+        CreateCommand::new(self.name()).description(self.description())
     }
 
-    async fn run(&self, ctx: &Context, command: &CommandInteraction, _database: &PgPool) -> Result<(), serenity::Error> {
+    async fn run(
+        &self,
+        ctx: &Context,
+        command: &CommandInteraction,
+        _database: &PgPool,
+    ) -> Result<(), serenity::Error> {
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content("🏓 | Pong!")
             .ephemeral(true);
@@ -40,8 +41,8 @@ impl SlashCommand for Ping {
         command.create_response(&ctx.http, response).await?;
         let delta_time: u128 = start.elapsed().as_millis();
 
-        let edit_msg: EditInteractionResponse = EditInteractionResponse::new()
-            .content(format!("Ping: **{delta_time}**ms"));
+        let edit_msg: EditInteractionResponse =
+            EditInteractionResponse::new().content(format!("Ping: **{delta_time}**ms"));
 
         command.edit_response(&ctx.http, edit_msg).await?;
 
