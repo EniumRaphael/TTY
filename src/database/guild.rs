@@ -86,7 +86,7 @@ pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<
 }
 
 pub async fn set_protect(db: &PgPool, user_id: &str, asked: Protect, value: &str) -> Result<(), sqlx::Error> {
-    let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_protect(asked));
+    let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", protect_select(asked));
     query(&sql)
         .bind(value)
         .bind(user_id)
