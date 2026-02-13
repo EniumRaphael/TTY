@@ -79,28 +79,28 @@ impl BotEvent for ReadyHandler {
 
         bot_activity(ctx, &db).await;
 
-        println!("Synchronizing {} guilds", ready.guilds.len());
+        println!("Synchronizing {} guilds\n", ready.guilds.len());
 
         let mut count: i32 = 0;
 
         for unavailable_guild in &ready.guilds {
-            let guild_id: GuildId = unavailable_guild.id;
-            let guild_id_str: String = guild_id.to_string();
+            let guild: GuildId = unavailable_guild.id;
+            let guild_id: String = guild.to_string();
 
-            if let Err(e) = guild::get_or_create(&db, &guild_id_str).await {
-                eprintln!("  ❌ Guild {} — {}", guild_id, e);
+            if let Err(e) = guild::get_or_create(&db, &guild_id).await {
+                eprintln!("\t❌ | Guild {} — {}", guild, e);
                 continue;
             }
 
-            let members: Vec<Member> = match fetch_all_members(ctx, guild_id).await {
+            let members: Vec<Member> = match fetch_all_members(ctx, guild).await {
                 Ok(m) => m,
                 Err(e) => {
-                    eprintln!("  ❌ Guild {} — fetch members: {}", guild_id, e);
+                    eprintln!("\t❌ | Guild {} — fetch members: {}", guild, e);
                     continue;
                 }
             };
 
-            println!("\t✅ | Guild {}", guild_id);
+            println!("\t✅ | {} ({})", guild.name(ctx).expect("Undefined Name"), guild_id);
             for member in &members {
                 if member.user.bot {
                     continue;
@@ -110,13 +110,14 @@ impl BotEvent for ReadyHandler {
                     eprintln!("\t\t❌ | User {} — {}", member_id, e);
                     continue;
                 }
-                if let Err(e) = guild_user::get_or_create(&db, &member_id, &guild_id_str).await {
-                    eprintln!("\t\t❌ | GuildUser {}/{} — {}", guild_id, member_id, e);
+                if let Err(e) = guild_user::get_or_create(&db, &member_id, &guild_id).await {
+                    eprintln!("\t\t❌ | GuildUser {}/{} — {}", guild, member_id, e);
                     continue;
                 }
-                println!("\t\t✅ | Member {}", member_id);
+                println!("\t\t✅ | {} ({})", member.user.name, member_id);
                 count += 1;
             }
+            println!("\n");
         }
 
         println!("🚀 | Synchronization complete! {} users registered", count);
