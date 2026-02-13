@@ -9,4 +9,3 @@ pub struct User {
     pub is_enium: bool,
     pub is_pwn: bool,
 }
-
