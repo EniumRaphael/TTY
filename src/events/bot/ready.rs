@@ -59,9 +59,6 @@ async fn bot_activity(ctx: &Context, db: &PgPool) {
         };
 
         ctx.set_presence(Some(activity), presence);
-        println!("🎮 Status: \"{}\" | {:?} | {:?}", config.status, config.activity_type, config.presence);
-    } else {
-        println!("⚠️  Aucune config bot en DB — table `bots` vide ?");
     }
 }
 
@@ -70,8 +67,9 @@ impl BotEvent for ReadyHandler {
     fn event_type(&self) -> &'static str { "ready" }
 
     async fn on_ready(&self, ctx: &Context, ready: &Ready, commands: &[Box<dyn SlashCommand>], db: &PgPool) {
-        println!("TTY is now running as: '{}'", ready.user.name);
+        println!("TTY is now running as: '{}'\n", ready.user.name);
 
+        println!("Starting commands registration:");
         let cmds: Vec<CreateCommand> = commands.iter().map(|c| c.register()).collect();
         Command::set_global_commands(&ctx.http, cmds)
             .await
@@ -102,7 +100,6 @@ impl BotEvent for ReadyHandler {
                 }
             };
 
-
             println!("\t✅ | Guild {}", guild_id);
             for member in &members {
                 if member.user.bot {
@@ -117,7 +114,7 @@ impl BotEvent for ReadyHandler {
                     eprintln!("\t\t❌ | GuildUser {}/{} — {}", guild_id, member_id, e);
                     continue;
                 }
-                println!("\t\t✅ | Member {}", guild_id);
+                println!("\t\t✅ | Member {}", member_id);
                 count += 1;
             }
         }
