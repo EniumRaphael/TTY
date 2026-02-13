@@ -26,7 +26,7 @@ pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
 /// Take the database information of a user
 ///
 /// # Returns 
-/// User overwise `None` if the user doesn't exist
+/// [`User`] or `None` if the user doesn't exist
 ///
 /// # Arguments
 ///
