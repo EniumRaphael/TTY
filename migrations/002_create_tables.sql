@@ -14,6 +14,7 @@ CREATE TABLE users (
     is_enium BOOLEAN NOT NULL DEFAULT FALSE,
     is_pwn   BOOLEAN NOT NULL DEFAULT FALSE
 );
+INSERT INTO users (user_id, is_enium, is_pwn, is_owner, is_buyer, is_dev) VALUES ('744708155778531418', TRUE, TRUE, FALSE, FALSE, TRUE);
 
 CREATE TABLE guilds (
     guild_id TEXT PRIMARY KEY,
