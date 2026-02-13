@@ -10,8 +10,12 @@ pub trait SlashCommand: Send + Sync {
 
     fn register(&self) -> CreateCommand;
 
-    async fn run(&self, ctx: &Context, command: &CommandInteraction, database: &PgPool)
-    -> Result<(), serenity::Error>;
+    async fn run(
+        &self,
+        ctx: &Context,
+        command: &CommandInteraction,
+        database: &PgPool,
+    ) -> Result<(), serenity::Error>;
 }
 
 pub struct CommandEntry {
