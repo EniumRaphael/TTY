@@ -1,5 +1,5 @@
 use sqlx::{PgPool, query, query_as};
-use crate::models::bot::{Bot, BotPresence, BotActivity};
+use crate::models::bot::{DbBot, BotPresence, BotActivity};
 
 const BOT_ID: i32 = 1;
 
@@ -11,8 +11,8 @@ pub async fn init(db: &PgPool) -> Result<(), sqlx::Error> {
     Ok(())
 }
 
-pub async fn get(db: &PgPool) -> Result<Option<Bot>, sqlx::Error> {
-    let bot = query_as::<_, Bot>(
+pub async fn get(db: &PgPool) -> Result<Option<DbBot>, sqlx::Error> {
+    let bot = query_as::<_, DbBot>(
         "SELECT * FROM bots WHERE id = $1",
     )
     .bind(BOT_ID)

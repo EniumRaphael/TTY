@@ -3,7 +3,7 @@ use sqlx::{
     query,
     query_as
 };
-use crate::models::User;
+use crate::models::DbUser;
 
 /// Adding the user (if exist do nothing)
 ///
@@ -26,7 +26,7 @@ pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
 /// Take the database information of a user
 ///
 /// # Returns 
-/// [`User`] or `None` if the user doesn't exist
+/// [`DbUser`] or `None` if the user doesn't exist
 ///
 /// # Arguments
 ///
@@ -36,9 +36,9 @@ pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
 /// # Errors
 ///
 /// Returns `sqlx::Error` if the query fails.
-pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<User>, sqlx::Error> {
-    let user: Option<User> = query_as::<_, User>(
-        "SELECT user_id, is_owner, is_buyer, is_dev FROM users WHERE user_id = $1",
+pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<DbUser>, sqlx::Error> {
+    let user: Option<DbUser> = query_as::<_, DbUser>(
+        "SELECT * FROM users WHERE user_id = $1",
     )
     .bind(user_id)
     .fetch_optional(db)
@@ -84,4 +84,11 @@ pub async fn set_buyer(db: &PgPool, user_id: &str, value: bool) -> Result<(), sq
         .execute(db)
         .await?;
     Ok(())
+}
+
+pub async fn get_or_create(db: &PgPool, user_id: &str) -> Result<DbUser, sqlx::Error> {
+    create(db, user_id).await?;
+    get(db, user_id)
+        .await?
+        .ok_or_else(|| sqlx::Error::RowNotFound)
 }
