@@ -1,5 +1,8 @@
 mod commands;
+mod database;
 mod events;
+mod models;
+mod utils;
 
 use events::Bot;
 use serenity::all::*;
@@ -32,18 +35,18 @@ async fn main() {
     println!("✅ | Migrations applied\n");
 
     let intents: GatewayIntents = GatewayIntents::AUTO_MODERATION_CONFIGURATION
-    | GatewayIntents::AUTO_MODERATION_EXECUTION
-    | GatewayIntents::DIRECT_MESSAGE_REACTIONS
-    | GatewayIntents::DIRECT_MESSAGES
-    | GatewayIntents::GUILD_INVITES
-    | GatewayIntents::GUILD_MEMBERS
-    | GatewayIntents::GUILD_MESSAGE_REACTIONS
-    | GatewayIntents::GUILD_MESSAGE_TYPING
-    | GatewayIntents::GUILD_MESSAGES
-    | GatewayIntents::GUILD_MODERATION
-    | GatewayIntents::GUILD_VOICE_STATES
-    | GatewayIntents::GUILDS
-    | GatewayIntents::MESSAGE_CONTENT;
+                                | GatewayIntents::AUTO_MODERATION_EXECUTION
+                                | GatewayIntents::DIRECT_MESSAGE_REACTIONS
+                                | GatewayIntents::DIRECT_MESSAGES
+                                | GatewayIntents::GUILD_INVITES
+                                | GatewayIntents::GUILD_MEMBERS
+                                | GatewayIntents::GUILD_MESSAGE_REACTIONS
+                                | GatewayIntents::GUILD_MESSAGE_TYPING
+                                | GatewayIntents::GUILD_MESSAGES
+                                | GatewayIntents::GUILD_MODERATION
+                                | GatewayIntents::GUILD_VOICE_STATES
+                                | GatewayIntents::GUILDS
+                                | GatewayIntents::MESSAGE_CONTENT;
 
     let bot: Bot = Bot {
         commands: commands::import(),
