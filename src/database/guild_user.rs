@@ -1,12 +1,12 @@
 use sqlx::{PgPool, query, query_as, query_scalar};
-use crate::models::GuildUser;
+use crate::models::guild_user::DbGuildUser;
 
 pub async fn get(
     db: &PgPool,
     user_id: &str,
     guild_id: &str,
-) -> Result<Option<GuildUser>, sqlx::Error> {
-    let guild_user = query_as::<_, guild_userildUser>(
+) -> Result<Option<DbGuildUser>, sqlx::Error> {
+    let guild_user = query_as::<_, DbGuildUser>(
         "SELECT * FROM guild_users WHERE user_id = $1 AND guild_id = $2",
     )
     .bind(user_id)
@@ -146,8 +146,8 @@ pub async fn set_wl(
 pub async fn get_all_wl(
     db: &PgPool,
     guild_id: &str,
-) -> Result<Vec<GuildUser>, sqlx::Error> {
-    let users = query_as::<_, GuildUser>(
+) -> Result<Vec<DbGuildUser>, sqlx::Error> {
+    let users = query_as::<_, DbGuildUser>(
         "SELECT * FROM guild_users \
          WHERE guild_id = $1 AND is_wl_user = true",
     )
@@ -211,8 +211,8 @@ pub async fn leaderboard_xp(
     db: &PgPool,
     guild_id: &str,
     limit: i64,
-) -> Result<Vec<GuildUser>, sqlx::Error> {
-    let users = query_as::<_, GuildUser>(
+) -> Result<Vec<DbGuildUser>, sqlx::Error> {
+    let users = query_as::<_, DbGuildUser>(
         "SELECT * FROM guild_users \
          WHERE guild_id = $1 \
          ORDER BY xp DESC \
@@ -229,8 +229,8 @@ pub async fn leaderboard_invitations(
     db: &PgPool,
     guild_id: &str,
     limit: i64,
-) -> Result<Vec<GuildUser>, sqlx::Error> {
-    let users = query_as::<_, GuildUser>(
+) -> Result<Vec<DbGuildUser>, sqlx::Error> {
+    let users = query_as::<_, DbGuildUser>(
         "SELECT * FROM guild_users \
          WHERE guild_id = $1 \
          ORDER BY invitation_count DESC \
@@ -242,4 +242,9 @@ pub async fn leaderboard_invitations(
     .await?;
     Ok(users)
 }
-
+pub async fn get_or_create(db: &PgPool, user_id: &str, guild_id: &str) -> Result<DbGuildUser, sqlx::Error> {
+    create(db, user_id, guild_id).await?;
+    get(db, user_id, guild_id)
+        .await?
+        .ok_or_else(|| sqlx::Error::RowNotFound)
+}

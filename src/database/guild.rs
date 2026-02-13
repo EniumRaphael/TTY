@@ -1,9 +1,10 @@
 use sqlx::{
     PgPool,
+    query,
     query_as,
     query_scalar,
 };
-use crate::models::Guild;
+use crate::models::DbGuild;
 
 pub enum LogChannel {
     Bot,
@@ -63,8 +64,8 @@ pub async fn delete(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
     Ok(())
 }
 
-pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<Guild>, sqlx::Error> {
-    let guild: Option<Guild> = query_as::<_, Guild>(
+pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<DbGuild>, sqlx::Error> {
+    let guild: Option<DbGuild> = query_as::<_, DbGuild>(
         "SELECT * FROM guilds WHERE guild_id = $1",
         )
         .bind(guild_id)
@@ -109,4 +110,11 @@ pub async fn set_protect(db: &PgPool, user_id: &str, asked: Protect, value: &str
         .execute(db)
         .await?;
     Ok(())
+}
+
+pub async fn get_or_create(db: &PgPool, guild_id: &str) -> Result<DbGuild, sqlx::Error> {
+    create(db, guild_id).await?;
+    get(db, guild_id)
+        .await?
+        .ok_or_else(|| sqlx::Error::RowNotFound)
 }
