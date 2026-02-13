@@ -21,3 +21,33 @@ pub async fn is_whitelist(db: &PgPool, user_id: &str, guild_id: &str) -> Result<
     .await?;
     Ok(result.is_some())
 }
+
+pub async fn is_owner(db: &PgPool, user_id: &str) -> Result<bool, sqlx::Error> {
+    let result: Option<bool> = query_scalar(
+        "SELECT TRUE FROM users WHERE user_id = $1 AND is_dev = true OR is_buyer = true OR is_owner = true",
+    )
+    .bind(user_id)
+    .fetch_optional(db)
+    .await?;
+    Ok(result.is_some())
+}
+
+pub async fn is_buyer(db: &PgPool, user_id: &str) -> Result<bool, sqlx::Error> {
+    let result: Option<bool> = query_scalar(
+        "SELECT TRUE FROM users WHERE user_id = $1 AND is_dev = true OR is_buyer = true",
+    )
+    .bind(user_id)
+    .fetch_optional(db)
+    .await?;
+    Ok(result.is_some())
+}
+
+pub async fn is_dev(db: &PgPool, user_id: &str) -> Result<bool, sqlx::Error> {
+    let result: Option<bool> = query_scalar(
+        "SELECT TRUE FROM users WHERE user_id = $1 AND is_dev = true",
+    )
+    .bind(user_id)
+    .fetch_optional(db)
+    .await?;
+    Ok(result.is_some())
+}
