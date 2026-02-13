@@ -8,7 +8,14 @@ use sqlx::PgPool;
 pub trait BotEvent: Send + Sync {
     fn event_type(&self) -> &'static str;
 
-    async fn on_ready(&self, _ctx: &Context, _ready: &Ready, _commands: &[Box<dyn SlashCommand>], _db: &PgPool) {}
+    async fn on_ready(
+        &self,
+        _ctx: &Context,
+        _ready: &Ready,
+        _commands: &[Box<dyn SlashCommand>],
+        _db: &PgPool,
+    ) {
+    }
     async fn on_interaction_create(
         &self,
         _ctx: &Context,
@@ -43,7 +50,9 @@ pub struct Bot {
 impl EventHandler for Bot {
     async fn ready(&self, ctx: Context, ready: Ready) {
         for event in self.events.iter().filter(|e| e.event_type() == "ready") {
-            event.on_ready(&ctx, &ready, &self.commands, &self.database).await;
+            event
+                .on_ready(&ctx, &ready, &self.commands, &self.database)
+                .await;
         }
     }
 
