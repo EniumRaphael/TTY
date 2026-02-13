@@ -4,9 +4,7 @@ mod events;
 use events::Bot;
 use serenity::all::*;
 use sqlx::postgres::PgPoolOptions;
-use sqlx::{
-    Pool, Postgres, migrate
-};
+use sqlx::{Pool, Postgres, migrate};
 use std::env;
 
 #[tokio::main]
@@ -32,7 +30,6 @@ async fn main() {
         .await
         .expect("❌ | Failed to run migrations");
     println!("✅ | Migrations applied\n");
-
 
     let intents: GatewayIntents = GatewayIntents::default();
 
