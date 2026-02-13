@@ -1,7 +1,7 @@
 include!("./mod_gen.rs");
 
-use sqlx::{Pool, Postgres};
 use serenity::prelude::TypeMapKey;
+use sqlx::{Pool, Postgres};
 
 pub struct DbPool;
 
