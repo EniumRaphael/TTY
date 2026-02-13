@@ -60,6 +60,6 @@ async fn main() {
         .expect("❌ | Error when loading bot");
 
     if let Err(why) = client.start().await {
-        eprintln!("❌ Client error: {why:?}");
+        eprintln!("❌ | Client error: {why:?}")
     }
 }
