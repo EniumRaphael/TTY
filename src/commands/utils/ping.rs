@@ -1,6 +1,7 @@
 use std::time::Instant;
 
 use crate::commands::{CommandEntry, SlashCommand};
+use crate::config::EmojiConfig;
 
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateInteractionResponse,
@@ -30,6 +31,7 @@ impl SlashCommand for Ping {
         ctx: &Context,
         command: &CommandInteraction,
         _database: &PgPool,
+        _emoji: &EmojiConfig,
     ) -> Result<(), serenity::Error> {
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content("🏓 | Pong!")
@@ -42,7 +44,7 @@ impl SlashCommand for Ping {
         let delta_time: u128 = start.elapsed().as_millis();
 
         let edit_msg: EditInteractionResponse =
-            EditInteractionResponse::new().content(format!("Ping: **{delta_time}**ms"));
+            EditInteractionResponse::new().content(format!("{} | Ping: **{delta_time}**ms", _emoji.answer.yes));
 
         command.edit_response(&ctx.http, edit_msg).await?;
 
