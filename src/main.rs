@@ -1,4 +1,5 @@
 mod commands;
+mod config;
 mod database;
 mod events;
 mod models;
@@ -9,6 +10,8 @@ use serenity::all::*;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres, migrate};
 use std::env;
+
+use self::config::emoji::EmojiConfig;
 
 #[tokio::main]
 async fn main() {
@@ -32,7 +35,10 @@ async fn main() {
         .run(&db)
         .await
         .expect("❌ | Failed to run migrations");
-    println!("✅ | Migrations applied\n");
+    println!("✅ | Migrations applied");
+
+    let emojis: EmojiConfig = EmojiConfig::load().expect("❌ | Failed to load emojis.toml");
+    println!("✅ | Emojis loaded\n");
 
     let intents: GatewayIntents = GatewayIntents::AUTO_MODERATION_CONFIGURATION
         | GatewayIntents::AUTO_MODERATION_EXECUTION
@@ -52,6 +58,7 @@ async fn main() {
         commands: commands::import(),
         events: events::import(),
         database: db,
+        emojis: emojis,
     };
 
     let mut client: Client = Client::builder(&token, intents)
