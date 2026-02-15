@@ -1,9 +1,21 @@
-use std::time::Instant;
-
 use crate::commands::{CommandEntry, SlashCommand};
+use crate::config::EmojiConfig;
 
 use serenity::all::{
-    ChannelType, CommandInteraction, CommandOption, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, MessageId, Permissions
+    ChannelType,
+    CommandInteraction,
+    CommandOption,
+    CommandOptionType,
+    Context,
+    CreateCommand,
+    CreateCommandOption,
+    CreateInteractionResponse,
+    CreateInteractionResponseMessage,
+    EditInteractionResponse,
+    GetMessages,
+    Message,
+    MessageId,
+    Permissions
 };
 use sqlx::PgPool;
 
@@ -23,7 +35,7 @@ impl SlashCommand for Clear {
         println!("\t✅ | {}", self.name());
         let mut options: Vec<CreateCommandOption> = Vec::new();
 
-        let mut amount: CreateCommandOption = CreateCommandOption::new(CommandOptionType::Unknown((u8)), "amount", "Amount of messages to clear")
+        let amount: CreateCommandOption = CreateCommandOption::new(CommandOptionType::Integer, "amount", "Amount of messages to clear")
             .min_int_value(1)
             .max_int_value(100)
             .required(true);
@@ -40,21 +52,40 @@ impl SlashCommand for Clear {
         ctx: &Context,
         command: &CommandInteraction,
         _database: &PgPool,
+        _emoji: &EmojiConfig,
     ) -> Result<(), serenity::Error> {
-        let amount: u8 = command.data.options.get(0).unwrap().value.as_u8().expect("REASON");
+        let amount: u8 = command.data.options.get(0).unwrap().value.as_i64().expect("REASON") as u8;
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
-            .content("| Start to clear")
+            .content(format!("{} | Start to clear", _emoji.answer.loading))
             .ephemeral(true);
         let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
         command.create_response(&ctx.http, response).await?;
 
-        let builder: GetMessages = GetMessages::new().after(command.channel_id.limit(amount);
+        let messages: Vec<Message> = command.channel_id
+            .messages(&ctx.http, GetMessages::new().limit(amount))
+            .await?;
+        
+        let count: usize = messages.len();
+        
+        if count == 0 {
+            let edit_msg: EditInteractionResponse =
+                EditInteractionResponse::new().content(format!("{} | Cannot delete messages", _emoji.answer.error));
+            command.edit_response(&ctx.http, edit_msg).await?;
+        } else {
+            let ids: Vec<MessageId> = messages.iter().map(|m| m.id).collect();
 
-        let edit_msg: EditInteractionResponse =
-            EditInteractionResponse::new().content(format!(": **{delta_time}**ms"));
-
-        command.edit_response(&ctx.http, edit_msg).await?;
-
+            if count == 1 {
+                command.channel_id.delete_message(&ctx.http, ids[0]).await?;
+                let edit_msg: EditInteractionResponse =
+                    EditInteractionResponse::new().content(format!("{} | Deleted the message", _emoji.answer.yes));
+                command.edit_response(&ctx.http, edit_msg).await?;
+            } else {
+                command.channel_id.delete_messages(&ctx.http, &ids).await?;
+                let edit_msg: EditInteractionResponse =
+                    EditInteractionResponse::new().content(format!("{} | Deleted {} messages", _emoji.answer.yes, count));
+                command.edit_response(&ctx.http, edit_msg).await?;
+            }
+        }
         Ok(())
     }
 }
