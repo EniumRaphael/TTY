@@ -67,7 +67,7 @@ impl BotEvent for ReadyHandler {
     fn event_type(&self) -> &'static str { "ready" }
 
     async fn on_ready(&self, ctx: &Context, ready: &Ready, commands: &[Box<dyn SlashCommand>], db: &PgPool) {
-        println!("TTY is now running as: '{}'\n", ready.user.name);
+        println!("\nTTY is now running as: '{}'\n", ready.user.name);
 
         println!("Starting commands registration:");
         let cmds: Vec<CreateCommand> = commands.iter().map(|c| c.register()).collect();
