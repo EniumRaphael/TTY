@@ -81,7 +81,7 @@ impl BotEvent for ReadyHandler {
 
         println!("Synchronizing {} guilds\n", ready.guilds.len());
 
-        let mut count: i32 = 0;
+        let mut count: u128 = 0;
 
         for unavailable_guild in &ready.guilds {
             let guild: GuildId = unavailable_guild.id;
