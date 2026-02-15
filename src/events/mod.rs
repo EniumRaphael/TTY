@@ -1,6 +1,7 @@
 include!("./mod_gen.rs");
 
 use crate::commands::SlashCommand;
+use crate::config::EmojiConfig;
 use serenity::all::*;
 use sqlx::PgPool;
 
@@ -22,6 +23,7 @@ pub trait BotEvent: Send + Sync {
         _interaction: &Interaction,
         _commands: &[Box<dyn SlashCommand>],
         _db: &PgPool,
+        _emoji: &EmojiConfig,
     ) {
     }
     async fn on_message(&self, _ctx: &Context, _msg: &Message) {}
@@ -44,6 +46,7 @@ pub struct Bot {
     pub commands: Vec<Box<dyn SlashCommand>>,
     pub events: Vec<Box<dyn BotEvent>>,
     pub database: PgPool,
+    pub emojis: EmojiConfig,
 }
 
 #[serenity::async_trait]
@@ -63,7 +66,13 @@ impl EventHandler for Bot {
             .filter(|e| e.event_type() == "interaction_create")
         {
             event
-                .on_interaction_create(&ctx, &interaction, &self.commands, &self.database)
+                .on_interaction_create(
+                    &ctx,
+                    &interaction,
+                    &self.commands,
+                    &self.database,
+                    &self.emojis,
+                )
                 .await;
         }
     }
