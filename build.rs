@@ -8,6 +8,7 @@ use std::{
 const COMMAND_DIR: &str = "./src/commands/";
 const EVENT_DIR: &str = "./src/events/";
 const MODEL_DIR: &str = "./src/models";
+const CONF_DIR: &str = "./src/config";
 const DB_DIR: &str = "./src/database";
 const UTILS_DIR: &str = "./src/utils";
 const MOD_PREFIX: &str = "pub mod ";
@@ -148,6 +149,20 @@ fn utils() -> io::Result<()> {
     Ok(())
 }
 
+fn config() -> io::Result<()> {
+    let root: &Path = Path::new(CONF_DIR);
+    let sources: Vec<String> = read_dir(root);
+    let mut modules: String = String::new();
+    println!("'emoji'");
+    for source in sources {
+        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
+        println!("\t'{}'", source);
+    }
+    write(String::from(CONF_DIR) + &String::from(MOD_FILE), modules)?;
+
+    Ok(())
+}
+
 fn main() {
     if let Err(e) = commands() {
         panic!("Error when writing the commands \n{}", e)
@@ -162,6 +177,9 @@ fn main() {
         panic!("Error when writing the database_helper:\n{}", e)
     }
     if let Err(e) = utils() {
+        panic!("Error when writing the database_helper:\n{}", e)
+    }
+    if let Err(e) = config() {
         panic!("Error when writing the database_helper:\n{}", e)
     }
 }
