@@ -21,7 +21,6 @@ pub enum BotActivity {
 
 #[derive(Debug, FromRow)]
 pub struct DbBot {
-    pub id: i32,
     pub status: String,
     pub activity_type: BotActivity,
     pub presence: BotPresence,
