@@ -10,12 +10,16 @@ use serenity::all::*;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres, migrate};
 use std::env;
+use tracing::{
+    info,
+    error
+};
 
 use self::config::emoji::EmojiConfig;
 
 #[tokio::main]
 async fn main() {
-    println!("\n");
+    tracing_subscriber::fmt::init();
     dotenvy::dotenv().ok();
 
     let token: String =
@@ -29,16 +33,16 @@ async fn main() {
         .connect(&database_url)
         .await
         .expect("❌ | Failed to connect to PostgreSQL");
-    println!("✅ | Connected to PostgreSQL");
+    info!("✅ | Connected to PostgreSQL");
 
     migrate!("./migrations")
         .run(&db)
         .await
         .expect("❌ | Failed to run migrations");
-    println!("✅ | Migrations applied");
+    info!("✅ | Migrations applied");
 
     let emojis: EmojiConfig = EmojiConfig::load().expect("❌ | Failed to load emojis.toml");
-    println!("✅ | Emojis loaded\n");
+    info!("✅ | Emojis loaded\n");
 
     let intents: GatewayIntents = GatewayIntents::AUTO_MODERATION_CONFIGURATION
         | GatewayIntents::AUTO_MODERATION_EXECUTION
@@ -67,6 +71,6 @@ async fn main() {
         .expect("❌ | Error when loading bot");
 
     if let Err(why) = client.start().await {
-        eprintln!("❌ | Client error: {why:?}")
+        error!("❌ | Client error: {why:?}")
     }
 }
