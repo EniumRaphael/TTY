@@ -69,7 +69,7 @@
 
           shellHook = ''
             export RUST_BACKTRACE=1;
-            export RUST_LOG="debug";
+            export RUST_LOG="info";
             export PATH="$CARGO_HOME/bin:$PATH";
             if command -v brew &> /dev/null; then
               export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
