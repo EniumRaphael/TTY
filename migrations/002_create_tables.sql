@@ -14,7 +14,15 @@ CREATE TABLE users (
     is_enium BOOLEAN NOT NULL DEFAULT FALSE,
     is_pwn   BOOLEAN NOT NULL DEFAULT FALSE
 );
-INSERT INTO users (user_id, is_enium, is_pwn, is_owner, is_buyer, is_dev) VALUES ('744708155778531418', TRUE, TRUE, FALSE, FALSE, TRUE);
+INSERT INTO users (user_id, is_enium, is_pwn, is_dev) VALUES
+    ('1088910286620213398', TRUE,     TRUE,   FALSE),              -- spoutnik
+    ('1272320376155930668', TRUE,     FALSE,  FALSE),              -- debsouls
+    ('1286716225115783270', FALSE,    TRUE,   FALSE),              -- hel
+    ('322732592136978432',  TRUE,     FALSE,  FALSE),              -- dprive
+    ('685279797349580820',  FALSE,    TRUE,   FALSE),              -- sorrow
+    ('744708155778531418',  TRUE,     TRUE,   TRUE)                -- raphael
+ON CONFLICT (user_id) DO NOTHING;
+
 
 CREATE TABLE guilds (
     guild_id TEXT PRIMARY KEY,
