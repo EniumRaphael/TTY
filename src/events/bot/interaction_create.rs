@@ -4,6 +4,10 @@ use crate::commands::SlashCommand;
 use crate::config::EmojiConfig;
 use crate::events::{BotEvent, EventEntry};
 
+use tracing::{
+    error,
+    warn,
+};
 pub struct InteractionHandler;
 
 #[serenity::async_trait]
@@ -17,10 +21,10 @@ impl BotEvent for InteractionHandler {
         match commands.iter().find(|cmd| cmd.name() == name) {
             Some(cmd) => {
                 if let Err(why) = cmd.run(ctx, command, db, emoji).await {
-                    eprintln!("❌ | Error on {name}: {why:?}");
+                    error!("❌ | Error on {name}: {why:?}");
                 }
             }
-            None => eprintln!("⚠️ | Unable to fetch: /{name}"),
+            None => warn!("⚠️ | Unable to fetch: /{name}"),
         }
     }
 }
