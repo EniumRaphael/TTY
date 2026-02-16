@@ -1,3 +1,4 @@
+use tracing::{info, warn};
 use serenity::all::*;
 use sqlx::PgPool;
 use crate::commands::SlashCommand;
@@ -66,19 +67,19 @@ impl BotEvent for ReadyHandler {
     fn event_type(&self) -> &'static str { "ready" }
 
     async fn on_ready(&self, ctx: &Context, ready: &Ready, commands: &[Box<dyn SlashCommand>], db: &PgPool) {
-        println!("\nTTY is now running as: '{}'\n", ready.user.name);
+        info!("\nTTY is now running as: '{}'\n", ready.user.name);
 
-        println!("Starting commands registration:");
+        info!("Starting commands registration:");
         let cmds: Vec<CreateCommand> = commands.iter().map(|c| c.register()).collect();
         Command::set_global_commands(&ctx.http, cmds)
             .await
             .expect("❌ | Cannot register commands");
 
-        println!("TTY now running with {} commands loaded\n", commands.len());
+        info!("TTY now running with {} commands loaded\n", commands.len());
 
         bot_activity(ctx, &db).await;
 
-        println!("Synchronizing {} guilds\n", ready.guilds.len());
+        info!("Synchronizing {} guilds\n", ready.guilds.len());
 
         let mut count: u128 = 0;
 
@@ -87,39 +88,39 @@ impl BotEvent for ReadyHandler {
             let guild_id: String = guild.to_string();
 
             if let Err(e) = guild::get_or_create(&db, &guild_id).await {
-                eprintln!("\t❌ | Guild {} — {}", guild, e);
+                warn!("\t⚠️ | Guild {} — {}", guild, e);
                 continue;
             }
 
             let members: Vec<Member> = match fetch_all_members(ctx, guild).await {
                 Ok(m) => m,
                 Err(e) => {
-                    eprintln!("\t❌ | Guild {} — fetch members: {}", guild, e);
+                    warn!("\t⚠️ | Guild {} — fetch members: {}", guild, e);
                     continue;
                 }
             };
 
-            println!("\t✅ | {} ({})", guild.name(ctx).expect("Undefined Name"), guild_id);
+            info!("\t✅ | {} ({})", guild.name(ctx).expect("Undefined Name"), guild_id);
             for member in &members {
                 if member.user.bot {
                     continue;
                 }
                 let member_id: String = member.user.id.to_string();
                 if let Err(e) = user::get_or_create(&db, &member_id).await {
-                    eprintln!("\t\t❌ | User {} — {}", member_id, e);
+                    warn!("\t\t⚠️ | User {} — {}", member_id, e);
                     continue;
                 }
                 if let Err(e) = guild_user::get_or_create(&db, &member_id, &guild_id).await {
-                    eprintln!("\t\t❌ | GuildUser {}/{} — {}", guild, member_id, e);
+                    warn!("\t\t⚠️ | GuildUser {}/{} — {}", guild, member_id, e);
                     continue;
                 }
-                println!("\t\t✅ | {} ({})", member.user.name, member_id);
+                info!("\t\t✅ | {} ({})", member.user.name, member_id);
                 count += 1;
             }
-            println!("\n");
+            info!("\n");
         }
 
-        println!("🚀 | Synchronization complete! {} users registered", count);
+        info!("🚀 | Synchronization complete! {} users registered", count);
     }
 }
 
