@@ -12,7 +12,7 @@ pub async fn init(db: &PgPool) -> Result<(), sqlx::Error> {
 }
 
 pub async fn get(db: &PgPool) -> Result<Option<DbBot>, sqlx::Error> {
-    let bot = query_as::<_, DbBot>(
+    let bot: Option<DbBot> = query_as::<_, DbBot>(
         "SELECT status, activity_type, presence FROM bots WHERE id = $1",
     )
     .bind(BOT_ID)
