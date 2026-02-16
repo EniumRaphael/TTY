@@ -1,24 +1,7 @@
 use std::{collections::HashMap, sync::atomic::AtomicU64, time::Duration};
 use serenity::{
     all::{
-        ComponentInteractionCollector,
-        CreateActionRow,
-        CreateEmbed,
-        CreateInteractionResponse,
-        CreateInteractionResponseMessage,
-        EditInteractionResponse,
-        GuildId,
-        InteractionContext,
-        MessageId,
-        Message,
-        CreateCommand,
-        ButtonStyle,
-        ReactionType,
-        CreateButton,
-        CommandInteraction,
-        Context,
-        Command,
-        UserId,
+        ButtonStyle, Command, CommandInteraction, ComponentInteractionCollector, Context, CreateActionRow, CreateButton, CreateCommand, CreateEmbed, CreateEmbedFooter, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GuildId, InteractionContext, Message, MessageId, ReactionType, UserId
     },
     futures::StreamExt,
 };
@@ -73,17 +56,19 @@ fn back_button() -> CreateActionRow {
     ])
 }
 
-fn build_menu_embed(description: &str, color: u32) -> CreateEmbed {
+fn build_menu_embed(description: &str, color: u32, footer: &str) -> CreateEmbed {
     CreateEmbed::new()
         .title("Commands")
         .description(description)
+        .footer(CreateEmbedFooter::new(footer))
         .color(color)
 }
 
-fn build_category_embed(category: &CommandCategory, commands: &[String], color: u32) -> CreateEmbed {
+fn build_category_embed(category: &CommandCategory, commands: &[String], color: u32, footer: &str) -> CreateEmbed {
     CreateEmbed::new()
         .title(format!("{} | {}", category.emoji(), category.name()))
         .description(commands.join("\n"))
+        .footer(CreateEmbedFooter::new(footer))
         .color(color)
 }
 
@@ -123,8 +108,9 @@ impl SlashCommand for Help {
     ) -> Result<(), serenity::Error> {
         let guild: GuildId = command.guild_id.ok_or(serenity::Error::Other("Commande non disponible en DM"))?;
         let guild_id: String = guild.to_string();
-        let guild_db: Option<DbGuild> = guild::get(_database, &guild_id).await.expect("Error guild::get");
-        let color: u32 = guild_db.unwrap().color as u32;
+        let guild_db: Option<DbGuild> = guild::get(_database, &guild_id).await.map_err(|_e| serenity::Error::Other("Database error guild on help command"))?;
+        let footer: &String = &guild_db.as_ref().unwrap().footer;
+        let color: u32 = guild_db.as_ref().unwrap().color as u32;
 
         let registered_cmds: Vec<Command> = ctx.http.get_global_commands().await?;
         let cmd_ids: HashMap<String, u64> = registered_cmds
@@ -150,7 +136,7 @@ impl SlashCommand for Help {
         }
 
         let description: &str = "Welcome to this help command.\nThe buttons below will allow you to navigate through the different categories.";
-        let menu_embed: CreateEmbed = build_menu_embed(description, color);
+        let menu_embed: CreateEmbed = build_menu_embed(description, color, &footer);
         let menu_buttons: Vec<CreateActionRow> = create_category_buttons(&categories, false);
 
         let response: CreateInteractionResponse = CreateInteractionResponse::Message(
@@ -175,7 +161,7 @@ impl SlashCommand for Help {
             let custom_id: &str = click.data.custom_id.as_str();
 
             if custom_id == "help_menu" {
-                let menu_embed: CreateEmbed = build_menu_embed(description, color);
+                let menu_embed: CreateEmbed = build_menu_embed(description, color, &footer);
                 let menu_buttons: Vec<CreateActionRow> = create_category_buttons(&categories, false);
 
                 click.create_response(&ctx.http, CreateInteractionResponse::UpdateMessage(
@@ -191,7 +177,7 @@ impl SlashCommand for Help {
             });
 
             if let Some((category, commands)) = matched_category {
-                let cat_embed: CreateEmbed = build_category_embed(category, commands, color);
+                let cat_embed: CreateEmbed = build_category_embed(category, commands, color, &footer);
 
                 let components: Vec<CreateActionRow> = vec![back_button()];
                 click.create_response(&ctx.http, CreateInteractionResponse::UpdateMessage(
