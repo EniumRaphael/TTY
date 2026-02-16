@@ -6,7 +6,6 @@ use crate::events::{
     BotEvent,
     EventEntry
 };
-use crate::models::DbBot;
 use crate::models::bot::{
     BotActivity,
     BotPresence
