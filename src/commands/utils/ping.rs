@@ -1,7 +1,16 @@
-use std::time::Instant;
+use std::{
+    sync::atomic::{
+        AtomicU64,
+    },
+    time::Instant,
+};
 
-use crate::commands::{CommandEntry, SlashCommand};
-use crate::config::EmojiConfig;
+use crate::{
+    commands::{
+        CommandCategory, CommandEntry, SlashCommand
+    },
+    config::EmojiConfig,
+};
 
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateInteractionResponse,
@@ -9,7 +18,17 @@ use serenity::all::{
 };
 use sqlx::PgPool;
 
-pub struct Ping;
+pub struct Ping {
+    pub command_id: AtomicU64,
+}
+
+impl Ping {
+    pub fn new() -> Self {
+        Self {
+            command_id: AtomicU64::new(0),
+        }
+    }
+}
 
 #[serenity::async_trait]
 impl SlashCommand for Ping {
@@ -19,6 +38,14 @@ impl SlashCommand for Ping {
 
     fn description(&self) -> &'static str {
         "Show the Discord API latency"
+    }
+
+    fn category(&self) -> &'static CommandCategory {
+        &CommandCategory::Utils
+    }
+
+    fn command_id_ref(&self) -> &AtomicU64 {
+        &self.command_id
     }
 
     fn register(&self) -> CreateCommand {
@@ -53,5 +80,5 @@ impl SlashCommand for Ping {
 }
 
 inventory::submit! {
-    CommandEntry { create: || Box::new(Ping) }
+    CommandEntry { create: || Box::new(Ping::new()) }
 }
