@@ -6,6 +6,7 @@ use serenity::{
     futures::StreamExt,
 };
 use sqlx::PgPool;
+use tracing::info;
 use crate::{
     commands::{
         CommandCategory,
@@ -91,7 +92,7 @@ impl SlashCommand for Help {
     }
 
     fn register(&self) -> CreateCommand {
-        println!("\t✅ | {}", self.name());
+        info!("\t✅ | {}", self.name());
         CreateCommand::new(self.name())
             .description(self.description())
             .contexts(vec![
