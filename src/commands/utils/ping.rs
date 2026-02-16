@@ -17,6 +17,7 @@ use serenity::all::{
     CreateInteractionResponseMessage, EditInteractionResponse,
 };
 use sqlx::PgPool;
+use tracing::info;
 
 pub struct Ping {
     pub command_id: AtomicU64,
@@ -49,7 +50,7 @@ impl SlashCommand for Ping {
     }
 
     fn register(&self) -> CreateCommand {
-        println!("\t✅ | {}", self.name());
+        info!("\t✅ | {}", self.name());
         CreateCommand::new(self.name()).description(self.description())
     }
 
