@@ -4,9 +4,10 @@ use crate::commands::{CommandCategory, CommandEntry, SlashCommand};
 use crate::config::EmojiConfig;
 
 use serenity::all::{
-    CommandInteraction, CommandOption, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, InteractionContext, Message, MessageId, Permissions
+    CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, InteractionContext, Message, MessageId, Permissions
 };
 use sqlx::PgPool;
+use tracing::info;
 
 pub struct Clear {
     pub command_id: AtomicU64,
@@ -39,7 +40,7 @@ impl SlashCommand for Clear {
     }
 
     fn register(&self) -> CreateCommand {
-        println!("\t✅ | {}", self.name());
+        info!("\t✅ | {}", self.name());
         let mut options: Vec<CreateCommandOption> = Vec::new();
 
         let amount: CreateCommandOption = CreateCommandOption::new(CommandOptionType::Integer, "amount", "Amount of messages to clear")
