@@ -1,25 +1,24 @@
-use crate::commands::{CommandEntry, SlashCommand};
+use std::sync::atomic::AtomicU64;
+
+use crate::commands::{CommandCategory, CommandEntry, SlashCommand};
 use crate::config::EmojiConfig;
 
 use serenity::all::{
-    ChannelType,
-    CommandInteraction,
-    CommandOption,
-    CommandOptionType,
-    Context,
-    CreateCommand,
-    CreateCommandOption,
-    CreateInteractionResponse,
-    CreateInteractionResponseMessage,
-    EditInteractionResponse,
-    GetMessages,
-    Message,
-    MessageId,
-    Permissions
+    CommandInteraction, CommandOption, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, InteractionContext, Message, MessageId, Permissions
 };
 use sqlx::PgPool;
 
-pub struct Clear;
+pub struct Clear {
+    pub command_id: AtomicU64,
+}
+
+impl Clear {
+    pub fn new() -> Self {
+        Self {
+            command_id: AtomicU64::new(0),
+        }
+    }
+}
 
 #[serenity::async_trait]
 impl SlashCommand for Clear {
@@ -29,6 +28,14 @@ impl SlashCommand for Clear {
 
     fn description(&self) -> &'static str {
         "Clear X message (X given in the parameters)"
+    }
+
+    fn category(&self) -> &'static CommandCategory {
+        &CommandCategory::Moderation
+    }
+
+    fn command_id_ref(&self) -> &AtomicU64 {
+        &self.command_id
     }
 
     fn register(&self) -> CreateCommand {
@@ -45,6 +52,9 @@ impl SlashCommand for Clear {
             .description(self.description())
             .default_member_permissions(Permissions::MANAGE_MESSAGES)
             .set_options(options)
+            .contexts(vec![
+                InteractionContext::Guild,
+            ])
     }
 
     async fn run(
@@ -91,5 +101,5 @@ impl SlashCommand for Clear {
 }
 
 inventory::submit! {
-    CommandEntry { create: || Box::new(Clear) }
+    CommandEntry { create: || Box::new(Clear::new()) }
 }
