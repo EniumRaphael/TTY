@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE guild_users SET invitation_count = GREATEST(invitation_count - 1, 0) WHERE user_id = $1 AND guild_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "644a753755c11c731882d2a60b619d57a6f5a7b70b10658031bff39be85cdcb0"
+}

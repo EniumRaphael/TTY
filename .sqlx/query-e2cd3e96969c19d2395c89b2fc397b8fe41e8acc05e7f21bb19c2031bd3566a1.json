@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE guild_users SET is_wl_user = $1 WHERE user_id = $2 AND guild_id = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e2cd3e96969c19d2395c89b2fc397b8fe41e8acc05e7f21bb19c2031bd3566a1"
+}

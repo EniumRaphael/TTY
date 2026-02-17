@@ -1,0 +1,160 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM guilds WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "guild_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "log_enable",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "log_category",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "log_bot",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "log_channels",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "log_member",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "log_mod",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "log_msg",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "log_server",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "join_enabled",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "join_message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "join_channel",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "leave_enabled",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "leave_message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "leave_channel",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "protect_enabled",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "protect_anti_channel",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 17,
+        "name": "protect_anti_rank",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "protect_anti_perm",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 19,
+        "name": "protect_anti_massban",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 20,
+        "name": "protect_anti_mass_mention",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 21,
+        "name": "protect_anti_bot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 22,
+        "name": "footer",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "color",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3a0ed3d5114665f722684b14aa961b6f38f76ba8b7979c1592663709bb10565b"
+}
