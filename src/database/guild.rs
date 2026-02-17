@@ -84,7 +84,7 @@ pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<O
 
 pub async fn set_log(db: &PgPool, guild_id: &str, asked: LogChannel, value: &str) -> Result<(), sqlx::Error> {
     let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_select(asked));
-    query!(&sql)
+    query(&sql)
         .bind(value)
         .bind(guild_id)
         .execute(db)
