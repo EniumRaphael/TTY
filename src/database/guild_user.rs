@@ -6,11 +6,12 @@ pub async fn get(
     user_id: &str,
     guild_id: &str,
 ) -> Result<Option<DbGuildUser>, sqlx::Error> {
-    let guild_user = query_as::<_, DbGuildUser>(
+    let guild_user = query_as!(
+        DbGuildUser,
         "SELECT * FROM guild_users WHERE user_id = $1 AND guild_id = $2",
+        user_id,
+        guild_id,
     )
-    .bind(user_id)
-    .bind(guild_id)
     .fetch_optional(db)
     .await?;
     Ok(guild_user)
@@ -21,13 +22,13 @@ pub async fn create(
     user_id: &str,
     guild_id: &str,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "INSERT INTO guild_users (user_id, guild_id) \
          VALUES ($1, $2) \
          ON CONFLICT (user_id, guild_id) DO NOTHING",
+        user_id,
+        guild_id,
     )
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -38,11 +39,11 @@ pub async fn delete(
     user_id: &str,
     guild_id: &str,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "DELETE FROM guild_users WHERE user_id = $1 AND guild_id = $2",
+        user_id,
+        guild_id,
     )
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -52,8 +53,7 @@ pub async fn delete_all_in_guild(
     db: &PgPool,
     guild_id: &str,
 ) -> Result<(), sqlx::Error> {
-    query("DELETE FROM guild_users WHERE guild_id = $1")
-        .bind(guild_id)
+    query!("DELETE FROM guild_users WHERE guild_id = $1", guild_id)
         .execute(db)
         .await?;
     Ok(())
@@ -65,13 +65,13 @@ pub async fn add_xp(
     guild_id: &str,
     amount: i32,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE guild_users SET xp = xp + $1 \
          WHERE user_id = $2 AND guild_id = $3",
+        amount,
+        user_id,
+        guild_id,
     )
-    .bind(amount)
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -83,13 +83,13 @@ pub async fn set_level(
     guild_id: &str,
     level: i32,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE guild_users SET level = $1 \
          WHERE user_id = $2 AND guild_id = $3",
+        level,
+        user_id,
+        guild_id,
     )
-    .bind(level)
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -102,9 +102,9 @@ pub async fn get_xp(
 ) -> Result<Option<i32>, sqlx::Error> {
     let xp: Option<i32> = query_scalar(
         "SELECT xp FROM guild_users WHERE user_id = $1 AND guild_id = $2",
-    )
-    .bind(user_id)
-    .bind(guild_id)
+        )
+        .bind(user_id)
+        .bind(guild_id)
     .fetch_optional(db)
     .await?;
     Ok(xp)
@@ -115,11 +115,9 @@ pub async fn get_level(
     user_id: &str,
     guild_id: &str,
 ) -> Result<Option<i32>, sqlx::Error> {
-    let level: Option<i32> = query_scalar(
-        "SELECT level FROM guild_users WHERE user_id = $1 AND guild_id = $2",
-    )
-    .bind(user_id)
-    .bind(guild_id)
+    let level: Option<i32> = query_scalar("SELECT level FROM guild_users WHERE user_id = $1 AND guild_id = $2")
+        .bind(user_id)
+        .bind(guild_id)
     .fetch_optional(db)
     .await?;
     Ok(level)
@@ -131,13 +129,13 @@ pub async fn set_wl(
     guild_id: &str,
     value: bool,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE guild_users SET is_wl_user = $1 \
          WHERE user_id = $2 AND guild_id = $3",
+        value,
+        user_id,
+        guild_id,
     )
-    .bind(value)
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -147,11 +145,12 @@ pub async fn get_all_wl(
     db: &PgPool,
     guild_id: &str,
 ) -> Result<Vec<DbGuildUser>, sqlx::Error> {
-    let users = query_as::<_, DbGuildUser>(
+    let users = query_as!(
+        DbGuildUser,
         "SELECT * FROM guild_users \
          WHERE guild_id = $1 AND is_wl_user = true",
+        guild_id,
     )
-    .bind(guild_id)
     .fetch_all(db)
     .await?;
     Ok(users)
@@ -163,13 +162,13 @@ pub async fn set_invited_by(
     guild_id: &str,
     inviter_id: &str,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE guild_users SET invited_by = $1 \
          WHERE user_id = $2 AND guild_id = $3",
+        inviter_id,
+        user_id,
+        guild_id,
     )
-    .bind(inviter_id)
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -180,12 +179,12 @@ pub async fn increment_invitations(
     user_id: &str,
     guild_id: &str,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE guild_users SET invitation_count = invitation_count + 1 \
          WHERE user_id = $1 AND guild_id = $2",
+        user_id,
+        guild_id,
     )
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -196,12 +195,12 @@ pub async fn decrement_invitations(
     user_id: &str,
     guild_id: &str,
 ) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE guild_users SET invitation_count = GREATEST(invitation_count - 1, 0) \
          WHERE user_id = $1 AND guild_id = $2",
+        user_id,
+        guild_id,
     )
-    .bind(user_id)
-    .bind(guild_id)
     .execute(db)
     .await?;
     Ok(())
@@ -212,14 +211,15 @@ pub async fn leaderboard_xp(
     guild_id: &str,
     limit: i64,
 ) -> Result<Vec<DbGuildUser>, sqlx::Error> {
-    let users = query_as::<_, DbGuildUser>(
+    let users = query_as!(
+        DbGuildUser,
         "SELECT * FROM guild_users \
          WHERE guild_id = $1 \
          ORDER BY xp DESC \
          LIMIT $2",
+        guild_id,
+        limit,
     )
-    .bind(guild_id)
-    .bind(limit)
     .fetch_all(db)
     .await?;
     Ok(users)
@@ -230,14 +230,15 @@ pub async fn leaderboard_invitations(
     guild_id: &str,
     limit: i64,
 ) -> Result<Vec<DbGuildUser>, sqlx::Error> {
-    let users = query_as::<_, DbGuildUser>(
+    let users = query_as!(
+        DbGuildUser,
         "SELECT * FROM guild_users \
          WHERE guild_id = $1 \
          ORDER BY invitation_count DESC \
          LIMIT $2",
+        guild_id,
+        limit,
     )
-    .bind(guild_id)
-    .bind(limit)
     .fetch_all(db)
     .await?;
     Ok(users)
