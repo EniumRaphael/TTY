@@ -5,15 +5,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const COMMAND_DIR: &str = "./src/commands/";
-const EVENT_DIR: &str = "./src/events/";
-const MODEL_DIR: &str = "./src/models";
-const CONF_DIR: &str = "./src/config";
-const DB_DIR: &str = "./src/database";
-const UTILS_DIR: &str = "./src/utils";
 const MOD_PREFIX: &str = "pub mod ";
 const MOD_FILE: &str = "/mod_gen.rs";
 
+/// Clear the string name to take the mod name
+///
+/// * `s` - the name of the file
+/// * `n` - len of the name
 fn clear_name(s: &mut String, n: usize) -> String {
     if n >= s.len() {
         s.clear();
@@ -23,9 +21,9 @@ fn clear_name(s: &mut String, n: usize) -> String {
     s.trim_end_matches(".rs").to_string()
 }
 
-/// @brief Search all rust files in the subfolder
-/// @return All rust files
-/// * `dir`: the subfolder
+/// Search all rust files in the subfolder
+///
+/// * `dir` - the subfolder
 fn read_dir(dir: &Path) -> Vec<String> {
     let mut dir_content: Vec<String> = Vec::new();
     let len: usize = dir.to_string_lossy().len() + 1;
@@ -63,123 +61,62 @@ fn list_srcs(dir: &Path) -> HashMap<String, Vec<String>> {
     to_ret
 }
 
-fn commands() -> io::Result<()> {
-    let root: &Path = Path::new(COMMAND_DIR);
+fn nested(name: &str, origin: &str) -> io::Result<()> {
+    let path: String = if origin.ends_with('/') {
+        origin.to_string()
+    } else {
+        format!("{}/", origin)
+    };
+    let root: &Path = Path::new(&path);
     let dir: HashMap<String, Vec<String>> = list_srcs(root);
     let mut modules: String = String::new();
-    for (subdir, commands) in &dir {
-        println!("'{}'", subdir);
-        let mut submodules: String = String::new();
-        for command in commands {
-            submodules = submodules + &String::from(MOD_PREFIX) + command + &String::from(";\n");
-            println!("\t'{}'", command);
-        }
-        write(
-            String::from(COMMAND_DIR) + subdir + &String::from(MOD_FILE),
-            submodules,
-        )?;
-        modules = modules + &String::from(MOD_PREFIX) + subdir + &String::from(";\n");
-    }
-    write(String::from(COMMAND_DIR) + &String::from(MOD_FILE), modules)?;
-
-    Ok(())
-}
-
-fn events() -> io::Result<()> {
-    let root: &Path = Path::new(EVENT_DIR);
-    let dir: HashMap<String, Vec<String>> = list_srcs(root);
-    let mut modules: String = String::new();
+    println!("'{}'", name);
     for (subdir, events) in &dir {
         println!("'{}'", subdir);
         let mut submodules: String = String::new();
         for event in events {
-            submodules = submodules + &String::from(MOD_PREFIX) + event + &String::from(";\n");
+            submodules.push_str(&format!("{}{};\n", MOD_PREFIX, event));
             println!("\t'{}'", event);
         }
-        write(
-            String::from(EVENT_DIR) + subdir + &String::from(MOD_FILE),
-            submodules,
-        )?;
-        modules = modules + &String::from(MOD_PREFIX) + subdir + &String::from(";\n");
+        write(format!("{}{}{}", path, subdir, MOD_FILE), submodules)?;
+        modules.push_str(&format!("{}{};\n", MOD_PREFIX, subdir));
     }
-    write(String::from(EVENT_DIR) + &String::from(MOD_FILE), modules)?;
+    write(format!("{}{}", path, MOD_FILE), modules)?;
 
     Ok(())
 }
 
-fn models() -> io::Result<()> {
-    let root: &Path = Path::new(MODEL_DIR);
+fn flat(name:&str, dir: &str) -> io::Result<()> {
+    let root: &Path = Path::new(dir);
     let sources: Vec<String> = read_dir(root);
     let mut modules: String = String::new();
-    println!("'models'");
+    println!("'{}'", name);
     for source in sources {
-        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
+        modules.push_str(&format!("{}{};\n", MOD_PREFIX, source));
         println!("\t'{}'", source);
     }
-    write(String::from(MODEL_DIR) + &String::from(MOD_FILE), modules)?;
-
-    Ok(())
-}
-
-fn database_helper() -> io::Result<()> {
-    let root: &Path = Path::new(DB_DIR);
-    let sources: Vec<String> = read_dir(root);
-    let mut modules: String = String::new();
-    println!("'database_helper'");
-    for source in sources {
-        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
-        println!("\t'{}'", source);
-    }
-    write(String::from(DB_DIR) + &String::from(MOD_FILE), modules)?;
-
-    Ok(())
-}
-
-fn utils() -> io::Result<()> {
-    let root: &Path = Path::new(UTILS_DIR);
-    let sources: Vec<String> = read_dir(root);
-    let mut modules: String = String::new();
-    println!("'utils'");
-    for source in sources {
-        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
-        println!("\t'{}'", source);
-    }
-    write(String::from(UTILS_DIR) + &String::from(MOD_FILE), modules)?;
-
-    Ok(())
-}
-
-fn config() -> io::Result<()> {
-    let root: &Path = Path::new(CONF_DIR);
-    let sources: Vec<String> = read_dir(root);
-    let mut modules: String = String::new();
-    println!("'emoji'");
-    for source in sources {
-        modules = modules + &String::from(MOD_PREFIX) + &source + &String::from(";\n");
-        println!("\t'{}'", source);
-    }
-    write(String::from(CONF_DIR) + &String::from(MOD_FILE), modules)?;
+    write(format!("{}{}", dir, MOD_FILE), modules)?;
 
     Ok(())
 }
 
 fn main() {
-    if let Err(e) = commands() {
+    if let Err(e) = nested("commands", "./src/commands") {
         panic!("Error when writing the commands \n{}", e)
     }
-    if let Err(e) = events() {
+    if let Err(e) = nested("events", "./src/events") {
         panic!("Error when writing the events:\n{}", e)
     }
-    if let Err(e) = models() {
+    if let Err(e) = flat("models", "./src/models") {
         panic!("Error when writing the models:\n{}", e)
     }
-    if let Err(e) = database_helper() {
+    if let Err(e) = flat("database", "./src/database") {
         panic!("Error when writing the database_helper:\n{}", e)
     }
-    if let Err(e) = utils() {
-        panic!("Error when writing the database_helper:\n{}", e)
+    if let Err(e) = flat("utils", "./src/utils") {
+        panic!("Error when writing the utils:\n{}", e)
     }
-    if let Err(e) = config() {
-        panic!("Error when writing the database_helper:\n{}", e)
+    if let Err(e) = flat("config", "./src/config") {
+        panic!("Error when writing the config:\n{}", e)
     }
 }
