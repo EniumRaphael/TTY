@@ -49,26 +49,25 @@ fn protect_select(asked: Protect) -> &'static str {
 }
 
 pub async fn create(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
-    query("INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING")
-        .bind(guild_id)
+    query!("INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING", guild_id)
         .execute(db)
         .await?;
     Ok(())
 }
 
 pub async fn delete(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
-    query("DELETE FROM guilds WHERE guild_id = $1")
-        .bind(guild_id)
+    query!("DELETE FROM guilds WHERE guild_id = $1", guild_id)
         .execute(db)
         .await?;
     Ok(())
 }
 
 pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<DbGuild>, sqlx::Error> {
-    let guild: Option<DbGuild> = query_as::<_, DbGuild>(
+    let guild: Option<DbGuild> = query_as!(
+        DbGuild,
         "SELECT * FROM guilds WHERE guild_id = $1",
+        guild_id
         )
-        .bind(guild_id)
         .fetch_optional(db)
         .await?;
     Ok(guild)
@@ -83,11 +82,11 @@ pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<O
     Ok(channel_id)
 }
 
-pub async fn set_log(db: &PgPool, user_id: &str, asked: LogChannel, value: &str) -> Result<(), sqlx::Error> {
+pub async fn set_log(db: &PgPool, guild_id: &str, asked: LogChannel, value: &str) -> Result<(), sqlx::Error> {
     let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_select(asked));
-    query(&sql)
+    query!(&sql)
         .bind(value)
-        .bind(user_id)
+        .bind(guild_id)
         .execute(db)
         .await?;
     Ok(())
@@ -102,11 +101,11 @@ pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<
     Ok(state)
 }
 
-pub async fn set_protect(db: &PgPool, user_id: &str, asked: Protect, value: &str) -> Result<(), sqlx::Error> {
+pub async fn set_protect(db: &PgPool, guild_id: &str, asked: Protect, value: &str) -> Result<(), sqlx::Error> {
     let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", protect_select(asked));
     query(&sql)
         .bind(value)
-        .bind(user_id)
+        .bind(guild_id)
         .execute(db)
         .await?;
     Ok(())
