@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install sqlx-cli
+      run: cargo install sqlx-cli --no-default-features --features postgres 
     - name: Prepare
       run: cargo sqlx prepare --check
     - name: Build
