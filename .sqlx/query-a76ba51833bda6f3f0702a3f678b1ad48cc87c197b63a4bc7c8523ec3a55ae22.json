@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE bots SET activity_type = $1::bot_activity WHERE id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "bot_activity",
+            "kind": {
+              "Enum": [
+                "Playing",
+                "Streaming",
+                "Listening",
+                "Watching",
+                "Competing"
+              ]
+            }
+          }
+        },
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a76ba51833bda6f3f0702a3f678b1ad48cc87c197b63a4bc7c8523ec3a55ae22"
+}
