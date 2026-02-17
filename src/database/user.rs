@@ -1,7 +1,7 @@
 use sqlx::{
     PgPool,
     query,
-    query_as
+    query_as,
 };
 use crate::models::DbUser;
 
@@ -14,10 +14,7 @@ use crate::models::DbUser;
 ///
 /// Returns `sqlx::Error` if the query fails.
 pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
-    query(
-        "INSERT INTO users (user_id) VALUES ($1) ON CONFLICT DO NOTHING"
-        )
-        .bind(user_id)
+    query!("INSERT INTO users (user_id) VALUES ($1) ON CONFLICT DO NOTHING", user_id)
         .execute(db)
         .await?;
     Ok(())
@@ -37,10 +34,11 @@ pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
 ///
 /// Returns `sqlx::Error` if the query fails.
 pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<DbUser>, sqlx::Error> {
-    let user: Option<DbUser> = query_as::<_, DbUser>(
+    let user: Option<DbUser> = query_as!(
+        DbUser,
         "SELECT * FROM users WHERE user_id = $1",
+        user_id,
     )
-    .bind(user_id)
     .fetch_optional(db)
     .await?;
     Ok(user)
@@ -56,11 +54,7 @@ pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<DbUser>, sqlx::Err
 ///
 /// Returns `sqlx::Error` if the query fails.
 pub async fn set_owner(db: &PgPool, user_id: &str, value: bool) -> Result<(), sqlx::Error> {
-    query(
-        "UPDATE users set is_owner = $1 WHERE user_id = $2",
-        )
-        .bind(value)
-        .bind(user_id)
+    query!("UPDATE users set is_owner = $1 WHERE user_id = $2", value, user_id)
         .execute(db)
         .await?;
     Ok(())
@@ -76,11 +70,11 @@ pub async fn set_owner(db: &PgPool, user_id: &str, value: bool) -> Result<(), sq
 ///
 /// Returns `sqlx::Error` if the query fails.
 pub async fn set_buyer(db: &PgPool, user_id: &str, value: bool) -> Result<(), sqlx::Error> {
-    query(
+    query!(
         "UPDATE users set is_buyer = $1 WHERE user_id = $2",
+        value,
+        user_id
         )
-        .bind(value)
-        .bind(user_id)
         .execute(db)
         .await?;
     Ok(())
