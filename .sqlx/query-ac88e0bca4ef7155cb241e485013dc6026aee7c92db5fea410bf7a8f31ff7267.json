@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE guild_users SET invitation_count = invitation_count + 1 WHERE user_id = $1 AND guild_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ac88e0bca4ef7155cb241e485013dc6026aee7c92db5fea410bf7a8f31ff7267"
+}

@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM guild_users WHERE guild_id = $1 ORDER BY invitation_count DESC LIMIT $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "guild_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "xp",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "level",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_wl_user",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "invitation_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "invited_by",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "57514d1a1186505d706b0996f79770d44264e424e50e5536a738eab88b5984f5"
+}

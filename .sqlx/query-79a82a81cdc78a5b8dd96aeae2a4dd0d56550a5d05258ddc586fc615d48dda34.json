@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM guild_users WHERE guild_id = $1 AND is_wl_user = true",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "guild_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "xp",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "level",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_wl_user",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "invitation_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "invited_by",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "79a82a81cdc78a5b8dd96aeae2a4dd0d56550a5d05258ddc586fc615d48dda34"
+}
