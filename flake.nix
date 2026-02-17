@@ -61,6 +61,7 @@
               cargo-watch
               cargo-edit
               cargo-audit
+              cargo
               openssl
             ]
             ++ lib.optionals stdenv.isDarwin [
