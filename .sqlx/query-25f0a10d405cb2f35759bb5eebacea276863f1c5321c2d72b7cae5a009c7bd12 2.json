@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE bots SET presence = $1::bot_presence WHERE id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "bot_presence",
+            "kind": {
+              "Enum": [
+                "online",
+                "idle",
+                "dnd",
+                "invisible"
+              ]
+            }
+          }
+        },
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "25f0a10d405cb2f35759bb5eebacea276863f1c5321c2d72b7cae5a009c7bd12"
+}

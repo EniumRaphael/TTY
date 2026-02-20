@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT status, activity_type as \"activity_type: BotActivity\", presence as \"presence: BotPresence\" FROM bots WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "activity_type: BotActivity",
+        "type_info": {
+          "Custom": {
+            "name": "bot_activity",
+            "kind": {
+              "Enum": [
+                "Playing",
+                "Streaming",
+                "Listening",
+                "Watching",
+                "Competing"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "presence: BotPresence",
+        "type_info": {
+          "Custom": {
+            "name": "bot_presence",
+            "kind": {
+              "Enum": [
+                "online",
+                "idle",
+                "dnd",
+                "invisible"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2702523871f6edf697d2467a70d0ed4faf9e27109d54f4a594b97116750cd1a7"
+}
