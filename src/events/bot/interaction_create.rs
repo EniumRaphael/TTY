@@ -1,4 +1,4 @@
-use serenity::all::*;
+use serenity::all::{Context, Interaction};
 use sqlx::PgPool;
 use crate::commands::SlashCommand;
 use crate::config::EmojiConfig;
