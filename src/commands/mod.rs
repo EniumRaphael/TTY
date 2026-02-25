@@ -1,5 +1,4 @@
-use std::sync::atomic::{AtomicU64, Ordering};
-
+use anyhow::Result;
 use serenity::all::{CommandInteraction, Context, CreateCommand};
 use sqlx::PgPool;
 
@@ -11,6 +10,7 @@ include!("./mod_gen.rs");
 pub enum CommandCategory {
     Moderation,
     Utils,
+    Gestion,
 }
 
 impl CommandCategory {
@@ -18,6 +18,7 @@ impl CommandCategory {
         match self {
             Self::Utils => "🌐",
             Self::Moderation => "🛡️",
+            Self::Gestion => "👑",
         }
     }
 
@@ -25,6 +26,7 @@ impl CommandCategory {
         match self {
             Self::Utils => "Utils",
             Self::Moderation => "Moderation",
+            Self::Gestion => "Gestion",
         }
     }
 }
@@ -34,15 +36,6 @@ pub trait SlashCommand: Send + Sync {
     fn name(&self) -> &'static str;
     fn description(&self) -> &'static str;
     fn category(&self) -> &'static CommandCategory;
-    fn command_id_ref(&self) -> &AtomicU64;
-
-    fn get_id(&self) -> u64 {
-        self.command_id_ref().load(Ordering::Relaxed)
-    }
-
-    fn set_id(&self, id: u64) {
-        self.command_id_ref().store(id, Ordering::Relaxed);
-    }
 
     fn register(&self) -> CreateCommand;
 
@@ -52,7 +45,7 @@ pub trait SlashCommand: Send + Sync {
         command: &CommandInteraction,
         database: &PgPool,
         _emoji: &EmojiConfig,
-    ) -> Result<(), serenity::Error>;
+    ) -> Result<()>;
 }
 
 pub struct CommandEntry {
