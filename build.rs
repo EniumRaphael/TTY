@@ -86,7 +86,7 @@ fn nested(name: &str, origin: &str) -> io::Result<()> {
     Ok(())
 }
 
-fn flat(name:&str, dir: &str) -> io::Result<()> {
+fn flat(name: &str, dir: &str) -> io::Result<()> {
     let root: &Path = Path::new(dir);
     let sources: Vec<String> = read_dir(root);
     let mut modules: String = String::new();
