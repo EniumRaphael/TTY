@@ -7,6 +7,7 @@ keywords = ["bot", "serenity", "discord"]
 repository = "https://github.com/EniumRaphael/TTY"
 
 [dependencies]
+anyhow = "1.0.102"
 dotenvy = "0.15.7"
 inventory = "0.3.21"
 serde = { version = "1.0.228", features = ["derive"] }
