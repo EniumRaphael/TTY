@@ -1,5 +1,3 @@
-use std::sync::atomic::AtomicU64;
-
 use crate::commands::{CommandCategory, CommandEntry, SlashCommand};
 use crate::config::EmojiConfig;
 
@@ -7,19 +5,10 @@ use serenity::all::{
     CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, InteractionContext, Message, MessageId, Permissions
 };
 use sqlx::PgPool;
-use tracing::info;
+use tracing::{debug, info};
+use anyhow::Result;
 
-pub struct Clear {
-    pub command_id: AtomicU64,
-}
-
-impl Clear {
-    pub fn new() -> Self {
-        Self {
-            command_id: AtomicU64::new(0),
-        }
-    }
-}
+pub struct Clear;
 
 #[serenity::async_trait]
 impl SlashCommand for Clear {
@@ -33,10 +22,6 @@ impl SlashCommand for Clear {
 
     fn category(&self) -> &'static CommandCategory {
         &CommandCategory::Moderation
-    }
-
-    fn command_id_ref(&self) -> &AtomicU64 {
-        &self.command_id
     }
 
     fn register(&self) -> CreateCommand {
@@ -64,8 +49,10 @@ impl SlashCommand for Clear {
         command: &CommandInteraction,
         _database: &PgPool,
         _emoji: &EmojiConfig,
-    ) -> Result<(), serenity::Error> {
-        let amount: u8 = command.data.options.get(0).unwrap().value.as_i64().expect("REASON") as u8;
+    ) -> Result<()> {
+        debug!("Clear command called");
+        let amount: u8 = command.data.options.iter().find(|opt | opt.kind() == CommandOptionType::Integer)
+            .unwrap().value.as_i64().expect("REASON") as u8;
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content(format!("{} | Start to clear", _emoji.answer.loading))
             .ephemeral(true);
@@ -102,5 +89,5 @@ impl SlashCommand for Clear {
 }
 
 inventory::submit! {
-    CommandEntry { create: || Box::new(Clear::new()) }
+    CommandEntry { create: || Box::new(Clear) }
 }
