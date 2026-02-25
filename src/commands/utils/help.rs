@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::atomic::AtomicU64, time::Duration};
+use std::{collections::HashMap, time::Duration};
 use serenity::{
     all::{
         ButtonStyle, Command, CommandInteraction, ComponentInteractionCollector, Context, CreateActionRow, CreateButton, CreateCommand, CreateEmbed, CreateEmbedFooter, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GuildId, InteractionContext, Message, MessageId, ReactionType, UserId
@@ -6,7 +6,8 @@ use serenity::{
     futures::StreamExt,
 };
 use sqlx::PgPool;
-use tracing::info;
+use tracing::{debug, info};
+use anyhow::Result;
 use crate::{
     commands::{
         CommandCategory,
@@ -18,17 +19,7 @@ use crate::{
     models::DbGuild,
 };
 
-pub struct Help {
-    pub command_id: AtomicU64,
-}
-
-impl Help {
-    pub fn new() -> Self {
-        Self {
-            command_id: AtomicU64::new(0),
-        }
-    }
-}
+pub struct Help;
 
 fn create_category_buttons(categories: &HashMap<CommandCategory, Vec<String>>, disabled: bool) -> Vec<CreateActionRow> {
     let buttons: Vec<CreateButton> = categories
@@ -87,10 +78,6 @@ impl SlashCommand for Help {
         &CommandCategory::Utils
     }
 
-    fn command_id_ref(&self) -> &AtomicU64 {
-        &self.command_id
-    }
-
     fn register(&self) -> CreateCommand {
         info!("\t✅ | {}", self.name());
         CreateCommand::new(self.name())
@@ -106,7 +93,8 @@ impl SlashCommand for Help {
         command: &CommandInteraction,
         _database: &PgPool,
         _emoji: &EmojiConfig,
-    ) -> Result<(), serenity::Error> {
+    ) -> Result<()> {
+        debug!("Help command called");
         let guild: GuildId = command.guild_id.ok_or(serenity::Error::Other("Commande non disponible en DM"))?;
         let guild_id: String = guild.to_string();
         let guild_db: Option<DbGuild> = guild::get(_database, &guild_id).await.map_err(|_e| serenity::Error::Other("Database error guild on help command"))?;
@@ -198,5 +186,5 @@ impl SlashCommand for Help {
 }
 
 inventory::submit! {
-    CommandEntry { create: || Box::new(Help::new()) }
+    CommandEntry { create: || Box::new(Help) }
 }
