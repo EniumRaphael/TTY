@@ -4,6 +4,7 @@ use sqlx::{
     query_as,
 };
 use crate::models::DbUser;
+use anyhow::Result;
 
 /// Adding the user (if exist do nothing)
 ///
@@ -12,8 +13,8 @@ use crate::models::DbUser;
 ///
 /// # Errors
 ///
-/// Returns `sqlx::Error` if the query fails.
-pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
+/// Returns `Error` if the query fails.
+pub async fn create(db: &PgPool, user_id: &str) -> Result<()> {
     query!("INSERT INTO users (user_id) VALUES ($1) ON CONFLICT DO NOTHING", user_id)
         .execute(db)
         .await?;
@@ -32,8 +33,8 @@ pub async fn create(db: &PgPool, user_id: &str) -> Result<(), sqlx::Error> {
 ///
 /// # Errors
 ///
-/// Returns `sqlx::Error` if the query fails.
-pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<DbUser>, sqlx::Error> {
+/// Returns `Error` if the query fails.
+pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<DbUser>> {
     let user: Option<DbUser> = query_as!(
         DbUser,
         "SELECT * FROM users WHERE user_id = $1",
@@ -52,8 +53,8 @@ pub async fn get(db: &PgPool, user_id: &str) -> Result<Option<DbUser>, sqlx::Err
 ///
 /// # Errors
 ///
-/// Returns `sqlx::Error` if the query fails.
-pub async fn set_owner(db: &PgPool, user_id: &str, value: bool) -> Result<(), sqlx::Error> {
+/// Returns `Error` if the query fails.
+pub async fn set_owner(db: &PgPool, user_id: &str, value: bool) -> Result<()> {
     query!("UPDATE users set is_owner = $1 WHERE user_id = $2", value, user_id)
         .execute(db)
         .await?;
@@ -68,8 +69,8 @@ pub async fn set_owner(db: &PgPool, user_id: &str, value: bool) -> Result<(), sq
 ///
 /// # Errors
 ///
-/// Returns `sqlx::Error` if the query fails.
-pub async fn set_buyer(db: &PgPool, user_id: &str, value: bool) -> Result<(), sqlx::Error> {
+/// Returns `Error` if the query fails.
+pub async fn set_buyer(db: &PgPool, user_id: &str, value: bool) -> Result<()> {
     query!(
         "UPDATE users set is_buyer = $1 WHERE user_id = $2",
         value,
@@ -80,9 +81,9 @@ pub async fn set_buyer(db: &PgPool, user_id: &str, value: bool) -> Result<(), sq
     Ok(())
 }
 
-pub async fn get_or_create(db: &PgPool, user_id: &str) -> Result<DbUser, sqlx::Error> {
+pub async fn get_or_create(db: &PgPool, user_id: &str) -> Result<DbUser> {
     create(db, user_id).await?;
     get(db, user_id)
         .await?
-        .ok_or_else(|| sqlx::Error::RowNotFound)
+        .ok_or_else(|| anyhow::anyhow!("Not able to get or create the user"))
 }
