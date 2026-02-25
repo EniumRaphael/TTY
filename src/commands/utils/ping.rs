@@ -1,7 +1,4 @@
 use std::{
-    sync::atomic::{
-        AtomicU64,
-    },
     time::Instant,
 };
 
@@ -17,19 +14,10 @@ use serenity::all::{
     CreateInteractionResponseMessage, EditInteractionResponse,
 };
 use sqlx::PgPool;
-use tracing::info;
+use tracing::{debug, info};
+use anyhow::Result;
 
-pub struct Ping {
-    pub command_id: AtomicU64,
-}
-
-impl Ping {
-    pub fn new() -> Self {
-        Self {
-            command_id: AtomicU64::new(0),
-        }
-    }
-}
+pub struct Ping;
 
 #[serenity::async_trait]
 impl SlashCommand for Ping {
@@ -45,10 +33,6 @@ impl SlashCommand for Ping {
         &CommandCategory::Utils
     }
 
-    fn command_id_ref(&self) -> &AtomicU64 {
-        &self.command_id
-    }
-
     fn register(&self) -> CreateCommand {
         info!("\t✅ | {}", self.name());
         CreateCommand::new(self.name()).description(self.description())
@@ -60,7 +44,8 @@ impl SlashCommand for Ping {
         command: &CommandInteraction,
         _database: &PgPool,
         _emoji: &EmojiConfig,
-    ) -> Result<(), serenity::Error> {
+    ) -> Result<()> {
+        debug!("Ping command called");
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content("🏓 | Pong!")
             .ephemeral(true);
@@ -81,5 +66,5 @@ impl SlashCommand for Ping {
 }
 
 inventory::submit! {
-    CommandEntry { create: || Box::new(Ping::new()) }
+    CommandEntry { create: || Box::new(Ping) }
 }
