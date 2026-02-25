@@ -5,6 +5,7 @@ use sqlx::{
     query_scalar,
 };
 use crate::models::DbGuild;
+use anyhow::Result;
 
 pub enum LogChannel {
     Bot,
@@ -48,21 +49,21 @@ fn protect_select(asked: Protect) -> &'static str {
     }
 }
 
-pub async fn create(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
+pub async fn create(db: &PgPool, guild_id: &str) -> Result<()> {
     query!("INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING", guild_id)
         .execute(db)
         .await?;
     Ok(())
 }
 
-pub async fn delete(db: &PgPool, guild_id: &str) -> Result<(), sqlx::Error> {
+pub async fn delete(db: &PgPool, guild_id: &str) -> Result<()> {
     query!("DELETE FROM guilds WHERE guild_id = $1", guild_id)
         .execute(db)
         .await?;
     Ok(())
 }
 
-pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<DbGuild>, sqlx::Error> {
+pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<DbGuild>> {
     let guild: Option<DbGuild> = query_as!(
         DbGuild,
         "SELECT * FROM guilds WHERE guild_id = $1",
@@ -73,7 +74,7 @@ pub async fn get(db: &PgPool, guild_id: &str) -> Result<Option<DbGuild>, sqlx::E
     Ok(guild)
 }
 
-pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<Option<String>, sqlx::Error> {
+pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<Option<String>> {
     let sql: String = format!("SELECT {} FROM guilds WHERE guild_id = $1", log_select(asked));
     let channel_id: Option<String> = query_scalar(&sql)
         .bind(guild_id)
@@ -82,7 +83,7 @@ pub async fn get_log(db: &PgPool, guild_id: &str, asked: LogChannel) -> Result<O
     Ok(channel_id)
 }
 
-pub async fn set_log(db: &PgPool, guild_id: &str, asked: LogChannel, value: &str) -> Result<(), sqlx::Error> {
+pub async fn set_log(db: &PgPool, guild_id: &str, asked: LogChannel, value: &str) -> Result<()> {
     let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", log_select(asked));
     query(&sql)
         .bind(value)
@@ -92,7 +93,7 @@ pub async fn set_log(db: &PgPool, guild_id: &str, asked: LogChannel, value: &str
     Ok(())
 }
 
-pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<Option<bool>, sqlx::Error> {
+pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<Option<bool>> {
     let sql: String = format!("SELECT {} FROM guilds WHERE guild_id = $1", protect_select(asked));
     let state: Option<bool> = query_scalar(&sql)
         .bind(guild_id)
@@ -101,7 +102,7 @@ pub async fn get_protect(db: &PgPool, guild_id: &str, asked: Protect) -> Result<
     Ok(state)
 }
 
-pub async fn set_protect(db: &PgPool, guild_id: &str, asked: Protect, value: &str) -> Result<(), sqlx::Error> {
+pub async fn set_protect(db: &PgPool, guild_id: &str, asked: Protect, value: &str) -> Result<()> {
     let sql: String = format!("UPDATE guilds set {} = $1 WHERE guild_id = $2", protect_select(asked));
     query(&sql)
         .bind(value)
@@ -111,9 +112,9 @@ pub async fn set_protect(db: &PgPool, guild_id: &str, asked: Protect, value: &st
     Ok(())
 }
 
-pub async fn get_or_create(db: &PgPool, guild_id: &str) -> Result<DbGuild, sqlx::Error> {
+pub async fn get_or_create(db: &PgPool, guild_id: &str) -> Result<DbGuild> {
     create(db, guild_id).await?;
     get(db, guild_id)
         .await?
-        .ok_or_else(|| sqlx::Error::RowNotFound)
+        .ok_or_else(|| sqlx::Error::RowNotFound.into())
 }
