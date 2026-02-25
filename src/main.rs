@@ -5,22 +5,22 @@ mod events;
 mod models;
 mod utils;
 
+use dotenvy::dotenv;
 use events::Bot;
-use serenity::all::*;
+use serenity::Client;
+use serenity::all::GatewayIntents;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres, migrate};
 use std::env;
-use tracing::{
-    info,
-    error
-};
+use tracing::{error, info};
+use tracing_subscriber::fmt;
 
 use self::config::emoji::EmojiConfig;
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
-    dotenvy::dotenv().ok();
+    fmt::init();
+    dotenv().ok();
 
     let token: String =
         env::var("DISCORD_TOKEN").expect("❌ | DISCORD_TOKEN missing (check the env file)");
