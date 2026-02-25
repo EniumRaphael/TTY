@@ -11,13 +11,14 @@ use crate::models::bot::{
     BotActivity,
     BotPresence
 };
+use anyhow::Result;
 
 pub struct ReadyHandler;
 
 async fn fetch_all_members(
     ctx: &Context,
     guild_id: GuildId,
-) -> Result<Vec<Member>, serenity::Error> {
+) -> Result<Vec<Member>> {
     let mut all_members: Vec<Member> = Vec::new();
     let mut last_id: Option<UserId> = None;
 
