@@ -1,8 +1,16 @@
 use sqlx::FromRow;
 
+#[derive(Debug, Clone, sqlx::Type)]
+#[sqlx(type_name = "guild_lang", rename_all = "lowercase")]
+pub enum GuildLang {
+    EN,
+    FR,
+}
+
 #[derive(Debug, FromRow)]
 pub struct DbGuild {
     pub guild_id: String,
+    pub guild_lang: GuildLang,
 
     pub log_enable: bool,
     pub log_category: Option<String>,
