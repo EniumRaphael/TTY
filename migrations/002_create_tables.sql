@@ -26,6 +26,7 @@ ON CONFLICT (user_id) DO NOTHING;
 
 CREATE TABLE guilds (
     guild_id TEXT PRIMARY KEY,
+	guild_lang	guild_lang NOT NULL DEFAULT 'en',
 
     log_enable   BOOLEAN NOT NULL DEFAULT FALSE,
     log_category TEXT,
