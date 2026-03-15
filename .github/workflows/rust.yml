@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install cargo
-      run: curl https://sh.rustup.rs -sSf | sh
+      run: curl https://sh.rustup.rs -sSf | yes | sh
     - name: Install sqlx-cli
       run: cargo install sqlx-cli --no-default-features --features postgres 
     - name: Prepare
