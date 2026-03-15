@@ -14,10 +14,11 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: rust:latest
+      image: nixos/nix:latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: build
+        run: nix develop --extra-experimental-features 'nix-command flakes'
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features postgres 
       - name: Prepare

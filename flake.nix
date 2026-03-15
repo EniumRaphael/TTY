@@ -57,13 +57,13 @@
             with pkgs;
             [
               tmux-setup
-              act
-              docker
               rustToolchain
-              cargo-watch
-              cargo-edit
-              cargo-audit
+              act
               cargo
+              cargo-audit
+              cargo-edit
+              cargo-watch
+              docker
               openssl
             ]
             ++ lib.optionals stdenv.isDarwin [
