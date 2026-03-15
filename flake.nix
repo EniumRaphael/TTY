@@ -57,6 +57,8 @@
             with pkgs;
             [
               tmux-setup
+              act
+              docker
               rustToolchain
               cargo-watch
               cargo-edit

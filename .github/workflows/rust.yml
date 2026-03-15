@@ -13,24 +13,12 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: rust:latest
 
     steps:
-    - name: Cache Cargo
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-
-    - name: Install sqlx-cli
-      run: cargo install sqlx-cli --no-default-features --features postgres 
-    - name: Prepare
-      run: cargo sqlx prepare --check
-    - name: Build
-      run: cargo build
+      - uses: https://github.com/actions/checkout@v4
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features postgres 
+      - name: Prepare
+        run: cargo sqlx prepare --check
+      - name: Build
+        run: cargo build
