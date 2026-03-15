@@ -13,9 +13,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: rust:latest
+    container:
+      image: rust:latest
 
     steps:
+      - uses: https://github.com/actions/checkout@v4
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features postgres 
       - name: Prepare
