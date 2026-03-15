@@ -15,10 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: nixos/nix:latest
+    env:
+      NIX_CONFIG: "extra-experimental-features = nix-command flakes"
 
     steps:
+      - name: checkout depedencies
+        run: nix shell nixpkgs#nodejs
+      - uses: actions/checkout@v4
       - name: build
-        run: nix develop --extra-experimental-features 'nix-command flakes'
+        run: nix develop .
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features postgres 
       - name: Prepare
