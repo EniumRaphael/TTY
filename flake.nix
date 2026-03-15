@@ -58,7 +58,6 @@
             [
               tmux-setup
               rustToolchain
-              act
               cargo
               cargo-audit
               cargo-edit
