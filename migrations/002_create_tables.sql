@@ -17,6 +17,7 @@ CREATE TABLE users (
 INSERT INTO users (user_id, is_enium, is_pwn, is_dev) VALUES
     ('1088910286620213398', TRUE,     TRUE,   FALSE),              -- spoutnik
     ('1272320376155930668', TRUE,     FALSE,  FALSE),              -- debsouls
+    ('994525345434849301',  TRUE,     FALSE,  FALSE),              -- midoking
     ('1286716225115783270', FALSE,    TRUE,   FALSE),              -- hel
     ('322732592136978432',  TRUE,     FALSE,  FALSE),              -- dprive
     ('685279797349580820',  FALSE,    TRUE,   FALSE),              -- sorrow
