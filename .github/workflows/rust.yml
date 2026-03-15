@@ -13,6 +13,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container: rust:latest
 
     steps:
       - uses: https://github.com/actions/checkout@v4
