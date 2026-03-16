@@ -20,13 +20,13 @@ async fn set_picture(slashcmd: &Set, ctx: &Context, cmd: &CommandInteraction, db
         _ => return Err(anyhow::anyhow!("Expected a subcommand")),
     };
 
-    let url = inner_options
-    .iter()
-    .find(|opt| opt.name == "link")
-    .ok_or_else(|| anyhow::anyhow!("Option 'link' not found"))?
-    .value
-    .as_str()
-    .ok_or_else(|| anyhow::anyhow!("Option 'link' is not a string"))?;
+    let url: &str = inner_options
+        .iter()
+        .find(|opt| opt.name == "link")
+        .ok_or_else(|| anyhow::anyhow!("Option 'link' not found"))?
+        .value
+        .as_str()
+        .ok_or_else(|| anyhow::anyhow!("Option 'link' is not a string"))?;
     
     let attachment: CreateAttachment = CreateAttachment::url(&ctx.http, &url)
         .await?;
@@ -85,7 +85,7 @@ impl SlashCommand for Set {
         _database: &PgPool,
         _emoji: &EmojiConfig,
     ) -> Result<()> {
-        debug!("Set command called");
+        debug!("{} command called", self.name());
         if !is_owner(_database, &command.user.id.to_string()).await? {
             let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
                 .content(format!("{} | This command is only for the owner", _emoji.answer.no))
