@@ -1,5 +1,6 @@
 use crate::commands::{CommandCategory, CommandEntry, SlashCommand};
 use crate::config::EmojiConfig;
+use crate::utils::format::format_sanction_reason;
 
 use serenity::all::{
     CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, Guild, GuildId, InteractionContext, Member, Message, MessageId, Permissions, Role, User, UserId
@@ -9,13 +10,6 @@ use tracing::{debug, info};
 use anyhow::Result;
 
 pub struct Kick;
-
-fn format_reason(reason: Option<&str>, executor: &str) -> String {
-    match reason {
-        Some(s) => format!("[TTY kick] {} by {}", s, executor),
-        None => format!("[TTY kick] by {}", executor)
-    }
-}
 
 #[serenity::async_trait]
 impl SlashCommand for Kick {
@@ -68,7 +62,7 @@ impl SlashCommand for Kick {
             .ok_or_else(|| anyhow::anyhow!("Utilisateur introuvable"))?
             .clone();
         let reason_provided: Option<&str> = command.data.options.iter().find(|opt | opt.kind() == CommandOptionType::String).and_then(|opt| opt.value.as_str());
-        let reason_formatted: String = format_reason(reason_provided, &command.user.name);
+        let reason_formatted: String = format_sanction_reason("kick", reason_provided, &command.user.name);
 
         let guild_id: GuildId = command.guild_id.ok_or(anyhow::anyhow!("Kick command executed in DM"))?;
         let guild: Guild = ctx.cache.guild(guild_id)
