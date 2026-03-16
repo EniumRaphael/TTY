@@ -94,7 +94,7 @@ impl SlashCommand for Help {
         _database: &PgPool,
         _emoji: &EmojiConfig,
     ) -> Result<()> {
-        debug!("Help command called");
+        debug!("{} command called", self.name());
         let guild: GuildId = command.guild_id.ok_or(serenity::Error::Other("Commande non disponible en DM"))?;
         let guild_id: String = guild.to_string();
         let guild_db: Option<DbGuild> = guild::get(_database, &guild_id).await.map_err(|_e| serenity::Error::Other("Database error guild on help command"))?;
