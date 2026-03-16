@@ -82,10 +82,19 @@ impl SlashCommand for Kick {
             command.create_response(&ctx.http, response).await?;
             return Ok(());
         }
-        let target_role: &Role = guild.member_highest_role(&target_member).unwrap();
-        let executor_role: &Role = guild.member_highest_role(&executor_member).unwrap();
-        let bot_role: &Role = guild.member_highest_role(&bot_member).unwrap();
-        if target_role > executor_role || target_role > bot_role || target_id == guild.owner_id {
+        let target_role_pos: u16 = guild
+            .member_highest_role(&target_member)
+            .map(|r| r.position)
+            .unwrap_or(0);
+        let executor_role_pos: u16 = guild
+            .member_highest_role(&executor_member)
+            .map(|r| r.position)
+            .unwrap_or(0);
+        let bot_role_pos: u16 = guild
+            .member_highest_role(&bot_member)
+            .map(|r| r.position)
+            .unwrap_or(0);
+        if target_role_pos > executor_role_pos || target_role_pos > bot_role_pos || target_id == guild.owner_id {
             let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
                 .content(format!("{} | You cannot kick this user because they are hierarchically above you", _emoji.answer.error))
                 .ephemeral(true);
