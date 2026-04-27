@@ -50,7 +50,7 @@ impl SlashCommand for Clear {
         _database: &PgPool,
         _emoji: &EmojiConfig,
     ) -> Result<()> {
-        debug!("Clear command called");
+        debug!("{} command called", self.name());
         let amount: u8 = command.data.options.iter().find(|opt | opt.kind() == CommandOptionType::Integer)
             .unwrap().value.as_i64().expect("REASON") as u8;
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
