@@ -29,7 +29,11 @@ impl SlashCommand for Unban {
 
     fn register(&self) -> CreateCommand {
         info!("\t✅ | {}", self.name());
-        let options: Vec<CreateCommandOption> = Vec::new();
+        let mut options: Vec<CreateCommandOption> = Vec::new();
+
+        let target: CreateCommandOption = CreateCommandOption::new(CommandOptionType::String, "user_id", "The id of user to unban")
+            .required(true);
+        options.push(target);
 
         CreateCommand::new(self.name())
             .description(self.description())
@@ -48,16 +52,22 @@ impl SlashCommand for Unban {
         _emoji: &EmojiConfig,
     ) -> Result<()> {
         debug!("{} command called", self.name());
-        let guild_id: GuildId = command.guild_id.ok_or(anyhow::anyhow!("Ban command executed in DM"))?;
+        let guild_id: GuildId = command.guild_id.ok_or(anyhow::anyhow!("Unban command executed in DM"))?;
+        let target_id: UserId = command.data.options.iter()
+            .find(|opt| opt.name == "user_id")
+            .and_then(|opt| opt.value.as_str())
+            .and_then(|s| s.parse::<u64>().ok())
+            .map(UserId::new)
+            .ok_or_else(|| anyhow::anyhow!("ID utilisateur invalide"))?;
 
         let guild_db: Option<DbGuild> = guild::get(_database, &guild_id.to_string()).await.map_err(|_e| serenity::Error::Other("Database error guild on unban command"))?;
         let footer: &String = &guild_db.as_ref().unwrap().footer;
         let color: u32 = guild_db.as_ref().unwrap().color as u32;
 
         let bans: Vec<Ban> = guild_id.bans(&ctx.http, None, Some(25)).await?;
-        let mut choices = Vec::new();
+        let mut choices: Vec<(String, String)> = Vec::new();
         for ban in bans {
-            choices.push((ban.user.name, ban.user.id.to_string()));
+            choices.push((ban.user.id.to_string(), ban.user.name));
         }
 
         if choices.is_empty() {
@@ -69,6 +79,23 @@ impl SlashCommand for Unban {
             return Ok(());
         }
 
+        let id_str: String = target_id.to_string();
+        match choices.iter().find(|(first, _)| first == &id_str) {
+            Some((_, second)) => {
+                guild_id.unban(&ctx.http, target_id).await?;
+                let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                    .content(format!("{} | **{}** is now unban", _emoji.answer.yes, second))
+                    .ephemeral(true);
+                let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+                command.create_response(&ctx.http, response).await?;
+            }
+            None => {
+                let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                    .content(format!("{} | **{}** is not ban from this guild", _emoji.answer.no, id_str))
+                    .ephemeral(true);
+                let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+            }
+        }
         Ok(())
     }
 }
