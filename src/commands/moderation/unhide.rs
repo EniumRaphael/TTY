@@ -21,7 +21,7 @@ impl SlashCommand for Unhide {
     }
 
     fn description(&self) -> &'static str {
-        "unhide the channel (nobody can speak anymore)"
+        "Unhide the channel (everybody can see it now)"
     }
 
     fn category(&self) -> &'static CommandCategory {
