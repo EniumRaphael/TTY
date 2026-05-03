@@ -102,7 +102,7 @@ impl SlashCommand for Lock {
 
         if notify {
             channel.say(&ctx.http, format!(
-                "🔒 | This channel was unlocked by {}",
+                "🔒 | This channel was locked by {}",
                 command.user.name
             )).await?;
         }
