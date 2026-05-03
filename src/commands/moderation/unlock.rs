@@ -21,7 +21,7 @@ impl SlashCommand for Unlock {
     }
 
     fn description(&self) -> &'static str {
-        "unlock the channel (nobody can speak anymore)"
+        "Unlock the channel (everybody can see it now)"
     }
 
     fn category(&self) -> &'static CommandCategory {
