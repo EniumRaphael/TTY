@@ -21,7 +21,7 @@ impl SlashCommand for Hide {
     }
 
     fn description(&self) -> &'static str {
-        "Hide the channel (nobody can speak anymore)"
+        "Hide the channel (nobody can see it anymore)"
     }
 
     fn category(&self) -> &'static CommandCategory {
