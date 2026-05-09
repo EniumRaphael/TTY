@@ -69,7 +69,7 @@ impl SlashCommand for Ban {
             .ok_or_else(|| anyhow::anyhow!("Guild not found in cache"))?
             .clone();
 
-        let is_member: bool = guild.members.contains_key(&target_id);
+        let is_member: bool = guild.member(&ctx.http, target_id).await.is_ok();
 
         if is_member {
             let target_member: Member = guild_id.member(&ctx.http, target_id).await?;
@@ -88,7 +88,7 @@ impl SlashCommand for Ban {
                 .member_highest_role(&bot_member)
                 .map(|r| r.position)
                 .unwrap_or(0);
-            if target_role_pos > executor_role_pos || target_id == guild.owner_id {
+            if target_id == guild.owner_id || target_role_pos >= executor_role_pos {
                 let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
                     .content(format!("{} | You cannot ban this user because they are hierarchically above you", _emoji.answer.no))
                     .ephemeral(true);
@@ -96,7 +96,7 @@ impl SlashCommand for Ban {
                 command.create_response(&ctx.http, response).await?;
                 return Ok(());
             }
-            if target_role_pos > bot_role_pos {
+            else if target_role_pos >= bot_role_pos {
                 let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
                     .content(format!("{} | You cannot ban this user because they are hierarchically above the bot", _emoji.answer.no))
                     .ephemeral(true);
