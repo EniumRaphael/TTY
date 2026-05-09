@@ -69,42 +69,45 @@ impl SlashCommand for Ban {
             .ok_or_else(|| anyhow::anyhow!("Guild not found in cache"))?
             .clone();
 
-        let target_member: Member = guild_id.member(&ctx.http, target_id).await?;
-        let executor_member: Member = guild_id.member(&ctx.http, command.user.id).await?;
-        let bot_id: UserId = ctx.cache.current_user().id;
-        let bot_member: Member = guild_id.member(&ctx.http, bot_id).await?;
+        let is_member: bool = guild.members.contains_key(&target_id);
 
+        if is_member {
+            let target_member: Member = guild_id.member(&ctx.http, target_id).await?;
+            let executor_member: Member = guild_id.member(&ctx.http, command.user.id).await?;
+            let bot_id: UserId = ctx.cache.current_user().id;
+            let bot_member: Member = guild_id.member(&ctx.http, bot_id).await?;
+            let target_role_pos: u16 = guild
+                .member_highest_role(&target_member)
+                .map(|r| r.position)
+                .unwrap_or(0);
+            let executor_role_pos: u16 = guild
+                .member_highest_role(&executor_member)
+                .map(|r| r.position)
+                .unwrap_or(0);
+            let bot_role_pos: u16 = guild
+                .member_highest_role(&bot_member)
+                .map(|r| r.position)
+                .unwrap_or(0);
+            if target_role_pos > executor_role_pos || target_id == guild.owner_id {
+                let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                    .content(format!("{} | You cannot ban this user because they are hierarchically above you", _emoji.answer.no))
+                    .ephemeral(true);
+                let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+                command.create_response(&ctx.http, response).await?;
+                return Ok(());
+            }
+            if target_role_pos > bot_role_pos {
+                let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                    .content(format!("{} | You cannot ban this user because they are hierarchically above the bot", _emoji.answer.no))
+                    .ephemeral(true);
+                let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+                command.create_response(&ctx.http, response).await?;
+                return Ok(());
+            }
+        }
         if reason_formatted.len() > 512 {
             let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
                 .content(format!("{} | Reason too long (> 512 char)", _emoji.answer.error))
-                .ephemeral(true);
-            let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
-            command.create_response(&ctx.http, response).await?;
-            return Ok(());
-        }
-        let target_role_pos: u16 = guild
-            .member_highest_role(&target_member)
-            .map(|r| r.position)
-            .unwrap_or(0);
-        let executor_role_pos: u16 = guild
-            .member_highest_role(&executor_member)
-            .map(|r| r.position)
-            .unwrap_or(0);
-        let bot_role_pos: u16 = guild
-            .member_highest_role(&bot_member)
-            .map(|r| r.position)
-            .unwrap_or(0);
-        if target_role_pos > executor_role_pos || target_id == guild.owner_id {
-            let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
-                .content(format!("{} | You cannot ban this user because they are hierarchically above you", _emoji.answer.no))
-                .ephemeral(true);
-            let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
-            command.create_response(&ctx.http, response).await?;
-            return Ok(());
-        }
-        if target_role_pos > bot_role_pos {
-            let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
-                .content(format!("{} | You cannot ban this user because they are hierarchically above the bot", _emoji.answer.no))
                 .ephemeral(true);
             let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
             command.create_response(&ctx.http, response).await?;
