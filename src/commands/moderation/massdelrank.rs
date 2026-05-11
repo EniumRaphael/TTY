@@ -2,7 +2,7 @@ use crate::commands::{CommandCategory, CommandEntry, SlashCommand};
 use crate::config::EmojiConfig;
 use crate::utils::format::format_sanction_reason;
 use crate::utils::perm::is_owner;
-use crate::utils::roles::get_members_with_role;
+use crate::utils::roles::{check_permission_using_role, get_members_with_role};
 
 use serenity::all::{
     CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, Guild, GuildId, InteractionContext, Member, Mentionable, Message, MessageId, Permissions, Role, RoleId, User, UserId
@@ -61,7 +61,6 @@ impl SlashCommand for Ban {
             return Ok(());
         }
 
-        
         let target_id: RoleId = command.data.options.iter()
             .find(|opt| opt.kind() == CommandOptionType::Role)
             .and_then(|opt| opt.value.as_role_id())
@@ -73,10 +72,37 @@ impl SlashCommand for Ban {
         let guild: Guild = ctx.cache.guild(guild_id)
             .ok_or_else(|| anyhow::anyhow!("Guild not found in cache"))?
             .clone();
+        if target_id.to_string() == guild_id.to_string() {
+            let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                .content(format!("{} | {} is not a role.", _emoji.answer.error, target.mention()))
+                .ephemeral(true);
+            let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+            command.create_response(&ctx.http, response).await?;
+            return Ok(());
+        }
+        else if target.managed == true {
+            let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                .content(format!("{} | {} cannot be assigned like that.", _emoji.answer.error, target.mention()))
+                .ephemeral(true);
+            let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+            command.create_response(&ctx.http, response).await?;
+            return Ok(());
+        }
+        else if check_permission_using_role(ctx, _emoji, &guild, &target, command, "massdelrank").await.unwrap_or(false) == false {
+            return Ok(())
+        }
 
         let user_to_remove: Vec<Member> = get_members_with_role(&ctx, guild_id, target_id).await?;
 
         let user_size: usize = user_to_remove.len();
+        if user_size == 0 {
+            let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
+                .content(format!("{} | Cannot remove {} anybody.", _emoji.answer.error, target.mention()))
+                .ephemeral(true);
+            let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
+            command.create_response(&ctx.http, response).await?;
+            return Ok(());
+        }
         let msg: &str = if user_size <= 1 {"**1** user"} else {&format!("**{}** users", user_size)};
 
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
