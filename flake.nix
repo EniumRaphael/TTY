@@ -68,6 +68,7 @@
               docker-buildx
               docker-compose
               openssl
+              sqlx-cli
             ]
             ++ lib.optionals stdenv.isDarwin [
               libiconv
@@ -75,6 +76,7 @@
 
           shellHook = ''
             export RUST_BACKTRACE=1;
+            sqlx migrate run || sqlx migrate info
             export RUST_LOG="info";
             export PATH="$CARGO_HOME/bin:$PATH";
             if command -v brew &> /dev/null; then
