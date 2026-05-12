@@ -73,7 +73,7 @@ impl SlashCommand for Ban {
         let is_member: bool = guild.member(&ctx.http, target_id).await.is_ok();
 
         if is_member {
-            if check_permission_using_user(ctx, _emoji, &guild, target_id, command, "ban").await.unwrap_or(false) == false {
+            if check_permission_using_user(ctx, _emoji, &guild, &target_id, command, "ban").await.unwrap_or(false) == false {
                 return Ok(());
             }
         }
