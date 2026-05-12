@@ -8,7 +8,7 @@ pub async fn get_members_with_role(ctx: &Context, guild_id: GuildId, role_id: Ro
     Ok(members.into_iter().filter(|m| m.roles.contains(&role_id)).collect())
 }
 
-pub async fn check_permission_using_user(ctx: &Context, emoji: &EmojiConfig, guild: &Guild, user_id: UserId, command: &CommandInteraction, action: &str) -> Result<bool> {
+pub async fn check_permission_using_user(ctx: &Context, emoji: &EmojiConfig, guild: &Guild, user_id: &UserId, command: &CommandInteraction, action: &str) -> Result<bool> {
     let target_member: Member = guild.id.member(&ctx.http, user_id).await?;
     let executor_member: Member = guild.id.member(&ctx.http, command.user.id).await?;
     let bot_id: UserId = ctx.cache.current_user().id;
@@ -25,7 +25,7 @@ pub async fn check_permission_using_user(ctx: &Context, emoji: &EmojiConfig, gui
         .member_highest_role(&bot_member)
         .map(|r| r.position)
         .unwrap_or(0);
-    if user_id == guild.owner_id || target_role_pos >= executor_role_pos {
+    if user_id == &guild.owner_id || target_role_pos >= executor_role_pos {
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content(format!("{} | You cannot {} this user because they are hierarchically above you", emoji.answer.no, action))
             .ephemeral(true);
