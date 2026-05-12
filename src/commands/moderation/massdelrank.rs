@@ -11,10 +11,10 @@ use sqlx::PgPool;
 use tracing::{debug, info};
 use anyhow::Result;
 
-pub struct Ban;
+pub struct MassDelRank;
 
 #[serenity::async_trait]
-impl SlashCommand for Ban {
+impl SlashCommand for MassDelRank {
     fn name(&self) -> &'static str {
         "massdelrank"
     }
@@ -97,13 +97,13 @@ impl SlashCommand for Ban {
         let user_size: usize = user_to_remove.len();
         if user_size == 0 {
             let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
-                .content(format!("{} | Cannot remove {} anybody.", _emoji.answer.error, target.mention()))
+                .content(format!("{} | Cannot remove {} to anybody.", _emoji.answer.error, target.mention()))
                 .ephemeral(true);
             let response: CreateInteractionResponse = CreateInteractionResponse::Message(message);
             command.create_response(&ctx.http, response).await?;
             return Ok(());
         }
-        let msg: &str = if user_size <= 1 {"**1** user"} else {&format!("**{}** users", user_size)};
+        let msg: &str = if user_size == 1 {"**1** user"} else {&format!("**{}** users", user_size)};
 
         let message: CreateInteractionResponseMessage = CreateInteractionResponseMessage::new()
             .content(format!("{} | Role {} gonna be removed to {}", _emoji.answer.loading, target.mention(), msg))
@@ -124,5 +124,5 @@ impl SlashCommand for Ban {
 }
 
 inventory::submit! {
-    CommandEntry { create: || Box::new(Ban) }
+    CommandEntry { create: || Box::new(MassDelRank) }
 }
