@@ -8,6 +8,7 @@ repository = "https://github.com/EniumRaphael/TTY"
 
 [dependencies]
 anyhow = "1.0.102"
+chrono = "0.4.44"
 dotenvy = "0.15.7"
 inventory = "0.3.21"
 serde = { version = "1.0.228", features = ["derive"] }

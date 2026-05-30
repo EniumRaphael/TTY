@@ -7,6 +7,7 @@ use serenity::all::{
 use sqlx::PgPool;
 use tracing::{debug, info};
 use anyhow::Result;
+use chrono::{DateTime, Duration, Utc};
 
 pub struct Clear;
 
@@ -62,25 +63,30 @@ impl SlashCommand for Clear {
         let messages: Vec<Message> = command.channel_id
             .messages(&ctx.http, GetMessages::new().limit(amount))
             .await?;
+
+        let two_weeks_ago: DateTime<Utc> = Utc::now() - Duration::days(14);
+
+        let recent_messages: Vec<Message> = messages
+            .into_iter()
+            .filter(|m| m.timestamp.to_utc() > two_weeks_ago)
+            .collect();
         
-        let count: usize = messages.len();
+        let count: usize = recent_messages.len();
         
         if count == 0 {
             let edit_msg: EditInteractionResponse =
                 EditInteractionResponse::new().content(format!("{} | Cannot delete messages", _emoji.answer.error));
             command.edit_response(&ctx.http, edit_msg).await?;
         } else {
-            let ids: Vec<MessageId> = messages.iter().map(|m| m.id).collect();
+            let ids: Vec<MessageId> = recent_messages.iter().map(|m| m.id).collect();
 
             if count == 1 {
                 command.channel_id.delete_message(&ctx.http, ids[0]).await?;
-                let edit_msg: EditInteractionResponse =
-                    EditInteractionResponse::new().content(format!("{} | Deleted the message", _emoji.answer.yes));
+                let edit_msg: EditInteractionResponse = EditInteractionResponse::new().content(format!("{} | Deleted the message", _emoji.answer.yes));
                 command.edit_response(&ctx.http, edit_msg).await?;
             } else {
                 command.channel_id.delete_messages(&ctx.http, &ids).await?;
-                let edit_msg: EditInteractionResponse =
-                    EditInteractionResponse::new().content(format!("{} | Deleted {} messages", _emoji.answer.yes, count));
+                let edit_msg: EditInteractionResponse = EditInteractionResponse::new().content(format!("{} | Deleted {} messages", _emoji.answer.yes, count));
                 command.edit_response(&ctx.http, edit_msg).await?;
             }
         }
