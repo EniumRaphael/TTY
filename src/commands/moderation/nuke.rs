@@ -3,7 +3,6 @@ use crate::config::EmojiConfig;
 use crate::utils::channel::clone_channel;
 use crate::utils::perm::is_whitelist;
 
-
 use serenity::all::{
     ChannelId, CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, GetMessages, GuildChannel, GuildId, InteractionContext, Message, MessageId, Permissions
 };
@@ -35,7 +34,7 @@ impl SlashCommand for Nuke {
             .required(false);
         options.push(channel);
 
-        let notify: CreateCommandOption = CreateCommandOption::new(CommandOptionType::Boolean, "notify", "Will I send a message after nuke the channel")
+        let silent: CreateCommandOption = CreateCommandOption::new(CommandOptionType::Boolean, "silent", "Will I send a message after nuke the channel")
             .required(false);
         options.push(notify);
 
@@ -70,7 +69,7 @@ impl SlashCommand for Nuke {
             .find(|opt| opt.kind() == CommandOptionType::Channel)
             .and_then(|opt| opt.value.as_channel_id())
             .unwrap_or(command.channel_id);
-        let notify: bool = command.data.options.iter()
+        let silent: bool = command.data.options.iter()
             .find(|opt| opt.kind() == CommandOptionType::Boolean)
             .and_then(|opt| opt.value.as_bool())
             .unwrap_or(true);
@@ -87,7 +86,7 @@ impl SlashCommand for Nuke {
 
         channel_id.delete(&ctx.http).await?;
 
-        if notify {
+        if !silent {
             new_channel.say(&ctx.http, format!("{} | This channel was nuked by {}", _emoji.answer.yes, command.user.name)).await?;
         }
         if channel_id != command.channel_id {
