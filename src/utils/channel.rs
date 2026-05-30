@@ -20,12 +20,17 @@ pub async fn clone_channel(channel: &GuildChannel, ctx: &Context, guild_id: Guil
         builder = builder.rate_limit_per_user(rate_limit);
     }
 
-    if channel.kind == ChannelType::Voice {
+    if channel.kind == ChannelType::Voice || channel.kind == ChannelType::Stage {
         if let Some(bitrate) = channel.bitrate {
             builder = builder.bitrate(bitrate);
         }
-        if let Some(user_limit) = channel.user_limit {
-            builder = builder.user_limit(user_limit);
+        if let Some(rtc_region) = &channel.rtc_region {
+            builder = builder.rtc_region(rtc_region.to_owned());
+        }
+        if channel.kind == ChannelType::Voice {
+            if let Some(user_limit) = channel.user_limit {
+                builder = builder.user_limit(user_limit);
+            }
         }
     }
 
